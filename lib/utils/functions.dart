@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:inno_setup/utils/cli_logger.dart';
+import 'package:inno_setup/models/config.dart';
 import 'package:yaml/yaml.dart';
 
 /// Convert yaml to map
@@ -25,26 +25,17 @@ Map<String, dynamic> yamlToMap(YamlMap yamlMap) {
 }
 
 /// Get config file
-Map<String, dynamic> getConfig({String? configFile}) {
-  String filePath;
-  if (configFile != null) {
-    if (File(configFile).existsSync()) {
-      filePath = configFile;
-    } else {
-      CliLogger.error('The config file `$configFile` was not found.');
-      exit(1);
-    }
-  } else {
-    filePath = 'pubspec.yaml';
-  }
-
+Config getConfig({String? configFile}) {
+  const filePath = 'pubspec.yaml';
   final yamlMap = loadYaml(File(filePath).readAsStringSync()) as Map;
-
-  if (yamlMap['inno_setup'] is! Map) {
-    CliLogger.error("Your $filePath file does not contain a 'inno_setup' section.");
-    exit(1);
-  }
-
   // yamlMap has the type YamlMap, which has several unwanted side effects
-  return yamlToMap(yamlMap['inno_setup'] as YamlMap);
+  final yamlConfig = yamlToMap(yamlMap as YamlMap);
+  return Config.fromJson(yamlConfig);
+}
+
+String camelCase(String value) {
+  return value
+      .split(RegExp(r'[-_]'))
+      .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+      .join('');
 }
