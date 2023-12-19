@@ -8,12 +8,12 @@ const uuid = Uuid();
 void main(List<String> arguments) {
   print(START_MESSAGE);
 
-  final parser = ArgParser()..addOption('url');
+  final parser = ArgParser()..addOption('ns');
   final parsedArgs = parser.parse(arguments);
-  final url = parsedArgs['url'] as String?;
+  final ns = parsedArgs['ns'] as String?;
 
-  if (url != null) {
-    print(uuid.v5(Uuid.NAMESPACE_URL, url));
+  if (ns != null) {
+    print(uuid.v5(Uuid.NAMESPACE_URL, ns));
   } else {
     print(uuid.v1());
   }
