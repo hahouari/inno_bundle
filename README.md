@@ -1,10 +1,10 @@
-# Inno Setup
+# Inno Bundle
 
-[![pub package](https://img.shields.io/pub/v/inno_setup.svg)](https://pub.dev/packages/inno_setup)
-[![inno setup](https://img.shields.io/badge/Inno_Setup-v6.2.2-blue)](https://pub.dev/packages/inno_setup)
-![flutter community](https://img.shields.io/badge/DZ_Flutter_Community-Inno_Setup-blue)
+[![pub package](https://img.shields.io/pub/v/inno_bundle.svg)](https://pub.dev/packages/inno_bundle)
+[![inno setup](https://img.shields.io/badge/Inno_Setup-v6.2.2-blue)](https://jrsoftware.org/isinfo.php)
+![dz flutter community](https://img.shields.io/badge/DZ_Flutter_Community-Inno_Setup-blue)
 
-A command-line tool which simplifies building a windows installer. Customizable with options to
+A command-line tool which simplifies bundling your app into a windows installer. Customizable with options to
 configure some installer options.
 
 ## Guide
@@ -21,20 +21,20 @@ then install it.
 To generate a random one run:
 
 ```shell
-dart run inno_setup:id
+dart run inno_bundle:id
 ```
 
 If you want your app id based upon a namespace, that is also possible:
 
 ```shell
-dart run inno_setup:id --ns "www.example.com"
+dart run inno_bundle:id --ns "www.example.com"
 ```
 
 The output id is going to be something similar to this:
 
 > f887d5f0-4690-1e07-8efc-d16ea7711bfb
 
-Paste this id into your `pubspec.yaml` file, under `inno_setup.id`.
+Paste this id into your `pubspec.yaml` file, under `inno_bundle.id`.
 
 ### 2. Setup the Configuration
 
@@ -42,9 +42,9 @@ Add your configuration to your `pubspec.yaml`. example:
 
 ```yaml
 dev_dependencies:
-  inno_setup: "^0.0.1"
+  inno_bundle: "^0.0.1"
 
-inno_setup:
+inno_bundle:
   id: f887d5f0-4690-1e07-8efc-d16ea7711bfb # <-- put your own generated one
   publisher: Your Name
   installer_icon: assets/images/installer.ico
@@ -58,7 +58,7 @@ After setting up the configuration, all that is left to do is run the package.
 
 ```shell
 flutter pub get
-dart run inno_setup:build --release
+dart run inno_bundle:build --release
 ```
 
 *Note: `--release` flag is required if you want to build for `release` mode, see below for other
@@ -67,7 +67,7 @@ options.*
 ## Attributes
 
 Shown below is the full list of attributes which you can specify within your configuration.
-All configuration attributes should be under `inno_setup`.
+All configuration attributes should be under `inno_bundle`.
 
 - `id`: `Required` A valid GUID that serves as an AppId.
 - `name`: App name. Defaults to camel cased `name` from `pubspec.yaml`.
@@ -93,7 +93,7 @@ japanese, norwegian, polish, portuguese, russian, slovak, slovenian, spanish, tu
 Another example including languages:
 
 ```yaml
-inno_setup:
+inno_bundle:
   id: f887d5f0-4690-1e07-8efc-d16ea7711bfb
   publisher: Your Name
   installer_icon: assets/images/installer.ico
@@ -109,13 +109,13 @@ inno_setup:
 This will skip the app building if it exists, and will straight-forward to create the installer:
 
 ```shell
-dart run inno_setup:build --skip-app
+dart run inno_bundle:build --skip-app
 ```
 
 This build is `release` mode:
 
 ```shell
-dart run inno_setup:build --release
+dart run inno_bundle:build --release
 ```
 
 Other mode flags are `--profile`, `--debug` (Default).
@@ -123,4 +123,4 @@ Other mode flags are `--profile`, `--debug` (Default).
 ## Reporting Issues
 
 If you encounter any
-issues <a href="https://github.com/hahouari/inno_setup/issues" target="_blank">please report them here</a>.
+issues <a href="https://github.com/hahouari/inno_bundle/issues" target="_blank">please report them here</a>.

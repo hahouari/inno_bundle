@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:inno_setup/inno_setup.dart';
+import 'package:inno_bundle/inno_bundle.dart';
 
 void main() {
   test('adds one to input values', () {

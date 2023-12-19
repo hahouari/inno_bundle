@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:inno_setup/models/build_type.dart';
-import 'package:inno_setup/models/language.dart';
-import 'package:inno_setup/utils/cli_logger.dart';
-import 'package:inno_setup/utils/functions.dart';
+import 'package:inno_bundle/models/build_type.dart';
+import 'package:inno_bundle/models/language.dart';
+import 'package:inno_bundle/utils/cli_logger.dart';
+import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
@@ -39,20 +39,20 @@ class Config {
   String get exeName => "$name.exe";
 
   factory Config.fromJson(Map<String, dynamic> json, BuildType type) {
-    if (json['inno_setup'] is! Map<String, dynamic>) {
-      CliLogger.error("inno_setup section is missing from pubspec.yaml.");
+    if (json['inno_bundle'] is! Map<String, dynamic>) {
+      CliLogger.error("inno_bundle section is missing from pubspec.yaml.");
       exit(1);
     }
-    final Map<String, dynamic> inno = json['inno_setup'];
+    final Map<String, dynamic> inno = json['inno_bundle'];
 
     if (inno['id'] is! String) {
-      CliLogger.error("inno_setup.id attribute is missing from pubspec.yaml. "
-          "Run `dart run inno_setup:guid` to generate a new one, "
+      CliLogger.error("inno_bundle.id attribute is missing from pubspec.yaml. "
+          "Run `dart run inno_bundle:guid` to generate a new one, "
           "then put it in your pubspec.yaml.");
       exit(1);
     } else if (!Uuid.isValidUUID(fromString: inno['id'])) {
-      CliLogger.error("inno_setup.id from pubspec.yaml is not valid. "
-          "Run `dart run inno_setup:guid` to generate a new one, "
+      CliLogger.error("inno_bundle.id from pubspec.yaml is not valid. "
+          "Run `dart run inno_bundle:guid` to generate a new one, "
           "then put it in your pubspec.yaml.");
       exit(1);
     }
@@ -77,7 +77,7 @@ class Config {
     final String description = inno['description'] ?? json['description'];
 
     if ((inno['publisher'] ?? json['maintainer']) is! String) {
-      CliLogger.error("maintainer or inno_setup.publisher attributes are "
+      CliLogger.error("maintainer or inno_bundle.publisher attributes are "
           "missing from pubspec.yaml.");
       exit(1);
     }
@@ -88,7 +88,7 @@ class Config {
     final updatesUrl = (inno['updates_url'] as String?) ?? url;
 
     if (inno['installer_icon'] is! String) {
-      CliLogger.error("inno_setup.installer_icon attribute is missing "
+      CliLogger.error("inno_bundle.installer_icon attribute is missing "
           "from pubspec.yaml.");
       exit(1);
     }
@@ -97,20 +97,20 @@ class Config {
       p.fromUri(inno['installer_icon']),
     );
     if (!File(installerIcon).existsSync()) {
-      CliLogger.error("inno_setup.installer_icon attribute value is invalid,"
+      CliLogger.error("inno_bundle.installer_icon attribute value is invalid,"
           "`$installerIcon` file does not exist.");
       exit(1);
     }
 
     if (inno['languages'] != null && inno['languages'] is! List<String>) {
-      CliLogger.error("inno_setup.languages attribute is invalid "
+      CliLogger.error("inno_bundle.languages attribute is invalid "
           "in pubspec.yaml, only a list of strings is allowed.");
       exit(1);
     }
     final languages = (inno['languages'] as List<String>?)?.map((l) {
           final language = Language.getByNameOrNull(l);
           if (language == null) {
-            CliLogger.error("error in inno_setup.languages attribute "
+            CliLogger.error("error in inno_bundle.languages attribute "
                 "in pubspec.yaml, language `$l` is not supported.");
             exit(1);
           }

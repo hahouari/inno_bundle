@@ -1,5 +1,5 @@
 import 'package:args/args.dart';
-import 'package:inno_setup/utils/functions.dart';
+import 'package:inno_bundle/utils/functions.dart';
 
 enum BuildType {
   debug,

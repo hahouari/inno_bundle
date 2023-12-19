@@ -1,6 +1,6 @@
 # demo_app
 
-A demo app with flutter that is bundled into exe installer using inno_setup package.
+A demo app with flutter that is bundled into exe installer using inno_bundle package.
 
 ## Getting Started
 

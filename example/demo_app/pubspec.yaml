@@ -1,5 +1,5 @@
 name: demo_app
-description: "A demo app with flutter that is bundled into exe installer using inno_setup package."
+description: "A demo app with flutter that is bundled into exe installer using inno_bundle package."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -39,7 +39,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  inno_setup:
+  inno_bundle:
     path: ../..
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -91,7 +91,7 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 
-inno_setup:
+inno_bundle:
   id: 5ec949d0-0582-1e06-b073-b5d1161f6fff
   publisher: Hocine Abdellatif Houari
   installer_icon: assets/images/installer.ico

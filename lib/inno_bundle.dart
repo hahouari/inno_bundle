@@ -1,4 +1,4 @@
-library inno_setup;
+library inno_bundle;
 
 
 /// A Calculator.
@@ -12,6 +12,6 @@ void main(List<String> args) {
   if (args.isNotEmpty && args[0] == 'create') {
     print('Hello, World!'); // Replace with your desired functionality
   } else {
-    print('Invalid command. Use: dart run inno_setup:create');
+    print('Invalid command. Use: dart run inno_bundle:create');
   }
 }

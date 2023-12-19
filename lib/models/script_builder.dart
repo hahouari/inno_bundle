@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:inno_setup/models/config.dart';
-import 'package:inno_setup/utils/constants.dart';
-import 'package:inno_setup/utils/functions.dart';
+import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/utils/constants.dart';
+import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 
 class ScriptBuilder {

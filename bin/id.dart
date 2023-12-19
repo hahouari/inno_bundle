@@ -1,5 +1,5 @@
 import 'package:args/args.dart';
-import 'package:inno_setup/utils/constants.dart';
+import 'package:inno_bundle/utils/constants.dart';
 import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();

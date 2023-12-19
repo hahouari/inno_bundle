@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:inno_setup/models/config.dart';
-import 'package:inno_setup/utils/constants.dart';
+import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/utils/constants.dart';
 import 'package:path/path.dart' as p;
-import 'package:inno_setup/utils/cli_logger.dart';
+import 'package:inno_bundle/utils/cli_logger.dart';
 
 class AppBuilder {
   final Config config;

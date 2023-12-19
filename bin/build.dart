@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:inno_setup/models/app_builder.dart';
-import 'package:inno_setup/models/build_type.dart';
-import 'package:inno_setup/models/config.dart';
-import 'package:inno_setup/models/installer_builder.dart';
-import 'package:inno_setup/models/script_builder.dart';
-import 'package:inno_setup/utils/constants.dart';
+import 'package:inno_bundle/models/app_builder.dart';
+import 'package:inno_bundle/models/build_type.dart';
+import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/models/installer_builder.dart';
+import 'package:inno_bundle/models/script_builder.dart';
+import 'package:inno_bundle/utils/constants.dart';
 
 Future<Directory> _buildApp(Config config, [skipApp = false]) async {
   final builder = AppBuilder(config, skipApp);
