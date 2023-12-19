@@ -4,7 +4,8 @@
 [![inno setup](https://img.shields.io/badge/Inno_Setup-v6.2.2-blue)](https://jrsoftware.org/isinfo.php)
 ![dz flutter community](https://img.shields.io/badge/DZ_Flutter_Community-Inno_Setup-blue)
 
-A command-line tool which simplifies bundling your app into a windows installer. Customizable with options to
+A command-line tool which simplifies bundling your app into a windows installer. Customizable with
+options to
 configure some installer options.
 
 ## Guide
@@ -50,8 +51,6 @@ inno_bundle:
   installer_icon: assets/images/installer.ico
 ```
 
-*Note: you have to provide your own installer icon. Only **.ico** images were tested.*
-
 ### 3. Build the Installer
 
 After setting up the configuration, all that is left to do is run the package.
@@ -77,8 +76,11 @@ All configuration attributes should be under `inno_bundle`.
 - `url`: Defaults to `homepage` from `pubspec.yaml`. Otherwise, an empty string.
 - `support_url`: Defaults to `url`.
 - `updates_url`: Defaults to `url`.
-- `installer_icon`: `Required` A valid path relative to the project that points to an ico image.
-- `languages`: Defaults to all available language<sup>1</sup>.
+- `installer_icon`: `Required` A valid path relative to the project that points to an ico image. If
+  you don't have one, download the
+  <a href="https://github.com/hahouari/inno_bundle/blob/dev/example/demo_app/assets/images/installer.ico" target="_blank">
+  template icon</a> provided with the demo. Only **.ico** images were tested.
+- `languages`: Installer's display languages. Defaults to all available language<sup>1</sup>.
 - `admin`: (`true` or `false`) Defaults to `true`
     - `true`: Require elevated privileges during installation. App will install globally on the end
       user machine.
@@ -120,7 +122,16 @@ dart run inno_bundle:build --release
 
 Other mode flags are `--profile`, `--debug` (Default).
 
+## Additional Feature
+
+DLL files `msvcp140.dll`, `vcruntime140.dll`, `vcruntime140_1.dll` are also bundled (if detected in
+your machine) with the app when creating the installer. This helps some end-users avoid issues of
+missing DLL files when running app after install. To learn more about it, visit
+this <a href="https://stackoverflow.com/questions/74329543/how-to-find-the-vcruntime140-dll-in-flutter-build-windows" target="_blank">
+Stack Overflow issue</a>.
+
 ## Reporting Issues
 
 If you encounter any
-issues <a href="https://github.com/hahouari/inno_bundle/issues" target="_blank">please report them here</a>.
+issues <a href="https://github.com/hahouari/inno_bundle/issues" target="_blank">please report them
+here</a>.
