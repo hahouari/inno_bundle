@@ -4,4 +4,8 @@
 
 ## 0.0.2
 
-+ Add a README.md to example and update main README.md
+* Add a README.md to example and update main README.md.
+
+## 0.0.3
+
+* Fix `languages` attribute name in README.md example

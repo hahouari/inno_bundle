@@ -80,26 +80,27 @@ All configuration attributes should be under `inno_bundle`.
   you don't have one, download the
   <a href="https://github.com/hahouari/inno_bundle/blob/dev/example/demo_app/assets/images/installer.ico" target="_blank">
   template icon</a> provided with the demo. Only **.ico** images were tested.
-- `languages`: Installer's display languages. Defaults to all available language<sup>1</sup>.
-- `admin`: (`true` or `false`) Defaults to `true`
+- `languages`: List of installer's display languages. Defaults to all available
+  languages.<sup><a href="#attributes-more-1">&nbsp;1&nbsp;</a></sup>
+- `admin`: (`true` or `false`) Defaults to `true`.
     - `true`: Require elevated privileges during installation. App will install globally on the end
       user machine.
     - `false`: Don't require elevated privileges during installation. App will install into
       user-specific folder.
 
-<sup>1</sup> All supported languages are: english, armenian, brazilianportuguese, bulgarian,
-catalan,
-corsican, czech, danish, dutch, finnish, french, german, hebrew, hungarian, icelandic, italian,
-japanese, norwegian, polish, portuguese, russian, slovak, slovenian, spanish, turkish, ukrainian.
+<span id="attributes-more-1"><sup>1</sup></span> All supported languages are: english, armenian,
+brazilianportuguese, bulgarian, catalan, corsican, czech, danish, dutch, finnish, french, german,
+hebrew, hungarian, icelandic, italian, japanese, norwegian, polish, portuguese, russian, slovak,
+slovenian, spanish, turkish, ukrainian.
 
-Another example including languages:
+### Another example including languages and non-admin installation.
 
 ```yaml
 inno_bundle:
   id: f887d5f0-4690-1e07-8efc-d16ea7711bfb
   publisher: Your Name
   installer_icon: assets/images/installer.ico
-  language:
+  languages:
     - english
     - french
     - german
