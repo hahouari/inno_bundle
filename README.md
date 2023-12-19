@@ -1,17 +1,20 @@
 # Inno Setup
 
-![Static Badge](https://img.shields.io/badge/Flutter_Community-Inno_Setup-blue)
+[![pub package](https://img.shields.io/pub/v/inno_setup.svg)](https://pub.dev/packages/inno_setup)
+[![inno setup](https://img.shields.io/badge/Inno_Setup-v6.2.2-blue)](https://pub.dev/packages/inno_setup)
+![flutter community](https://img.shields.io/badge/DZ_Flutter_Community-Inno_Setup-blue)
 
 A command-line tool which simplifies building a windows installer. Customizable with options to
 configure some installer options.
-
-*Note: This package is tested on Inno Setup version 6.2.2.*
 
 ## Guide
 
 ### 1. Download Inno Setup
 
-Download the Inno Setup [from here](https://jrsoftware.org/isdl.php), then install it.
+Download the Inno Setup <a href="https://jrsoftware.org/isdl.php" target="_blank">from here</a>,
+then install it.
+
+*Note: This package is tested on Inno Setup version `6.2.2`.*
 
 ### 2. Generate App ID
 
@@ -58,11 +61,8 @@ flutter pub get
 dart run inno_setup:build --release
 ```
 
-*Note: `--release` flag is required if you want to build for release mode, see below for other
-options.
-
-If you encounter any
-issues [please report them here](https://github.com/hahouari/inno_setup/issues).
+*Note: `--release` flag is required if you want to build for `release` mode, see below for other
+options.*
 
 ## Attributes
 
@@ -85,7 +85,8 @@ All configuration attributes should be under `inno_setup`.
     - `false`: Don't require elevated privileges during installation. App will install into
       user-specific folder.
 
-<sup>1</sup> All Supported Languages are: english, armenian, brazilianportuguese, bulgarian, catalan,
+<sup>1</sup> All supported languages are: english, armenian, brazilianportuguese, bulgarian,
+catalan,
 corsican, czech, danish, dutch, finnish, french, german, hebrew, hungarian, icelandic, italian,
 japanese, norwegian, polish, portuguese, russian, slovak, slovenian, spanish, turkish, ukrainian.
 
@@ -118,3 +119,8 @@ dart run inno_setup:build --release
 ```
 
 Other mode flags are `--profile`, `--debug` (Default).
+
+## Reporting Issues
+
+If you encounter any
+issues <a href="https://github.com/hahouari/inno_setup/issues" target="_blank">please report them here</a>.
