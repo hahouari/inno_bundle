@@ -1,8 +1,11 @@
 import 'dart:io';
-
+import 'package:inno_setup/models/build_type.dart';
+import 'package:inno_setup/models/language.dart';
 import 'package:inno_setup/utils/cli_logger.dart';
+import 'package:inno_setup/utils/functions.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
+import 'package:yaml/yaml.dart';
 
 class Config {
   final String id;
@@ -13,12 +16,12 @@ class Config {
   final String url;
   final String supportUrl;
   final String updatesUrl;
-  final String exeName;
-  final String icon;
-  final List<String> languages;
+  final String installerIcon;
+  final List<Language> languages;
   final bool admin;
+  final BuildType type;
 
-  Config({
+  const Config({
     required this.id,
     required this.name,
     required this.description,
@@ -27,78 +30,100 @@ class Config {
     required this.url,
     required this.supportUrl,
     required this.updatesUrl,
-    required this.exeName,
-    required this.icon,
+    required this.installerIcon,
     required this.languages,
     required this.admin,
+    this.type = BuildType.debug,
   });
 
-  factory Config.fromJson(Map<String, dynamic> json) {
-    final inno = json['inno_setup'] as Map<String, dynamic>?;
-    if (inno is! Map<String, dynamic>) {
+  String get exeName => "$name.exe";
+
+  factory Config.fromJson(Map<String, dynamic> json, BuildType type) {
+    if (json['inno_setup'] is! Map<String, dynamic>) {
       CliLogger.error("inno_setup section is missing from pubspec.yaml.");
       exit(1);
     }
+    final Map<String, dynamic> inno = json['inno_setup'];
 
-    final id = inno['id'] as String?;
-    if (id is! String) {
+    if (inno['id'] is! String) {
       CliLogger.error("inno_setup.id attribute is missing from pubspec.yaml. "
           "Run `dart run inno_setup:guid` to generate a new one, "
           "then put it in your pubspec.yaml.");
       exit(1);
-    } else if (!Uuid.isValidUUID(fromString: id)) {
+    } else if (!Uuid.isValidUUID(fromString: inno['id'])) {
       CliLogger.error("inno_setup.id from pubspec.yaml is not valid. "
           "Run `dart run inno_setup:guid` to generate a new one, "
           "then put it in your pubspec.yaml.");
       exit(1);
     }
+    final String id = inno['id'];
 
-    var name = inno['name'] ?? json['name'] as String?;
-    if (name is! String) {
+    if ((inno['name'] ?? json['name']) is! String) {
       CliLogger.error("name attribute is missing from pubspec.yaml.");
       exit(1);
     }
+    final String name = inno['name'] ?? json['name'];
 
-    final version = inno['version'] ?? json['version'] as String?;
-    if (version is! String) {
+    if ((inno['version'] ?? json['version']) is! String) {
       CliLogger.error("version attribute is missing from pubspec.yaml.");
       exit(1);
     }
+    final String version = inno['version'] ?? json['version'];
 
-    final description = inno['description'] ?? json['description'] as String?;
-    if (description is! String) {
+    if ((inno['description'] ?? json['description']) is! String) {
       CliLogger.error("description attribute is missing from pubspec.yaml.");
       exit(1);
     }
+    final String description = inno['description'] ?? json['description'];
 
-    final publisher = inno['publisher'] ?? json['maintainer'] as String?;
-    if (publisher is! String) {
-      CliLogger.error("inno_setup.publisher attribute is missing "
-          "from pubspec.yaml.");
+    if ((inno['publisher'] ?? json['maintainer']) is! String) {
+      CliLogger.error("maintainer or inno_setup.publisher attributes are "
+          "missing from pubspec.yaml.");
       exit(1);
     }
+    final String publisher = inno['publisher'] ?? json['maintainer'];
 
     final url = (inno['url'] ?? json['homepage'] ?? "") as String;
     final supportUrl = (inno['support_url'] as String?) ?? url;
     final updatesUrl = (inno['updates_url'] as String?) ?? url;
-    // TODO: revise detecting this one
-    final exeName = json['name'] + '.exe';
-    var icon = inno['icon'] as String?;
-    if (icon is! String) {
-      CliLogger.error("inno_setup.icon attribute is missing "
+
+    if (inno['installer_icon'] is! String) {
+      CliLogger.error("inno_setup.installer_icon attribute is missing "
           "from pubspec.yaml.");
       exit(1);
     }
-    icon = p.fromUri(icon);
-
-    final languages = json['languages'] ?? ['en'];
-    var admin = json['admin'] as dynamic;
-    if (admin != null && admin is! bool) {
-      CliLogger.error("admin attribute is missing or invalid boolean value "
-          "from pubspec.yaml");
+    final installerIcon = p.join(
+      Directory.current.path,
+      p.fromUri(inno['installer_icon']),
+    );
+    if (!File(installerIcon).existsSync()) {
+      CliLogger.error("inno_setup.installer_icon attribute value is invalid,"
+          "`$installerIcon` file does not exist.");
       exit(1);
     }
-    admin = (admin as bool?) ?? true;
+
+    if (inno['languages'] != null && inno['languages'] is! List<String>) {
+      CliLogger.error("inno_setup.languages attribute is invalid "
+          "in pubspec.yaml, only a list of strings is allowed.");
+      exit(1);
+    }
+    final languages = (inno['languages'] as List<String>?)?.map((l) {
+          final language = Language.getByNameOrNull(l);
+          if (language == null) {
+            CliLogger.error("error in inno_setup.languages attribute "
+                "in pubspec.yaml, language `$l` is not supported.");
+            exit(1);
+          }
+          return language;
+        }).toList(growable: false) ??
+        Language.values;
+
+    if (json['admin'] != null && json['admin'] is! bool) {
+      CliLogger.error("admin attribute is invalid boolean value "
+          "in pubspec.yaml");
+      exit(1);
+    }
+    final bool admin = json['admin'] ?? true;
 
     return Config(
       id: id,
@@ -109,10 +134,18 @@ class Config {
       url: url,
       supportUrl: supportUrl,
       updatesUrl: updatesUrl,
-      exeName: exeName,
-      icon: icon,
+      installerIcon: installerIcon,
       languages: languages,
       admin: admin,
+      type: type,
     );
+  }
+
+  factory Config.fromFile(BuildType type) {
+    const filePath = 'pubspec.yaml';
+    final yamlMap = loadYaml(File(filePath).readAsStringSync()) as Map;
+    // yamlMap has the type YamlMap, which has several unwanted side effects
+    final yamlConfig = yamlToMap(yamlMap as YamlMap);
+    return Config.fromJson(yamlConfig, type);
   }
 }

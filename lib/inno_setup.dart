@@ -1,6 +1,5 @@
 library inno_setup;
 
-import 'dart:io';
 
 /// A Calculator.
 class Calculator {

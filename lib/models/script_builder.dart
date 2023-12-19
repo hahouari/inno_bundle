@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:inno_setup/models/config.dart';
+import 'package:inno_setup/utils/constants.dart';
 import 'package:inno_setup/utils/functions.dart';
 import 'package:path/path.dart' as p;
 
 class ScriptBuilder {
   final Config config;
+  final Directory appDir;
 
-  ScriptBuilder(this.config);
+  ScriptBuilder(this.config, this.appDir);
 
-  String setup() {
+  String _setup() {
     final id = config.id;
     final name = camelCase(config.name);
     final version = config.version;
@@ -18,7 +22,12 @@ class ScriptBuilder {
     final privileges = config.admin ? 'admin' : 'lowest';
     final installer = '${camelCase(config.name)}-x86_64'
         '-${config.version}-Installer';
-    final icon = p.join("{#SourcePath}", config.icon);
+    final installerIcon = config.installerIcon;
+    final outputDir = p.joinAll([
+      Directory.current.path,
+      ...installerBuildDir,
+      config.type.dirName,
+    ]);
     return '''
 [Setup]
 AppId=$id
@@ -30,9 +39,9 @@ AppSupportURL=$supportUrl
 AppUpdatesURL=$updatesUrl
 DefaultDirName={autopf}\\$name
 PrivilegesRequired=$privileges
-OutputDir=/tmp/${name}Installer
+OutputDir=$outputDir
 OutputBaseFilename=$installer
-SetupIconFile=$icon
+SetupIconFile=$installerIcon
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
@@ -42,67 +51,103 @@ DisableProgramGroupPage=auto
 \n''';
   }
 
-  String installDelete() {
+  String _installDelete() {
     return '''
 [InstallDelete]
 Type: filesandordirs; Name: "{app}\\*"
 \n''';
   }
 
-  String languages() {
-    return '''
-[Languages]
-Name: "french"; MessagesFile: "compiler:Languages\\French.isl"
-Name: "english"; MessagesFile: "compiler:Default.isl"
-\n''';
+  String _languages() {
+    String section = "[Languages]\n";
+    for (final language in config.languages) {
+      section += '${language.toInnoItem()}\n';
+    }
+    return '$section\n';
   }
 
-  String tasks() {
+  String _tasks() {
     return '''
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 \n''';
   }
 
-  String files() {
-    return '''
-[Files]
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\${config.exeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\flutter_acrylic_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\pdfium.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\printing_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\realm_dart.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\realm_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\screen_retriever_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\system_theme_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\window_manager_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\data\\*"; DestDir: "{app}\\data"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\msvcp140.dll"; DestDir: "{app}";
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\vcruntime140.dll"; DestDir: "{app}";
-Source: "{#SourcePath}\\build\\windows\\runner\\Release\\vcruntime140_1.dll"; DestDir: "{app}";
-\n''';
+  String _files() {
+    String section = "[Files]\n";
+
+    // adding app files
+    final files = appDir.listSync();
+    for (final file in files) {
+      final filePath = file.absolute.path;
+      if (FileSystemEntity.isDirectorySync(filePath)) {
+        final fileName = p.basename(file.path);
+        section += "Source: \"$filePath\\*\"; DestDir: \"{app}\\$fileName\"; "
+            "Flags: ignoreversion recursesubdirs createallsubdirs\n";
+      } else {
+        section += "Source: \"$filePath\"; DestDir: \"{app}\"; "
+            "Flags: ignoreversion\n";
+      }
+    }
+
+    // adding optional DLL files from System32 (if they are available),
+    // so that the end user is not required to install
+    // MS Visual C++ redistributable to run the app.
+    final scriptDirPath = p.joinAll([
+      Directory.systemTemp.absolute.path,
+      "${camelCase(config.name)}Installer",
+      config.type.dirName,
+    ]);
+    Directory(scriptDirPath).createSync(recursive: true);
+    for (final fileName in vcDllFiles) {
+      final file = File(p.joinAll([...system32, fileName]));
+      if (!file.existsSync()) continue;
+      final fileNewPath = p.join(scriptDirPath, p.basename(file.path));
+      file.copySync(fileNewPath);
+      section += "Source: \"$fileNewPath\"; DestDir: \"{app}\";\n";
+    }
+
+    return '$section\n';
   }
 
-  String icons() {
+  String _icons() {
+    final name = config.name;
+    final exeName = config.exeName;
     return '''
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\\$name"; Filename: "{app}\\$exeName"
+Name: "{autodesktop}\\$name"; Filename: "{app}\\$exeName"; Tasks: desktopicon
 \n''';
   }
 
-  String run() {
+  String _run() {
+    final name = config.name;
+    final exeName = config.exeName;
     return '''
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\\$exeName"; Description: "{cm:LaunchProgram,{#StringChange('$name', '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 \n''';
   }
 
-  void build() {
-    final scriptFileContent =
-        setup() + installDelete() + languages() + tasks() + files() + icons();
-    print(scriptFileContent);
+  Future<File> build() async {
+    final script = scriptHeader +
+        _setup() +
+        _installDelete() +
+        _languages() +
+        _tasks() +
+        _files() +
+        _icons() +
+        _run();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final scriptPath = p.joinAll([
+      Directory.systemTemp.absolute.path,
+      "${camelCase(config.name)}Installer",
+      config.type.dirName,
+      "${config.name}.timestamp-$timestamp.iss",
+    ]);
+    final scriptFile = File(scriptPath);
+    scriptFile.createSync(recursive: true);
+    scriptFile.writeAsStringSync(script);
+    return scriptFile;
   }
 }
