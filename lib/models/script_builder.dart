@@ -29,12 +29,12 @@ class ScriptBuilder {
       config.type.dirName,
     ]);
 
+    // save default icon into temp directory to use its path.
     if (installerIcon == defaultInstallerIconPlaceholder) {
       final installerIconDirPath = p.joinAll([
         Directory.systemTemp.absolute.path,
         "${camelCase(config.name)}Installer",
       ]);
-
       installerIcon = persistDefaultInstallerIcon(installerIconDirPath);
     }
 

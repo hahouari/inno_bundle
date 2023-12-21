@@ -8,4 +8,8 @@
 
 ## 0.0.3
 
-* Fix `languages` attribute name in README.md example
+* Fix `languages` attribute name in README.md example.
+
+## 0.1.0
+
+* Make `installer_icon` optional attribute.
