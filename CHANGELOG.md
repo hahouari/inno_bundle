@@ -13,3 +13,6 @@
 ## 0.1.0
 
 * Make `installer_icon` optional attribute.
+
+## 0.1.1
+* Update README.md.
