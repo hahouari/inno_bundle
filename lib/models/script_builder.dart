@@ -22,12 +22,22 @@ class ScriptBuilder {
     final privileges = config.admin ? 'admin' : 'lowest';
     final installer = '${camelCase(config.name)}-x86_64'
         '-${config.version}-Installer';
-    final installerIcon = config.installerIcon;
+    var installerIcon = config.installerIcon;
     final outputDir = p.joinAll([
       Directory.current.path,
       ...installerBuildDir,
       config.type.dirName,
     ]);
+
+    if (installerIcon == defaultInstallerIconPlaceholder) {
+      final installerIconDirPath = p.joinAll([
+        Directory.systemTemp.absolute.path,
+        "${camelCase(config.name)}Installer",
+      ]);
+
+      installerIcon = persistDefaultInstallerIcon(installerIconDirPath);
+    }
+
     return '''
 [Setup]
 AppId=$id

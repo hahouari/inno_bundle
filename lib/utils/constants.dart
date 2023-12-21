@@ -32,4 +32,5 @@ const appBuildDir = ["build", "windows", "x64", "runner"];
 const installerBuildDir = ["build", "windows", "x64", "installer"];
 const system32 = ["C:", "Windows", "System32"];
 const vcDllFiles = ["msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"];
-final innoDirPath = ["C:", "Program Files (x86)", "Inno Setup 6"];
+const innoDirPath = ["C:", "Program Files (x86)", "Inno Setup 6"];
+const defaultInstallerIconPlaceholder = "__default_installer__icon__";

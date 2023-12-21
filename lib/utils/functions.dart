@@ -1,6 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:inno_bundle/utils/installer_icon.dart';
 import 'package:yaml/yaml.dart';
+import 'package:path/path.dart' as p;
 
 /// Convert yaml to map
 Map<String, dynamic> yamlToMap(YamlMap yamlMap) {
@@ -36,4 +40,13 @@ String capitalize(String value) {
 
 String getTempDir() {
   return Process.runSync('cmd', ['/C', 'echo %Temp%']).stdout;
+}
+
+String persistDefaultInstallerIcon(String dirPath) {
+  final iconPath = p.join(dirPath, defaultInstallerIconFileName);
+  File file = File(iconPath);
+  if (file.existsSync()) return file.absolute.path;
+  Uint8List bytes = base64.decode(defaultInstallerIcon);
+  file.writeAsBytesSync(bytes);
+  return file.absolute.path;
 }

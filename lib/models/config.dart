@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
+import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -87,17 +88,20 @@ class Config {
     final supportUrl = (inno['support_url'] as String?) ?? url;
     final updatesUrl = (inno['updates_url'] as String?) ?? url;
 
-    if (inno['installer_icon'] is! String) {
-      CliLogger.error("inno_bundle.installer_icon attribute is missing "
-          "from pubspec.yaml.");
+    if (inno['installer_icon'] != null && inno['installer_icon'] is! String) {
+      CliLogger.error("inno_bundle.installer_icon attribute is invalid "
+          "in pubspec.yaml.");
       exit(1);
     }
-    final installerIcon = p.join(
-      Directory.current.path,
-      p.fromUri(inno['installer_icon']),
-    );
-    if (!File(installerIcon).existsSync()) {
-      CliLogger.error("inno_bundle.installer_icon attribute value is invalid,"
+    final installerIcon = inno['installer_icon'] != null
+        ? p.join(
+            Directory.current.path,
+            p.fromUri(inno['installer_icon']),
+          )
+        : defaultInstallerIconPlaceholder;
+    if (installerIcon != defaultInstallerIconPlaceholder &&
+        !File(installerIcon).existsSync()) {
+      CliLogger.error("inno_bundle.installer_icon attribute value is invalid, "
           "`$installerIcon` file does not exist.");
       exit(1);
     }
