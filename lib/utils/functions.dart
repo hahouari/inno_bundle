@@ -45,7 +45,6 @@ String getTempDir() {
 String persistDefaultInstallerIcon(String dirPath) {
   final iconPath = p.join(dirPath, defaultInstallerIconFileName);
   File file = File(iconPath);
-  if (file.existsSync()) return file.absolute.path;
   Uint8List bytes = base64.decode(defaultInstallerIcon);
   file.writeAsBytesSync(bytes);
   return file.absolute.path;
