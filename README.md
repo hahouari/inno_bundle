@@ -111,7 +111,7 @@ hebrew, hungarian, icelandic, italian, japanese, norwegian, polish, portuguese,
 russian, slovak,
 slovenian, spanish, turkish, ukrainian.
 
-## Other CLI options
+## Examples to CLI options
 
 This will skip building the app if it exists:
 
