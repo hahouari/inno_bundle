@@ -55,3 +55,7 @@
 
 - Replace LinkedIn link in maintainer clause for generated `iss script` with
   GitHub link.
+
+## 0.3.2
+
+- Add documentation to codebase.
