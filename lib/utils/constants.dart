@@ -1,5 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:inno_bundle/utils/functions.dart';
+
 /// Start message for the CLI
 const String START_MESSAGE = '''\n
 ╔════════════════════════════════════════════════════╗
@@ -32,5 +34,13 @@ const appBuildDir = ["build", "windows", "x64", "runner"];
 const installerBuildDir = ["build", "windows", "x64", "installer"];
 const system32 = ["C:", "Windows", "System32"];
 const vcDllFiles = ["msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"];
-const innoDirPath = ["C:", "Program Files (x86)", "Inno Setup 6"];
+const innoSysDirPath = ["C:", "Program Files (x86)", "Inno Setup 6"];
+final innoUserDirPath = [
+  getHomeDir(),
+  "AppData",
+  "Local",
+  "Programs",
+  "Inno Setup 6"
+];
+
 const defaultInstallerIconPlaceholder = "__default_installer__icon__";

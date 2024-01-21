@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
@@ -20,7 +21,7 @@ class ScriptBuilder {
     final supportUrl = config.supportUrl;
     final updatesUrl = config.updatesUrl;
     final privileges = config.admin ? 'admin' : 'lowest';
-    final installer = '${camelCase(config.name)}-x86_64'
+    final installerName = '${camelCase(config.name)}-x86_64'
         '-${config.version}-Installer';
     var installerIcon = config.installerIcon;
     final outputDir = p.joinAll([
@@ -50,7 +51,7 @@ AppUpdatesURL=$updatesUrl
 DefaultDirName={autopf}\\$name
 PrivilegesRequired=$privileges
 OutputDir=$outputDir
-OutputBaseFilename=$installer
+OutputBaseFilename=$installerName
 SetupIconFile=$installerIcon
 Compression=lzma2/max
 SolidCompression=yes
@@ -140,6 +141,7 @@ Filename: "{app}\\$exeName"; Description: "{cm:LaunchProgram,{#StringChange('$na
   }
 
   Future<File> build() async {
+    CliLogger.info("Generating ISS script...");
     final script = scriptHeader +
         _setup() +
         _installDelete() +
@@ -148,16 +150,16 @@ Filename: "{app}\\$exeName"; Description: "{cm:LaunchProgram,{#StringChange('$na
         _files() +
         _icons() +
         _run();
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final scriptPath = p.joinAll([
-      Directory.systemTemp.absolute.path,
-      "${camelCase(config.name)}Installer",
+    final relScriptPath = p.joinAll([
+      ...installerBuildDir,
       config.type.dirName,
-      "${config.name}.timestamp-$timestamp.iss",
+      "${config.name}.iss",
     ]);
-    final scriptFile = File(scriptPath);
+    final absScriptPath = p.join(Directory.current.path, relScriptPath);
+    final scriptFile = File(absScriptPath);
     scriptFile.createSync(recursive: true);
     scriptFile.writeAsStringSync(script);
+    CliLogger.success("Script generated $relScriptPath");
     return scriptFile;
   }
 }

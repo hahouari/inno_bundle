@@ -7,8 +7,7 @@ import 'package:inno_bundle/utils/cli_logger.dart';
 
 class AppBuilder {
   final Config config;
-  final bool skipApp;
-  AppBuilder(this.config, [this.skipApp = false]);
+  AppBuilder(this.config);
 
   Future<Directory> build() async {
     final buildDirPath = p.joinAll([
@@ -17,17 +16,19 @@ class AppBuilder {
       config.type.dirName,
     ]);
     final buildDir = Directory(buildDirPath);
-    
-    if (skipApp) {
+
+    if (!config.app) {
       if (!buildDir.existsSync() || buildDir.listSync().isEmpty) {
         CliLogger.warning(
           "${config.type.dirName} build is not available, "
-              "--skip-app is ignored.",
+          "--no-app is ignored.",
         );
       } else {
+        CliLogger.info("Skipping app...");
         return buildDir;
       }
     }
+
     final process = await Process.start(
       "flutter",
       ['build', 'windows', '--${config.type.name}'],
@@ -35,7 +36,9 @@ class AppBuilder {
       workingDirectory: Directory.current.path,
       mode: ProcessStartMode.inheritStdio,
     );
+
     final exitCode = await process.exitCode;
+
     if (exitCode != 0) exit(exitCode);
     return buildDir;
   }

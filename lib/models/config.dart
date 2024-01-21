@@ -21,6 +21,8 @@ class Config {
   final List<Language> languages;
   final bool admin;
   final BuildType type;
+  final bool app;
+  final bool installer;
 
   const Config({
     required this.id,
@@ -35,11 +37,18 @@ class Config {
     required this.languages,
     required this.admin,
     this.type = BuildType.debug,
+    this.app = true,
+    this.installer = true,
   });
 
   String get exeName => "$name.exe";
 
-  factory Config.fromJson(Map<String, dynamic> json, BuildType type) {
+  factory Config.fromJson(
+    Map<String, dynamic> json, {
+    BuildType type = BuildType.debug,
+    bool app = true,
+    bool installer = true,
+  }) {
     if (json['inno_bundle'] is! Map<String, dynamic>) {
       CliLogger.error("inno_bundle section is missing from pubspec.yaml.");
       exit(1);
@@ -142,14 +151,25 @@ class Config {
       languages: languages,
       admin: admin,
       type: type,
+      app: app,
+      installer: installer,
     );
   }
 
-  factory Config.fromFile(BuildType type) {
+  factory Config.fromFile({
+    BuildType type = BuildType.debug,
+    bool app = true,
+    bool installer = true,
+  }) {
     const filePath = 'pubspec.yaml';
     final yamlMap = loadYaml(File(filePath).readAsStringSync()) as Map;
     // yamlMap has the type YamlMap, which has several unwanted side effects
     final yamlConfig = yamlToMap(yamlMap as YamlMap);
-    return Config.fromJson(yamlConfig, type);
+    return Config.fromJson(
+      yamlConfig,
+      type: type,
+      app: app,
+      installer: installer,
+    );
   }
 }

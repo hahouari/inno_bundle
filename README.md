@@ -16,7 +16,7 @@ Download the Inno
 Setup from <a href="https://jrsoftware.org/isdl.php" target="_blank">official
 website</a>. Then install it in your machine.
 
-*Note: This package is tested on Inno Setup version `6.2.2`.*
+_Note: This package is tested on Inno Setup version `6.2.2`._
 
 ### 2. Install `inno_bundle` package into your project
 
@@ -63,9 +63,8 @@ flutter pub get
 dart run inno_bundle:build --release
 ```
 
-*Note: `--release` flag is required if you want to build for `release` mode, see
-below for other
-options.*
+_Note: `--release` flag is required if you want to build for `release` mode, see
+below for other options._
 
 ## Attributes
 
@@ -89,10 +88,10 @@ All attributes should be under `inno_bundle` in `pubspec.yaml`.
 - `languages`: List of installer's display languages. Defaults to all available
   languages.<sup><a href="#attributes-more-2">&nbsp;2&nbsp;</a></sup>
 - `admin`: (`true` or `false`) Defaults to `true`.
-    - `true`: Require elevated privileges during installation. App will install
-      globally on the end user machine.
-    - `false`: Don't require elevated privileges during installation. App will
-      install into user-specific folder.
+  - `true`: Require elevated privileges during installation. App will install
+    globally on the end user machine.
+  - `false`: Don't require elevated privileges during installation. App will
+    install into user-specific folder.
 
 <span id="attributes-more-1"><sup>1</sup></span> Only **.ico** images were
 tested.
@@ -107,11 +106,17 @@ slovenian, spanish, turkish, ukrainian.
 
 ## Other CLI options
 
-This will skip the app building if it exists, and will straight-forward to
-create the installer:
+This will skip building the app if it exists:
 
 ```shell
-dart run inno_bundle:build --skip-app
+dart run inno_bundle:build --no-app
+```
+
+This will skip building the installer, useful if you want to generate
+`.iss Script file` only:
+
+```shell
+dart run inno_bundle:build --no-installer
 ```
 
 This build is `release` mode:
@@ -142,7 +147,7 @@ inno_bundle:
   name: google_flutter_framework
   description: Flutter makes it easy and fast to build beautiful apps for mobile and beyond.
   publisher: Google LLC
-  url`: https://github.com/flutter/flutter
+  url: https://github.com/flutter/flutter
   support_url: https://github.com/flutter/flutter/wiki
   updates_url: https://github.com/flutter/flutter/releases
 ```

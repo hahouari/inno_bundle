@@ -29,3 +29,22 @@
 
 - When default icon is used, the new one is copied to `%TEMP%` folder on every
   installer build, I did not find an efficient way to update the old one.
+
+## 0.3.0
+
+- Replace `--skip-app` with `--app` and `--no-app` flags, default to `--app`.
+
+- Add `--installer` and `--no-installer` flags, default to `--installer`.
+
+- Add `--help` and `-h` with descriptive messages to each flag.
+
+- Refactor `Config` to include cli arguments as well.
+
+- Make `.iss script` generation happen under
+  `build\windows\x64\installer\<BuildType>\<AppName>.iss`.
+
+- Add `%UserProfile%\Local\Programs\Inno Setup 6` as a possible path to find
+  Inno Setup installation.
+
+- Update error message for option to install Inno Setup using `winget`
+  when not detected on the machine.

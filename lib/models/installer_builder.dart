@@ -11,21 +11,39 @@ class InstallerBuilder {
 
   const InstallerBuilder(this.config, this.scriptFile);
 
-  Future<Directory> build() async {
-    final exec = p.joinAll([...innoDirPath, "ISCC.exe"]);
-    final execFile = File(exec);
-    if (!Directory(p.joinAll(innoDirPath)).existsSync()) {
+  File _getInnoSetupExec() {
+    if (!Directory(p.joinAll(innoSysDirPath)).existsSync() &&
+        !Directory(p.joinAll(innoUserDirPath)).existsSync()) {
       CliLogger.error("Inno Setup is not installed or detected "
-          "in your machine. Download and install it from "
-          "`$innoDownloadLink`.");
+          "in your machine, you either: \n\tDownload and install it from "
+          "`$innoDownloadLink`.\n\tUsing winget >>> "
+          "`winget install -e --id JRSoftware.InnoSetup`.");
       exit(1);
     }
-    if (!execFile.existsSync()) {
-      CliLogger.error("Inno Setup installation in your machine "
-          "is corrupted or incomplete. Download and re-install it from "
-          "`$innoDownloadLink`.");
-      exit(1);
+
+    final sysExec = p.joinAll([...innoSysDirPath, "ISCC.exe"]);
+    final sysExecFile = File(sysExec);
+    final userExec = p.joinAll([...innoUserDirPath, "ISCC.exe"]);
+    final userExecFile = File(userExec);
+
+    if (sysExecFile.existsSync()) return sysExecFile;
+    if (userExecFile.existsSync()) return userExecFile;
+
+    CliLogger.error("Inno Setup installation in your machine "
+        "is corrupted or incomplete, you either: \n\tDownload and "
+        "re-install it from `$innoDownloadLink`.\n\tUsing winget >>> "
+        "`winget install -e --id JRSoftware.InnoSetup`.");
+    exit(1);
+  }
+
+  Future<Directory> build() async {
+    if (!config.installer) {
+      CliLogger.info("Skipping installer...");
+      return Directory("");
     }
+
+    final execFile = _getInnoSetupExec();
+
     final process = await Process.start(
       execFile.path,
       [scriptFile.path],

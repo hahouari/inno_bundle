@@ -49,3 +49,14 @@ String persistDefaultInstallerIcon(String dirPath) {
   file.writeAsBytesSync(bytes);
   return file.absolute.path;
 }
+
+String getHomeDir() {
+  String home = "";
+  Map<String, String> envVars = Platform.environment;
+  if (Platform.isMacOS || Platform.isLinux) {
+    home = envVars['HOME'] ?? home;
+  } else if (Platform.isWindows) {
+    home = envVars['UserProfile'] ?? home;
+  }
+  return home;
+}
