@@ -2,7 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/inno_bundle.svg)](https://pub.dev/packages/inno_bundle)
 [![inno setup](https://img.shields.io/badge/Inno_Setup-v6.2.2-blue)](https://jrsoftware.org/isinfo.php)
-![dz flutter community](https://img.shields.io/badge/DZ_Flutter_Community-Inno_Setup-blue)
+![dz flutter community](https://img.shields.io/badge/hahouari-Inno_Setup-blue)
 
 A command-line tool that simplifies bundling your app into an EXE installer for
 Microsoft Windows. Customizable with options to configure the installer
@@ -12,15 +12,22 @@ capabilities.
 
 ### 1. Download Inno Setup
 
-Download the Inno
-Setup from <a href="https://jrsoftware.org/isdl.php" target="_blank">official
-website</a>. Then install it in your machine.
+- **Option 1: Using winget**
 
-_Note: This package is tested on Inno Setup version `6.2.2`._
+```ps
+winget install -e --id JRSoftware.InnoSetup
+```
+
+- **Option 2: From the website**
+
+  Download Inno Setup from <a href="https://jrsoftware.org/isdl.php" target="_blank">official
+  website</a>. Then install it in your machine.
+
+  _Note: This package is tested on Inno Setup version `6.2.2`._
 
 ### 2. Install `inno_bundle` package into your project
 
-```sh
+```ps
 dart pub add dev:inno_bundle
 ```
 
@@ -28,13 +35,13 @@ dart pub add dev:inno_bundle
 
 To generate a random id run:
 
-```shell
+```ps
 dart run inno_bundle:id
 ```
 
 Or, if you want your app id based upon a namespace, that is also possible:
 
-```shell
+```ps
 dart run inno_bundle:id --ns "www.example.com"
 ```
 
@@ -58,7 +65,7 @@ inno_bundle:
 
 After setting up the configuration, all that is left to do is run the package.
 
-```shell
+```ps
 flutter pub get
 dart run inno_bundle:build --release
 ```
@@ -108,20 +115,20 @@ slovenian, spanish, turkish, ukrainian.
 
 This will skip building the app if it exists:
 
-```shell
+```ps
 dart run inno_bundle:build --no-app
 ```
 
 This will skip building the installer, useful if you want to generate
-`.iss Script file` only:
+`.iss script` only:
 
-```shell
+```ps
 dart run inno_bundle:build --no-installer
 ```
 
 This build is `release` mode:
 
-```shell
+```ps
 dart run inno_bundle:build --release
 ```
 

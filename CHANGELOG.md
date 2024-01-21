@@ -48,3 +48,10 @@
 
 - Update error message for option to install Inno Setup using `winget`
   when not detected on the machine.
+
+## 0.3.1
+
+- Update README.md for winget installation option of Inno Setup.
+
+- Replace LinkedIn link in maintainer clause for generated `iss script` with
+  GitHub link.
