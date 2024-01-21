@@ -68,3 +68,12 @@
 - Update iss script maintainer clause.
 
 - Rename generated iss script to `inno-script.iss`.
+
+## 0.4.0
+
+- Add `--hf` and `--no-hf` flags to control printing of header and footer text.
+
+- Add `--envs` to `build` command to print resolved config as environment
+  variables and exit.
+
+- Add `--help` to `id` command.

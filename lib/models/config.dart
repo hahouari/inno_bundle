@@ -208,4 +208,29 @@ class Config {
       installer: installer,
     );
   }
+
+  /// Returns a string containing the config attributes as environment variables.
+  String toEnvironmentVariables() {
+    final variables = <String, String>{
+      'APP_ID': id,
+      'APP_NAME': name,
+      'APP_NAME_CAMEL_CASE': camelCase(name),
+      'APP_DESCRIPTION': description,
+      'APP_VERSION': version,
+      'APP_PUBLISHER': publisher,
+      'APP_URL': url,
+      'APP_SUPPORT_URL': supportUrl,
+      'APP_UPDATES_URL': updatesUrl,
+      'APP_INSTALLER_ICON': installerIcon,
+      'APP_LANGUAGES': languages.map((l) => l.name).join(','),
+      'APP_ADMIN': admin.toString(),
+      'APP_TYPE': type.name,
+      'APP_BUILD_APP': app.toString(),
+      'APP_BUILD_INSTALLER': installer.toString(),
+    };
+
+    return variables.entries
+        .map((entry) => '${entry.key}=${entry.value}')
+        .join('\n');
+  }
 }

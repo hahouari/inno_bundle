@@ -32,19 +32,29 @@ Future<void> _buildInstaller(Config config, File scriptFile) async {
 
 /// Run to build installer
 void main(List<String> arguments) async {
-  print(START_MESSAGE);
   final parser = ArgParser()
     ..addFlag(BuildType.release.name, negatable: false)
     ..addFlag(BuildType.profile.name, negatable: false)
     ..addFlag(BuildType.debug.name, negatable: false, help: 'Default flag')
     ..addFlag('app', defaultsTo: true, help: 'build app')
     ..addFlag('installer', defaultsTo: true, help: 'build installer')
-    ..addFlag('help', abbr: 'h', negatable: false, help: 'Print this help');
+    ..addFlag(
+      'envs',
+      defaultsTo: false,
+      negatable: false,
+      help: "Print env variables and exit",
+    )
+    ..addFlag('hf', defaultsTo: true, help: 'Print header and footer')
+    ..addFlag('help', abbr: 'h', negatable: false, help: 'Print help and exit');
   final parsedArgs = parser.parse(arguments);
   final type = BuildType.fromArgs(parsedArgs);
   final app = parsedArgs['app'] as bool;
   final installer = parsedArgs['installer'] as bool;
+  final envs = parsedArgs['envs'] as bool;
+  final hf = parsedArgs['hf'] as bool;
   final help = parsedArgs['help'] as bool;
+
+  if (hf) print(START_MESSAGE);
 
   if (help) {
     print("${parser.usage}\n");
@@ -52,9 +62,15 @@ void main(List<String> arguments) async {
   }
 
   final config = Config.fromFile(type: type, app: app, installer: installer);
+
+  if (envs) {
+    print(config.toEnvironmentVariables());
+    exit(0);
+  }
+
   final appBuildDir = await _buildApp(config);
   final scriptFile = await _buildScript(config, appBuildDir);
   await _buildInstaller(config, scriptFile);
 
-  print(BUILD_END_MESSAGE);
+  if (hf) print(BUILD_END_MESSAGE);
 }
