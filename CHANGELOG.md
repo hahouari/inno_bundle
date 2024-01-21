@@ -59,3 +59,12 @@
 ## 0.3.2
 
 - Add documentation to codebase.
+
+## 0.3.3
+
+- Fix issue icon not persisting in the system temp directory when using
+  default installer icon.
+
+- Update iss script maintainer clause.
+
+- Rename generated iss script to `inno-script.iss`.

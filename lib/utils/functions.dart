@@ -46,10 +46,12 @@ String capitalize(String value) {
 
 /// Persists the default installer icon to a file in the given directory.
 ///
-/// Decodes a Base64-encoded icon string and writes it to a file.
+/// Decodes a Base64-encoded icon string and writes it to a file in the
+/// system temp directory.
 ///
 /// Returns the absolute path of the saved icon file.
 String persistDefaultInstallerIcon(String dirPath) {
+  Directory(dirPath).createSync();
   final iconPath = p.join(dirPath, defaultInstallerIconFileName);
   File file = File(iconPath);
   Uint8List bytes = base64.decode(defaultInstallerIcon);

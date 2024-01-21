@@ -159,7 +159,7 @@ Filename: "{app}\\$exeName"; Description: "{cm:LaunchProgram,{#StringChange('$na
     final relScriptPath = p.joinAll([
       ...installerBuildDir,
       config.type.dirName,
-      "${config.name}.iss",
+      "inno-script.iss",
     ]);
     final absScriptPath = p.join(Directory.current.path, relScriptPath);
     final scriptFile = File(absScriptPath);
