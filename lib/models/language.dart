@@ -26,14 +26,19 @@ enum Language {
   turkish("Languages\\Turkish.isl"),
   ukrainian("Languages\\Ukrainian.isl");
 
+  /// The filename of the language-specific Inno Setup language file.
   final String file;
+
+  /// Creates a [Language] instance with the associated [file] name.
   const Language(this.file);
 
+  /// Retrieves a [Language] instance by its name, or `null` if not found.
   static Language? getByNameOrNull(String name) {
     final index = Language.values.indexWhere((l) => l.name == name);
     return index != -1 ? Language.values[index] : null;
   }
 
+  /// Generates the Inno Setup language item for this language.
   String toInnoItem() {
     return "Name: \"$name\"; MessagesFile: \"compiler:$file\"";
   }

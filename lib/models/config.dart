@@ -8,22 +8,51 @@ import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
 
+/// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
+  /// The unique identifier (UUID) for the app being packaged.
   final String id;
+
+  /// The name of the app being packaged.
   final String name;
+
+  /// A description of the app being packaged.
   final String description;
+
+  /// The app's version.
   final String version;
+
+  /// The name of the publisher or maintainer.
   final String publisher;
+
+  /// The app's homepage URL.
   final String url;
+
+  /// The URL for support resources.
   final String supportUrl;
+
+  /// The URL for checking for updates.
   final String updatesUrl;
+
+  /// The path to the installer icon file.
   final String installerIcon;
+
+  /// The supported languages for the installer.
   final List<Language> languages;
+
+  /// Whether the installer requires administrator privileges.
   final bool admin;
+
+  /// The build type (debug or release).
   final BuildType type;
+
+  /// Whether to include the app in the installer.
   final bool app;
+
+  /// Whether to create an installer file.
   final bool installer;
 
+  /// Creates a [Config] instance with default values.
   const Config({
     required this.id,
     required this.name,
@@ -41,8 +70,12 @@ class Config {
     this.installer = true,
   });
 
+  /// The name of the executable file that will be created.
   String get exeName => "$name.exe";
 
+  /// Creates a [Config] instance from a JSON map, typically read from `pubspec.yaml`.
+  ///
+  /// Validates the configuration and exits with an error if invalid values are found.
   factory Config.fromJson(
     Map<String, dynamic> json, {
     BuildType type = BuildType.debug,
@@ -156,6 +189,9 @@ class Config {
     );
   }
 
+  /// Creates a [Config] instance directly from the `pubspec.yaml` file.
+  ///
+  /// Provides a convenient way to load configuration without manual JSON parsing.
   factory Config.fromFile({
     BuildType type = BuildType.debug,
     bool app = true,

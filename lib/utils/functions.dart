@@ -27,6 +27,9 @@ Map<String, dynamic> yamlToMap(YamlMap yamlMap) {
   return map;
 }
 
+/// Converts a string to camelCase.
+///
+/// Example: `camelCase("hello-world_there")` returns "helloWorldThere".
 String camelCase(String value) {
   return value
       .split(RegExp(r'[-_]'))
@@ -34,14 +37,18 @@ String camelCase(String value) {
       .join('');
 }
 
+/// Capitalizes the first letter of a string.
+///
+/// Example: `capitalize("hello")` returns "Hello".
 String capitalize(String value) {
   return value[0].toUpperCase() + value.substring(1);
 }
 
-String getTempDir() {
-  return Process.runSync('cmd', ['/C', 'echo %Temp%']).stdout;
-}
-
+/// Persists the default installer icon to a file in the given directory.
+///
+/// Decodes a Base64-encoded icon string and writes it to a file.
+///
+/// Returns the absolute path of the saved icon file.
 String persistDefaultInstallerIcon(String dirPath) {
   final iconPath = p.join(dirPath, defaultInstallerIconFileName);
   File file = File(iconPath);
@@ -50,6 +57,9 @@ String persistDefaultInstallerIcon(String dirPath) {
   return file.absolute.path;
 }
 
+/// Retrieves the user's home directory path.
+///
+/// Uses environment variables to determine the home directory based on the operating system.
 String getHomeDir() {
   String home = "";
   Map<String, String> envVars = Platform.environment;

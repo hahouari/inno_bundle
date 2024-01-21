@@ -8,16 +8,23 @@ import 'package:inno_bundle/models/installer_builder.dart';
 import 'package:inno_bundle/models/script_builder.dart';
 import 'package:inno_bundle/utils/constants.dart';
 
+/// Builds the application using the provided configuration.
+///
+/// Returns the directory containing the built application files.
 Future<Directory> _buildApp(Config config) async {
   final builder = AppBuilder(config);
   return await builder.build();
 }
 
+/// Generates the Inno Setup script file for the installer.
+///
+/// Returns the generated Inno Setup script file.
 Future<File> _buildScript(Config config, Directory appDir) async {
   final builder = ScriptBuilder(config, appDir);
   return await builder.build();
 }
 
+/// Builds the installer using the provided configuration and Inno Setup script file.
 Future<void> _buildInstaller(Config config, File scriptFile) async {
   final builder = InstallerBuilder(config, scriptFile);
   await builder.build();

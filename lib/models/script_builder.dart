@@ -6,10 +6,15 @@ import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 
+/// A class responsible for generating the Inno Setup Script (ISS) file for the installer.
 class ScriptBuilder {
+  /// The configuration guiding the script generation process.
   final Config config;
+
+  /// The directory containing the application files to be included in the installer.
   final Directory appDir;
 
+  /// Creates a [ScriptBuilder] instance with the given [config] and [appDir].
   ScriptBuilder(this.config, this.appDir);
 
   String _setup() {
@@ -140,6 +145,7 @@ Filename: "{app}\\$exeName"; Description: "{cm:LaunchProgram,{#StringChange('$na
 \n''';
   }
 
+  /// Generates the ISS script file and returns its path.
   Future<File> build() async {
     CliLogger.info("Generating ISS script...");
     final script = scriptHeader +

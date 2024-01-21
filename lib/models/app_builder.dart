@@ -5,10 +5,19 @@ import 'package:inno_bundle/utils/constants.dart';
 import 'package:path/path.dart' as p;
 import 'package:inno_bundle/utils/cli_logger.dart';
 
+/// A class responsible for building the app based on the provided configuration.
 class AppBuilder {
+  /// Configuration guiding the build process.
   final Config config;
+
+  /// Creates an instance of [AppBuilder] with the given [config].
   AppBuilder(this.config);
 
+  /// Builds the app using Flutter and returns the path to the build directory.
+  ///
+  /// If [config.app] is `false` and a valid build already exists, it skips the
+  /// build process and returns the existing directory. Otherwise, it executes
+  /// the Flutter build command and returns the newly generated build directory.
   Future<Directory> build() async {
     final buildDirPath = p.joinAll([
       Directory.current.path,
