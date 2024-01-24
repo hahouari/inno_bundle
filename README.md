@@ -73,6 +73,15 @@ dart run inno_bundle:build --release
 _Note: `--release` flag is required if you want to build for `release` mode, see
 below for other options._
 
+## Set it up on a GitHub Workflow
+
+To automate building the installer with GitHub actions, check out the demo [here](https://github.com/hahouari/flutter_inno_workflows_demo).
+
+You can copy the workflow from the [build.yaml](https://github.com/hahouari/flutter_inno_workflows_demo/blob/dev/.github/workflows/build.yaml),
+it will run on `windows-latest` machine, it builds of the installer and it also pushes it to
+[GitHub Releases](https://github.com/hahouari/flutter_inno_workflows_demo/releases) with correct versioning,
+just in case you needed such step, well it is there :).
+
 ## Attributes
 
 Full list of attributes which you can use into your configuration.
