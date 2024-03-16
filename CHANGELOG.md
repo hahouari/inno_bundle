@@ -81,3 +81,7 @@
 ## 0.4.1
 
 - Add guide to setup GitHub Workflows and automate installer build as GitHub releases.
+
+## 0.4.2
+
+- Update packages version and minimum dart and flutter version to latest.
