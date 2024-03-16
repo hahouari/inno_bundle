@@ -77,3 +77,7 @@
   variables and exit.
 
 - Add `--help` to `id` command.
+
+## 0.4.1
+
+- Add guide to setup GitHub Workflows and automate installer build as GitHub releases.
