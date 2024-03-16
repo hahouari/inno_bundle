@@ -171,11 +171,13 @@ inno_bundle:
 ## Additional Feature
 
 DLL files `msvcp140.dll`, `vcruntime140.dll`, `vcruntime140_1.dll` are also
-bundled (if detected in your machine) with the app when creating the installer.
-This helps some end-users avoid issues of missing DLL files when running app
-after install. To learn more about it, visit
+bundled (if detected in your machine) with the app during installer creation.
+This helps end-users avoid issues of missing DLL files when running app
+after install. To know more about it, visit
 this <a href="https://stackoverflow.com/questions/74329543/how-to-find-the-vcruntime140-dll-in-flutter-build-windows" target="_blank">
 Stack Overflow issue</a>.
+
+![image](https://github.com/hahouari/inno_bundle/assets/39862612/a9d258a4-074c-47fc-973e-e307f3af7a9b)
 
 ## Reporting Issues
 
