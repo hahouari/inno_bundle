@@ -6,6 +6,8 @@
 - Add `--app-id-ns` CLI flag to generate App ID with namespace.
 - Add generating publisher name using `--gen-publisher` CLI flag.
 - Add `swedish` and `tamil` languages support.
+- Update Flutter SDK minimum version to `3.16.0`.
+- Update some packages versions.
 
 ## 0.7.4
 
