@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:inno_bundle/builders/app_builder.dart';
+import 'package:inno_bundle/builders/installer_builder.dart';
+import 'package:inno_bundle/builders/script_builder.dart';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
-import 'package:inno_bundle/builders/installer_builder.dart';
-import 'package:inno_bundle/builders/script_builder.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
 
@@ -93,15 +93,15 @@ void main(List<String> arguments) async {
     generateEssentials(pubspecFile, cliConfig);
   }
 
-  if (cliConfig.installInnoSetup && cliConfig.installer) {
-    await installInnoSetup();
-  }
-
   final config = Config.fromFile(pubspecFile, cliConfig);
 
   if (envs) {
     print(config.toEnvironmentVariables());
     exit(0);
+  }
+
+  if (cliConfig.installInnoSetup && cliConfig.installer) {
+    await installInnoSetup();
   }
 
   final appBuildDir = await _buildApp(config);
