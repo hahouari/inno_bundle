@@ -1,3 +1,10 @@
+## 0.8.0
+
+- Add installing Inno Setup using `--install-inno` CLI flag.
+- Add generating App ID using `--gen-app-id` CLI flag.
+- Add `--app-id-ns` CLI flag to generate App ID with namespace.
+- Add generating publisher name using `--gen-publisher` CLI flag.
+
 ## 0.7.4
 
 - Update `uuid` package and replace deprecated `Uuid.NAMESPACE_URL` with `Namespace.url`.
