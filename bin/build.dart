@@ -52,7 +52,10 @@ void main(List<String> arguments) async {
       help: 'Generate a random App ID into pubspec.yaml if non-existent\n'
           'This will use namespace from --app-id-ns if provided',
     )
-    ..addOption("app-id-ns", help: "Namespace for the App ID (as GUID)")
+    ..addOption(
+      "app-id-ns",
+      help: "Namespace for --gen-app-id\nExample: www.example.com",
+    )
     ..addFlag(
       'gen-publisher',
       defaultsTo: true,
