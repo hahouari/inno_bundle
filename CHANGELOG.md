@@ -9,6 +9,7 @@
 - Update Flutter SDK minimum version to `3.16.0`.
 - Update some packages versions.
 - Update `README.md` for fewer steps in Guide section.
+- Remove overriding the default exe file name.
 
 ## 0.7.4
 
