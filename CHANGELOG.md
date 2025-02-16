@@ -1,14 +1,23 @@
 ## 0.8.0
 
 - **`(Breaking!)`** Move to Inno Setup version `6.4.1`.
+
 - Add installing Inno Setup using `--install-inno` CLI flag.
+
 - Add generating App ID using `--gen-app-id` CLI flag.
+
 - Add `--app-id-ns` CLI flag to generate App ID with namespace.
+
 - Add generating publisher name using `--gen-publisher` CLI flag.
+
 - Add `arabic`, `swedish`, and `tamil` languages support.
+
 - Update Flutter SDK minimum version to `3.16.0`.
+
 - Update some packages versions.
+
 - Update `README.md` for fewer steps in Guide section.
+
 - Remove overriding the default exe file name.
 
 ## 0.7.4
