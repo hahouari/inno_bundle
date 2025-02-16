@@ -48,7 +48,8 @@ enum Language {
   turkish("Languages\\Turkish.isl"),
   ukrainian("Languages\\Ukrainian.isl"),
   swedish("Languages\\Swedish.isl"),
-  tamil("Languages\\Tamil.isl");
+  tamil("Languages\\Tamil.isl"),
+  arabic("Languages\\Arabic.isl");
 
   /// The filename of the language-specific Inno Setup language file.
   final String file;
