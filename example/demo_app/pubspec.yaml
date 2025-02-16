@@ -96,4 +96,4 @@ inno_bundle:
   admin: auto
   arch: x64_compatible
   # sign_tool:
-  # command: $p
+  #   command: $p

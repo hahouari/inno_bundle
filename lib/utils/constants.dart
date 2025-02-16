@@ -67,6 +67,19 @@ final innoUserDirPath = [
   "Inno Setup 6"
 ];
 
+/// Inno Setup installation sub command for winget to install silently,
+/// with no upgrade, no prompts, and no UI windows.
+final innoSetupInstallationSubCommand = [
+  "install",
+  "--id",
+  "JRSoftware.InnoSetup",
+  "--exact",
+  "--silent",
+  "--no-upgrade",
+  "--source",
+  "winget"
+];
+
 /// Placeholder used by inno_bundle to signify that the default installer icon should be used.
 const defaultInstallerIconPlaceholder = "__default_installer__icon__";
 

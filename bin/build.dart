@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:inno_bundle/builders/app_builder.dart';
 import 'package:inno_bundle/models/build_type.dart';
+import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/builders/installer_builder.dart';
 import 'package:inno_bundle/builders/script_builder.dart';
 import 'package:inno_bundle/utils/constants.dart';
+import 'package:inno_bundle/utils/functions.dart';
 
 /// Builds the application using the provided configuration.
 ///
@@ -38,7 +40,27 @@ void main(List<String> arguments) async {
     ..addFlag(BuildType.debug.name, negatable: false, help: 'Default flag')
     ..addFlag('app', defaultsTo: true, help: 'Build app')
     ..addFlag('installer', defaultsTo: true, help: 'Build installer')
-    ..addOption("build-args", help: "Appended to `flutter build`")
+    ..addFlag(
+      'install-inno',
+      defaultsTo: true,
+      help: 'Install Inno Setup into your system if not already installed\n'
+          'This requires Winget to be already available on the system',
+    )
+    ..addFlag(
+      'gen-app-id',
+      defaultsTo: true,
+      help: 'Generate a random App ID into pubspec.yaml if non-existent\n'
+          'This will use namespace from --app-id-ns if provided',
+    )
+    ..addOption("app-id-ns", help: "Namespace for the App ID (as GUID)")
+    ..addFlag(
+      'gen-publisher',
+      defaultsTo: true,
+      help: 'Generate a publisher name into pubspec.yaml if non-existent\n'
+          'This will generate based on username of logged in user in machine\n'
+          'and only if maintainer field is not present in pubspec.yaml',
+    )
+    ..addOption("build-args", help: "Append args to \"flutter build ...\"")
     ..addOption("app-version", help: "Override app version")
     ..addOption("sign-tool-name", help: "Override sign tool name")
     ..addOption("sign-tool-command", help: "Override sign tool command")
@@ -63,16 +85,19 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
-  final config = Config.fromFile(
-    type: BuildType.fromArgs(parsedArgs),
-    app: parsedArgs['app'],
-    installer: parsedArgs['installer'],
-    buildArgs: parsedArgs['build-args'],
-    appVersion: parsedArgs['app-version'],
-    signToolName: parsedArgs['sign-tool-name'],
-    signToolCommand: parsedArgs['sign-tool-command'],
-    signToolParams: parsedArgs['sign-tool-params'],
-  );
+  const filePath = 'pubspec.yaml';
+  final pubspecFile = File(filePath);
+  final cliConfig = CliConfig.fromArgs(parsedArgs);
+
+  if (cliConfig.generateAppId || cliConfig.generatePublisher) {
+    generateEssentials(pubspecFile, cliConfig);
+  }
+
+  if (cliConfig.installInnoSetup && cliConfig.installer) {
+    await installInnoSetup();
+  }
+
+  final config = Config.fromFile(pubspecFile, cliConfig);
 
   if (envs) {
     print(config.toEnvironmentVariables());

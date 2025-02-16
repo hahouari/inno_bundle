@@ -12,22 +12,26 @@
 library;
 
 import 'dart:io';
+
+import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
+import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/language.dart';
-import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/sign_tool.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
-import 'package:yaml/yaml.dart';
 
 /// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
   /// The unique identifier (UUID) for the app being packaged.
   final String id;
+
+  /// The pubspec file sourced for this configuration.
+  final File pubspecFile;
 
   /// The global pubspec name attribute, same name of the exe generated from flutter build.
   final String pubspecName;
@@ -85,6 +89,7 @@ class Config {
 
   /// Creates a [Config] instance with default values.
   const Config({
+    required this.pubspecFile,
     required this.buildArgs,
     required this.id,
     required this.pubspecName,
@@ -117,14 +122,8 @@ class Config {
   /// Validates the configuration and exits with an error if invalid values are found.
   factory Config.fromJson(
     Map<String, dynamic> json, {
-    BuildType type = BuildType.debug,
-    bool app = true,
-    bool installer = true,
-    required String? buildArgs,
-    required String? appVersion,
-    required String? signToolName,
-    required String? signToolCommand,
-    required String? signToolParams,
+    required CliConfig cliConfig,
+    required File pubspecFile,
   }) {
     if (json['inno_bundle'] is! Map<String, dynamic>) {
       CliLogger.exitError("inno_bundle section is missing from pubspec.yaml.");
@@ -154,10 +153,12 @@ class Config {
     }
     final String name = inno['name'] ?? pubspecName;
 
-    if ((appVersion ?? inno['version'] ?? json['version']) is! String) {
+    if ((cliConfig.appVersion ?? inno['version'] ?? json['version'])
+        is! String) {
       CliLogger.exitError("version attribute is missing from pubspec.yaml.");
     }
-    final String version = appVersion ?? inno['version'] ?? json['version'];
+    final String version =
+        cliConfig.appVersion ?? inno['version'] ?? json['version'];
 
     if ((inno['description'] ?? json['description']) is! String) {
       CliLogger.exitError(
@@ -230,18 +231,18 @@ class Config {
 
     final signToolError = SignTool.validationError(
       inno["sign_tool"],
-      signToolName: signToolName,
-      signToolCommand: signToolCommand,
-      signToolParams: signToolParams,
+      signToolName: cliConfig.signToolName,
+      signToolCommand: cliConfig.signToolCommand,
+      signToolParams: cliConfig.signToolParams,
     );
     if (signToolError != null) {
       CliLogger.exitError(signToolError);
     }
     final signTool = SignTool.fromOption(
       inno['sign_tool'],
-      signToolName: signToolName,
-      signToolCommand: signToolCommand,
-      signToolParams: signToolParams,
+      signToolName: cliConfig.signToolName,
+      signToolCommand: cliConfig.signToolCommand,
+      signToolParams: cliConfig.signToolParams,
     );
 
     final archError = BuildArch.validationError(inno['arch']);
@@ -251,7 +252,8 @@ class Config {
     final arch = BuildArch.fromOption(inno['arch']);
 
     return Config(
-      buildArgs: buildArgs,
+      pubspecFile: pubspecFile,
+      buildArgs: cliConfig.buildArgs,
       id: id,
       pubspecName: pubspecName,
       name: name,
@@ -264,9 +266,9 @@ class Config {
       installerIcon: installerIcon,
       languages: languages,
       admin: admin,
-      type: type,
-      app: app,
-      installer: installer,
+      type: cliConfig.type,
+      app: cliConfig.app,
+      installer: cliConfig.installer,
       licenseFile: licenseFile,
       signTool: signTool,
       arch: arch,
@@ -276,30 +278,13 @@ class Config {
   /// Creates a [Config] instance directly from the `pubspec.yaml` file.
   ///
   /// Provides a convenient way to load configuration without manual JSON parsing.
-  factory Config.fromFile({
-    BuildType type = BuildType.debug,
-    bool app = true,
-    bool installer = true,
-    required String? buildArgs,
-    required String? appVersion,
-    required String? signToolName,
-    required String? signToolCommand,
-    required String? signToolParams,
-  }) {
-    const filePath = 'pubspec.yaml';
-    final yamlMap = loadYaml(File(filePath).readAsStringSync()) as Map;
-    // yamlMap has the type YamlMap, which has several unwanted side effects
-    final yamlConfig = yamlToMap(yamlMap as YamlMap);
+  factory Config.fromFile(File pubspecFile, CliConfig cliConfig) {
+    final json = readPubspec(pubspecFile);
+
     return Config.fromJson(
-      yamlConfig,
-      type: type,
-      app: app,
-      installer: installer,
-      buildArgs: buildArgs,
-      appVersion: appVersion,
-      signToolName: signToolName,
-      signToolCommand: signToolCommand,
-      signToolParams: signToolParams,
+      json,
+      cliConfig: cliConfig,
+      pubspecFile: pubspecFile,
     );
   }
 
