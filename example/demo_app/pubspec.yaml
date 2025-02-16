@@ -93,6 +93,7 @@ inno_bundle:
   languages:
     - english
     - french
+    - arabic
   admin: auto
   arch: x64_compatible
   # sign_tool:
