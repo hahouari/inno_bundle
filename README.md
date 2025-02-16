@@ -17,13 +17,15 @@ dart pub add dev:inno_bundle
 
 For more advanced configuration with examples, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options).
 
-## 5. Build the Installer
+## 2. Build the Installer
 
-After setting up the configuration, all that is left to do is run the build command
+To run the build command on release mode
 
 ```sh
 dart run inno_bundle:build --release
 ```
+
+**Note:** This will generate the initial configuration if not present in your `pubspec.yaml`.
 
 If you need other use cases with our CLI tool, look up [CLI Options](https://github.com/hahouari/inno_bundle/wiki/CLI-Tool-Options).
 
