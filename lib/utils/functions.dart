@@ -99,10 +99,14 @@ void generateEssentials(File pubspecFile, CliConfig cliConfig) {
   // if neither app id nor publisher is to be generated, do nothing
   if (!cliConfig.generateAppId && !cliConfig.generatePublisher) return;
 
-  final lines = pubspecFile.readAsLinesSync();
   final json = readPubspec(pubspecFile);
-  var innoInsertLine = lines.indexWhere((l) => l.startsWith("inno_bundle:"));
   final inno = json['inno_bundle'] ?? {};
+
+  // if inno_bundle essentials are already present, do nothing
+  if (inno['id'] != null || inno['publisher'] != null) return;
+
+  final lines = pubspecFile.readAsLinesSync();
+  var innoInsertLine = lines.indexWhere((l) => l.startsWith("inno_bundle:"));
 
   // if inno_bundle section is not found, add it at the end of the file
   if (innoInsertLine == -1) {
