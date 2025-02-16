@@ -23,6 +23,8 @@ enum BuildArch {
 
   /// CPU architecture represented by this value.
   final String cpu;
+
+  /// Creates a [BuildArch] instance with the given [value] and [cpu].
   const BuildArch(this.value, this.cpu);
 
   /// List of literal string values to be accepted as valid value for option.

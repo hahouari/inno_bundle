@@ -62,7 +62,7 @@ class ScriptBuilder {
 AppId=${config.id}
 AppName=${config.name}
 UninstallDisplayName=${config.name}
-UninstallDisplayIcon={app}\\${config.exeName}
+UninstallDisplayIcon={app}\\${config.exePubspecName}
 AppVersion=${config.version}
 AppPublisher=${config.publisher}
 AppPublisherURL=${config.url}
@@ -120,21 +120,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
     for (final file in files) {
       final filePath = file.absolute.path;
       if (FileSystemEntity.isDirectorySync(filePath)) {
-        final fileName = p.basename(file.path);
+        final fileName = p.basename(filePath);
         section += "Source: \"$filePath\\*\"; DestDir: \"{app}\\$fileName\"; "
             "Flags: ignoreversion recursesubdirs createallsubdirs\n";
       } else {
-        // override the default exe file name from the name provided by
-        // flutter build, to the inno_bundle.name property value (if provided)
-        if (p.basename(filePath) == config.exePubspecName &&
-            config.exeName != config.exePubspecName) {
-          print("Renamed ${config.exePubspecName} ${config.exeName}");
-          section += "Source: \"$filePath\"; DestDir: \"{app}\"; "
-              "DestName: \"${config.exeName}\"; Flags: ignoreversion\n";
-        } else {
-          section += "Source: \"$filePath\"; DestDir: \"{app}\"; "
-              "Flags: ignoreversion\n";
-        }
+        section += "Source: \"$filePath\"; DestDir: \"{app}\"; "
+            "Flags: ignoreversion\n";
       }
     }
 
@@ -162,8 +153,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
   String _icons() {
     return '''
 [Icons]
-Name: "{autoprograms}\\${config.name}"; Filename: "{app}\\${config.exeName}"
-Name: "{autodesktop}\\${config.name}"; Filename: "{app}\\${config.exeName}"; Tasks: desktopicon
+Name: "{autoprograms}\\${config.name}"; Filename: "{app}\\${config.exePubspecName}"
+Name: "{autodesktop}\\${config.name}"; Filename: "{app}\\${config.exePubspecName}"; Tasks: desktopicon
 \n''';
   }
 
@@ -171,7 +162,7 @@ Name: "{autodesktop}\\${config.name}"; Filename: "{app}\\${config.exeName}"; Tas
   String _run() {
     return '''
 [Run]
-Filename: "{app}\\${config.exeName}"; Description: "{cm:LaunchProgram,{#StringChange('${config.name}', '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\\${config.exePubspecName}"; Description: "{cm:LaunchProgram,{#StringChange('${config.name}', '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 \n''';
   }
 
