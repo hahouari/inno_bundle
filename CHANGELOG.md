@@ -1,9 +1,11 @@
 ## 0.8.0
 
+- **`(Breaking!)`** Move to Inno Setup version `6.4.1`.
 - Add installing Inno Setup using `--install-inno` CLI flag.
 - Add generating App ID using `--gen-app-id` CLI flag.
 - Add `--app-id-ns` CLI flag to generate App ID with namespace.
 - Add generating publisher name using `--gen-publisher` CLI flag.
+- Add `swedish` and `tamil` languages support.
 
 ## 0.7.4
 

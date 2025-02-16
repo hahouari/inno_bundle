@@ -2,58 +2,17 @@
 
 [![pub package](https://img.shields.io/pub/v/inno_bundle.svg)](https://pub.dev/packages/inno_bundle)
 ![chocolatey version](https://img.shields.io/chocolatey/v/InnoSetup)
-[![inno setup](https://img.shields.io/badge/Inno_Setup-v6.3.3-blue)](https://jrsoftware.org/isinfo.php)
+[![inno setup](https://img.shields.io/badge/Inno_Setup-v6.4.1-blue)](https://jrsoftware.org/isinfo.php)
 ![hahouari-inno-setup](https://img.shields.io/badge/@hahouari-Inno_Setup-blue)
 
 CLI tool that simplifies bundling flutter apps into Windows installers using Inno Setup.
 
 # Guide
 
-## 1. Install Inno Setup
-
-The easiest way to install latest version of Inno Setup is using WinGet:
-
-```sh
-winget install -e --id JRSoftware.InnoSetup
-```
-
-If you do not have WinGet, here is how to [install it](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget), or find out [other methods](https://github.com/hahouari/inno_bundle/wiki/Install-Inno-Setup) to install Inno Setup.
-
-_Note: This package is tested on Inno Setup version `6.3.3`._
-
-## 2. Install `inno_bundle` package into your project
+## 1. Install `inno_bundle` package into your project
 
 ```sh
 dart pub add dev:inno_bundle
-```
-
-## 3. Generate App ID
-
-Every application has its own unique GUID, here is how to generate one:
-
-```sh
-# generate id based upon a namespace (Recommended)
-dart run inno_bundle:id --ns "www.example.com"
-
-# or use this to generate a random GUID
-dart run inno_bundle:id
-```
-
-The output id is going to be something similar to this:
-
-> f887d5f0-4690-1e07-8efc-d16ea7711bfb
-
-Copy & Paste the output to your `pubspec.yaml` as shown in the next step.
-
-## 4. Set up the Configuration
-
-Add your configuration to your `pubspec.yaml`. example:
-
-```yaml
-inno_bundle:
-  id: f887d5f0-4690-1e07-8efc-d16ea7711bfb # <-- Put your app id here
-  publisher: Your Name # Optional, but recommended.
-  name: Demo App # Also optional, but recommended.
 ```
 
 For more advanced configuration with examples, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options).
