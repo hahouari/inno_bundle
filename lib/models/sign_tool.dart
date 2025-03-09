@@ -30,7 +30,7 @@
 /// - [retryDelay]: The delay in milliseconds between retry attempts.
 ///
 /// Methods:
-/// - [validationError]: Validates the configuration option for [SignTool]. Returns a string describing the error, or `null` if valid.
+/// - [validateConfig]: Validates the configuration option for [SignTool]. Returns a string describing the error, or `null` if valid.
 /// - [fromOption]: Parses the configuration option into a [SignTool] instance. Accepts both string and map formats.
 /// - [inno]: Generates the Inno Setup script directives for the signing tool configuration.
 library;
@@ -61,7 +61,7 @@ class SignTool {
   });
 
   /// Validate configuration option for [SignTool]
-  static String? validationError(
+  static String? validateConfig(
     dynamic option, {
     String? signToolName,
     String? signToolCommand,

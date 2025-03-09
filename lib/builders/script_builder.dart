@@ -116,9 +116,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
     var section = "[Files]\n";
 
     // adding app build files
-    final files = appDir.listSync();
-    for (final file in files) {
-      final filePath = file.absolute.path;
+    final appFiles = appDir.listSync();
+
+    for (final appFile in appFiles) {
+      final filePath = appFile.absolute.path;
       if (FileSystemEntity.isDirectorySync(filePath)) {
         final fileName = p.basename(filePath);
         section += "Source: \"$filePath\\*\"; DestDir: \"{app}\\$fileName\"; "
@@ -127,6 +128,13 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
         section += "Source: \"$filePath\"; DestDir: \"{app}\"; "
             "Flags: ignoreversion\n";
       }
+    }
+
+    for (final dll in config.dlls) {
+      final dllPath = dll.absolutePath;
+      final dllName = dll.name;
+      section += "Source: \"$dllPath\"; DestDir: \"{app}\"; "
+          "DestName: \"$dllName\"; Flags: ignoreversion\n";
     }
 
     // adding optional DLL files from System32 (if they are available),

@@ -8,7 +8,7 @@
 ///
 /// The file also provides utility methods for validating and parsing configuration
 /// options:
-/// - [validationError]: Validates a configuration option to ensure it matches an accepted value.
+/// - [validateConfig]: Validates a configuration option to ensure it matches an accepted value.
 /// - [fromOption]: Converts a string configuration option into the corresponding [BuildArch] enum value.
 library;
 
@@ -31,7 +31,7 @@ enum BuildArch {
   static final acceptedStringValues = ["x64", "x64_compatible"];
 
   /// Validate configuration option for [BuildArch].
-  static String? validationError(dynamic option) {
+  static String? validateConfig(dynamic option) {
     if (option == null) return null;
     if (option is String && acceptedStringValues.contains(option)) {
       return null;

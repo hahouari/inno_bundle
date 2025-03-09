@@ -17,6 +17,7 @@ import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
+import 'package:inno_bundle/models/dll_entry.dart';
 import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/models/sign_tool.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
@@ -87,9 +88,13 @@ class Config {
   /// Arguments to be passed to flutter build.
   final String? buildArgs;
 
+  /// List of dlls to be included in the installer.
+  final List<DllEntry> dlls;
+
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
+    required this.dlls,
     required this.buildArgs,
     required this.id,
     required this.pubspecName,
@@ -229,15 +234,13 @@ class Config {
     final licenseFile =
         File(licenseFilePath).existsSync() ? licenseFilePath : '';
 
-    final signToolError = SignTool.validationError(
+    final signToolError = SignTool.validateConfig(
       inno["sign_tool"],
       signToolName: cliConfig.signToolName,
       signToolCommand: cliConfig.signToolCommand,
       signToolParams: cliConfig.signToolParams,
     );
-    if (signToolError != null) {
-      CliLogger.exitError(signToolError);
-    }
+    if (signToolError != null) CliLogger.exitError(signToolError);
     final signTool = SignTool.fromOption(
       inno['sign_tool'],
       signToolName: cliConfig.signToolName,
@@ -245,11 +248,25 @@ class Config {
       signToolParams: cliConfig.signToolParams,
     );
 
-    final archError = BuildArch.validationError(inno['arch']);
-    if (archError != null) {
-      CliLogger.exitError(archError);
-    }
+    final archError = BuildArch.validateConfig(inno['arch']);
+    if (archError != null) CliLogger.exitError(archError);
     final arch = BuildArch.fromOption(inno['arch']);
+
+    if (inno['dlls'] != null && inno['dlls'] is! List) {
+      CliLogger.exitError("inno_bundle.dlls attribute is invalid "
+          "in pubspec.yaml, only a list of dll entries is allowed.");
+    }
+    final dlls = ((json['dlls'] ?? []) as List)
+        .map((d) {
+          if (d == null) return null;
+
+          final dllError = DllEntry.validateConfig(d);
+          if (dllError != null) CliLogger.exitError(dllError);
+
+          return DllEntry.fromJson(d);
+        })
+        .whereType<DllEntry>()
+        .toList(growable: false);
 
     return Config(
       pubspecFile: pubspecFile,
@@ -272,6 +289,7 @@ class Config {
       licenseFile: licenseFile,
       signTool: signTool,
       arch: arch,
+      dlls: dlls,
     );
   }
 
