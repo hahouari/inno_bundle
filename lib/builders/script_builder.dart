@@ -23,6 +23,7 @@ import 'dart:io';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/dll_entry.dart';
+import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
@@ -134,7 +135,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
     // adding optional DLL files from System32 (if they are available),
     // so that the end user is not required to install
     // MS Visual C++ redistributable to run the app.
-    final dlls = config.dlls.toList()..addAll(DllEntry.vcEntries);
+    final dlls = config.dlls.toList();
+    if (config.vcRedist == VcRedistMode.bundle) {
+      dlls.addAll(DllEntry.vcEntries);
+    }
 
     // copy all the dll files to the installer build directory
     final scriptDirPath = p.joinAll([
@@ -178,6 +182,45 @@ Filename: "{app}\\${config.exePubspecName}"; Description: "{cm:LaunchProgram,{#S
 \n''';
   }
 
+  /// Generates the `[DownloadVcRedist]` section for downloading the Visual C++ Redistributable.
+  /// This section will create a checkbox on the last page of the installer, checked it by default,
+  /// if left checked after user click finish,
+  /// the installer will open default browser and download the Visual C++ Redistributable
+  String _downloadVcRedist() {
+    if (config.vcRedist != VcRedistMode.download) return '';
+    return '''
+; This section will create a checkbox on the last page of the installer, checked it by default,
+; if left checked after user click finish,
+; the installer will open default browser and download the Visual C++ Redistributable
+[Code]
+var
+  VCCheckBox: TCheckBox;
+
+procedure InitializeWizard;
+begin
+  // Create a new checkbox below the default one on the last page
+  VCCheckBox := TCheckBox.Create(WizardForm);
+  VCCheckBox.Parent := WizardForm.FinishedPage;
+  VCCheckBox.Caption := 'Download and install required Visual C++ runtime (recommended)';
+  VCCheckBox.Checked := True; // Checked by default
+  VCCheckBox.Left := WizardForm.RunList.Left; // Align with existing checkbox
+  VCCheckBox.Top := WizardForm.RunList.Top + 25; // Place it below existing checkbox
+  VCCheckBox.Width := WizardForm.RunList.Width;
+end;
+
+// This runs *after* the user clicks "Finish" on the last page
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ErrCode: Integer;
+begin
+  if (CurStep = ssDone) and VCCheckBox.Checked then
+  begin
+      ShellExec('', 'https://aka.ms/vs/17/release/vc_redist.x64.exe', '', '', SW_SHOWNORMAL, ewNoWait, ErrCode);
+  end;
+end;
+\n''';
+  }
+
   /// Generates the ISS script file and returns its path.
   Future<File> build() async {
     CliLogger.info("Generating ISS script...");
@@ -188,7 +231,8 @@ Filename: "{app}\\${config.exePubspecName}"; Description: "{cm:LaunchProgram,{#S
         _tasks() +
         _files() +
         _icons() +
-        _run();
+        _run() +
+        _downloadVcRedist();
     final relScriptPath = p.joinAll([
       ...installerBuildDir,
       config.type.dirName,

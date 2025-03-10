@@ -96,5 +96,6 @@ inno_bundle:
     - arabic
   admin: auto
   arch: x64_compatible
+  # vc_redist: download
   # sign_tool:
   #   command: $p
