@@ -198,18 +198,20 @@ class Config {
           "`$installerIcon` file does not exist.");
     }
 
-    if (inno['languages'] != null && inno['languages'] is! List<String>) {
+    if (inno['languages'] != null && inno['languages'] is! List) {
       CliLogger.exitError("inno_bundle.languages attribute is invalid "
           "in pubspec.yaml, only a list of strings is allowed.");
     }
-    final languages = (inno['languages'] as List<String>?)?.map((l) {
-          final language = Language.getByNameOrNull(l);
-          if (language == null) {
-            CliLogger.exitError("problem in inno_bundle.languages attribute "
-                "in pubspec.yaml, language `$l` is not supported.");
-          }
-          return language!;
-        }).toList(growable: false) ??
+    final languages = (inno['languages'] as List?)
+            ?.map((l) {
+              final languageError = Language.validateConfig(l);
+              if (languageError != null) CliLogger.exitError(languageError);
+              final language = Language.getByNameOrNull(l);
+              if (language == null) return null;
+              return language;
+            })
+            .whereType<Language>()
+            .toList(growable: false) ??
         Language.values;
 
     if (inno['admin'] != null &&
@@ -256,7 +258,7 @@ class Config {
       CliLogger.exitError("inno_bundle.dlls attribute is invalid "
           "in pubspec.yaml, only a list of dll entries is allowed.");
     }
-    final dlls = ((json['dlls'] ?? []) as List)
+    final dlls = ((inno['dlls'] ?? []) as List)
         .map((d) {
           if (d == null) return null;
 

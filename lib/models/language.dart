@@ -64,7 +64,22 @@ enum Language {
   }
 
   /// Generates the Inno Setup language item for this language.
-  String toInnoItem() {
+  String get innoEntry {
     return "Name: \"$name\"; MessagesFile: \"compiler:$file\"";
+  }
+
+  /// Validate configuration option for [Language].
+  static String? validateConfig(dynamic option) {
+    if (option == null) return null;
+    if (option is! String) {
+      return "an entry in inno_bundle.languages attribute is invalid "
+          "in pubspec.yaml, expected a string, got $option.";
+    }
+    final language = Language.getByNameOrNull(option);
+    if (language == null) {
+      return "an entry in inno_bundle.languages attribute is invalid "
+          "in pubspec.yaml, language `$option` is not supported.";
+    }
+    return null;
   }
 }

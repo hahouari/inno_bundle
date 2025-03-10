@@ -22,6 +22,7 @@ import 'dart:io';
 
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/admin_mode.dart';
+import 'package:inno_bundle/models/dll_entry.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
@@ -98,7 +99,7 @@ Type: filesandordirs; Name: "{app}\\*"
   String _languages() {
     String section = "[Languages]\n";
     for (final language in config.languages) {
-      section += '${language.toInnoItem()}\n';
+      section += '${language.innoEntry}\n';
     }
     return '$section\n';
   }
@@ -130,28 +131,31 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
       }
     }
 
-    for (final dll in config.dlls) {
-      final dllPath = dll.absolutePath;
-      final dllName = dll.name;
-      section += "Source: \"$dllPath\"; DestDir: \"{app}\"; "
-          "DestName: \"$dllName\"; Flags: ignoreversion\n";
-    }
-
     // adding optional DLL files from System32 (if they are available),
     // so that the end user is not required to install
     // MS Visual C++ redistributable to run the app.
+    final dlls = config.dlls.toList()..addAll(DllEntry.vcEntries);
+
+    // copy all the dll files to the installer build directory
     final scriptDirPath = p.joinAll([
       Directory.systemTemp.absolute.path,
       "${camelCase(config.name)}Installer",
       config.type.dirName,
     ]);
     Directory(scriptDirPath).createSync(recursive: true);
-    for (final fileName in vcDllFiles) {
-      final file = File(p.joinAll([...system32, fileName]));
-      if (!file.existsSync()) continue;
-      final fileNewPath = p.join(scriptDirPath, p.basename(file.path));
-      file.copySync(fileNewPath);
-      section += "Source: \"$fileNewPath\"; DestDir: \"{app}\";\n";
+    for (final dll in dlls) {
+      final file = File(dll.absolutePath);
+      if (!file.existsSync()) {
+        // if the file is not required, skip it, otherwise exit with error.
+        if (!dll.required) continue;
+        CliLogger.exitError("Required DLL file ${file.path} does not exist.");
+      }
+
+      final dllPath = p.join(scriptDirPath, p.basename(file.path));
+      final dllName = dll.name;
+      file.copySync(dllPath);
+      section += "Source: \"$dllPath\"; DestDir: \"{app}\"; "
+          "DestName: \"$dllName\"; Flags: ignoreversion\n";
     }
 
     return '$section\n';

@@ -36,7 +36,10 @@ enum DllSource {
   project,
 
   /// The DLL is located in the system32 directory.
-  system32,
+  system32;
+
+  /// Return string array of literal values.
+  static List<String> get literalValues => values.map((e) => e.name).toList();
 }
 
 /// Class holding the DLL entry properties.
@@ -62,9 +65,12 @@ class DllEntry {
 
   static String? validateConfig(dynamic option) {
     if (option == null) return null;
-    if (option is String && !option.toLowerCase().endsWith('.dll')) {
-      return "path in inno_bundle.dlls in pubspec.yaml must point to a DLL file, "
-          "got $option.";
+    if (option is String) {
+      if (!option.toLowerCase().endsWith('.dll')) {
+        return "path in inno_bundle.dlls in pubspec.yaml must point to a DLL file, "
+            "got $option.";
+      }
+      return null;
     }
     if (option is Map<String, dynamic>) {
       if (option['path'] == null) {
@@ -75,7 +81,7 @@ class DllEntry {
       if (path is! String) {
         return "path field in inno_bundle.dlls entry in pubspec.yaml must be a string.";
       }
-      if (path.toLowerCase().endsWith('.dll')) {
+      if (!path.toLowerCase().endsWith('.dll')) {
         return "path in inno_bundle.dlls in pubspec.yaml must point to a DLL file, "
             "got $path.";
       }
@@ -87,9 +93,9 @@ class DllEntry {
       }
       if (option['source'] != null &&
           (option['source'] is! String ||
-              !DllSource.values.contains(option['source']))) {
+              !DllSource.literalValues.contains(option['source']))) {
         return "source field in inno_bundle.dlls entry in pubspec.yaml must be "
-            "one of ${DllSource.values.join(', ')} or null.";
+            "one of ${DllSource.literalValues.join(', ')} or null.";
       }
       return null;
     }
@@ -146,4 +152,14 @@ class DllEntry {
     // this package is not supposed to arrive to this line, but just in case.
     throw ArgumentError('Invalid DllSource: $source');
   }
+
+  /// Get dll entries for vc redistributable dll files.
+  static List<DllEntry> get vcEntries => vcDllFiles
+      .map((dllFile) => DllEntry(
+            path: dllFile,
+            name: p.basename(dllFile),
+            required: false,
+            source: DllSource.system32,
+          ))
+      .toList(growable: false);
 }
