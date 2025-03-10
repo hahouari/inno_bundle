@@ -13,18 +13,27 @@ import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
 
+/// Convert yaml list to list, this prevents some weird behaviors that come with [YamlList] type.
+List<dynamic> yamlToList(YamlList yamlList) {
+  final list = <dynamic>[];
+  for (final value in yamlList) {
+    if (value is YamlMap) {
+      list.add(yamlToMap(value));
+    } else if (value is YamlList) {
+      list.add(yamlToList(value));
+    } else {
+      list.add(value);
+    }
+  }
+  return list;
+}
+
 /// Convert yaml to map, this prevents some weird behaviors that come with [YamlMap] type.
 Map<String, dynamic> yamlToMap(YamlMap yamlMap) {
   final map = <String, dynamic>{};
   for (final entry in yamlMap.entries) {
     if (entry.value is YamlList) {
-      final list = <String>[];
-      for (final value in entry.value as YamlList) {
-        if (value is String) {
-          list.add(value);
-        }
-      }
-      map[entry.key as String] = list;
+      map[entry.key as String] = yamlToList(entry.value as YamlList);
     } else if (entry.value is YamlMap) {
       map[entry.key as String] = yamlToMap(entry.value as YamlMap);
     } else {
