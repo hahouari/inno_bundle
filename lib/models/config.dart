@@ -19,6 +19,7 @@ import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/dll_entry.dart';
 import 'package:inno_bundle/models/language.dart';
+import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/models/sign_tool.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
@@ -88,6 +89,9 @@ class Config {
   /// Arguments to be passed to flutter build.
   final String? buildArgs;
 
+  /// The mode for handling the Visual C++ Redistributable.
+  final VcRedistMode vcRedist;
+
   /// List of dlls to be included in the installer.
   final List<DllEntry> dlls;
 
@@ -111,6 +115,7 @@ class Config {
     required this.licenseFile,
     required this.signTool,
     required this.arch,
+    required this.vcRedist,
     this.type = BuildType.debug,
     this.app = true,
     this.installer = true,
@@ -254,6 +259,14 @@ class Config {
     if (archError != null) CliLogger.exitError(archError);
     final arch = BuildArch.fromOption(inno['arch']);
 
+    if (inno['vc_redist'] != null &&
+        inno['vc_redist'] is! bool &&
+        inno['vc_redist'] != "download") {
+      CliLogger.exitError("inno_bundle.vc_redist attribute is invalid value "
+          "in pubspec.yaml");
+    }
+    final vcRedist = VcRedistMode.fromOption(inno['vc_redist'] ?? true);
+
     if (inno['dlls'] != null && inno['dlls'] is! List) {
       CliLogger.exitError("inno_bundle.dlls attribute is invalid "
           "in pubspec.yaml, only a list of dll entries is allowed.");
@@ -291,6 +304,7 @@ class Config {
       licenseFile: licenseFile,
       signTool: signTool,
       arch: arch,
+      vcRedist: vcRedist,
       dlls: dlls,
     );
   }
@@ -324,6 +338,7 @@ class Config {
       'APP_INSTALLER_ICON': installerIcon,
       'APP_LANGUAGES': languages.map((l) => l.name).join(','),
       'APP_ADMIN': admin.toString(),
+      'APP_VCREDIST': vcRedist.toString(),
       'APP_TYPE': type.name,
       'APP_BUILD_APP': app.toString(),
       'APP_BUILD_INSTALLER': installer.toString(),
