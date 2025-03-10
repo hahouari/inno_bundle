@@ -1,3 +1,9 @@
+## 0.9.0
+
+- Adds config to control VC++ redistributable, either to bundle it with the installer or download it during installation, [#13](https://github.com/hahouari/inno_bundle/issues/13)
+
+- Adds support for including DLL files, [#11](https://github.com/hahouari/inno_bundle/issues/11)
+
 ## 0.8.0
 
 - **`(Breaking!)`** Move to Inno Setup version `6.4.1`.
