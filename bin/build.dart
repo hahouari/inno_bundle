@@ -68,6 +68,11 @@ void main(List<String> arguments) async {
     ..addOption("sign-tool-name", help: "Override sign tool name")
     ..addOption("sign-tool-command", help: "Override sign tool command")
     ..addOption("sign-tool-params", help: "Override sign tool params")
+    ..addOption(
+      'config-name',
+      help: 'The config name to use inside pubspec.yaml\n'
+          'Defaults to "inno_bundle"',
+    )
     ..addFlag(
       'envs',
       defaultsTo: false,

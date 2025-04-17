@@ -109,17 +109,18 @@ void generateEssentials(File pubspecFile, CliConfig cliConfig) {
   if (!cliConfig.generateAppId && !cliConfig.generatePublisher) return;
 
   final json = readPubspec(pubspecFile);
-  final inno = json['inno_bundle'] ?? {};
+  final configName = cliConfig.configName;
+  final inno = json[configName] ?? {};
 
   // if inno_bundle essentials are already present, do nothing
   if (inno['id'] != null || inno['publisher'] != null) return;
 
   final lines = pubspecFile.readAsLinesSync();
-  var innoInsertLine = lines.indexWhere((l) => l.startsWith("inno_bundle:"));
+  var innoInsertLine = lines.indexWhere((l) => l.startsWith("$configName:"));
 
   // if inno_bundle section is not found, add it at the end of the file
   if (innoInsertLine == -1) {
-    lines.add("inno_bundle:");
+    lines.add("$configName:");
     innoInsertLine = lines.length - 1;
   }
 

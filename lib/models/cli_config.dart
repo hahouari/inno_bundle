@@ -45,6 +45,10 @@ class CliConfig {
   /// Override sign tool params.
   final String? signToolParams;
 
+  /// The config name to use inside pubspec.yaml (defaults to inno_bundle).
+  /// Useful when using multiple configs in the same project.
+  final String configName;
+
   /// Creates a [CliConfig] instance with default values.
   const CliConfig({
     this.type = BuildType.debug,
@@ -59,6 +63,7 @@ class CliConfig {
     this.signToolName,
     this.signToolCommand,
     this.signToolParams,
+    this.configName = 'inno_bundle',
   });
 
   /// Creates a [CliConfig] instance from command-line arguments using [ArgResults].
@@ -76,6 +81,7 @@ class CliConfig {
       signToolName: args['sign-tool-name'],
       signToolCommand: args['sign-tool-command'],
       signToolParams: args['sign-tool-params'],
+      configName: args['config-name'],
     );
   }
 }

@@ -135,18 +135,19 @@ class Config {
     required CliConfig cliConfig,
     required File pubspecFile,
   }) {
-    if (json['inno_bundle'] is! Map<String, dynamic>) {
-      CliLogger.exitError("inno_bundle section is missing from pubspec.yaml.");
+    final configName = cliConfig.configName;
+    if (json[configName] is! Map<String, dynamic>) {
+      CliLogger.exitError("$configName section is missing from pubspec.yaml.");
     }
-    final Map<String, dynamic> inno = json['inno_bundle'];
+    final Map<String, dynamic> inno = json[configName];
 
     if (inno['id'] is! String) {
       CliLogger.exitError(
-          "inno_bundle.id attribute is missing from pubspec.yaml. "
+          "$configName.id attribute is missing from pubspec.yaml. "
           "Run `dart run inno_bundle:guid` to generate a new one, "
           "then put it in your pubspec.yaml.");
     } else if (!Uuid.isValidUUID(fromString: inno['id'])) {
-      CliLogger.exitError("inno_bundle.id from pubspec.yaml is not valid. "
+      CliLogger.exitError("$configName.id from pubspec.yaml is not valid. "
           "Run `dart run inno_bundle:guid` to generate a new one, "
           "then put it in your pubspec.yaml.");
     }
@@ -158,7 +159,7 @@ class Config {
     final String pubspecName = json['name'];
 
     if (inno['name'] != null && !validFilenameRegex.hasMatch(inno['name'])) {
-      CliLogger.exitError("inno_bundle.name from pubspec.yaml is not valid. "
+      CliLogger.exitError("$configName.name from pubspec.yaml is not valid. "
           "`${inno['name']}` is not a valid file name.");
     }
     final String name = inno['name'] ?? pubspecName;
@@ -177,7 +178,7 @@ class Config {
     final String description = inno['description'] ?? json['description'];
 
     if ((inno['publisher'] ?? json['maintainer']) is! String) {
-      CliLogger.exitError("maintainer or inno_bundle.publisher attributes are "
+      CliLogger.exitError("maintainer or $configName.publisher attributes are "
           "missing from pubspec.yaml.");
     }
     final String publisher = inno['publisher'] ?? json['maintainer'];
@@ -187,7 +188,7 @@ class Config {
     final updatesUrl = (inno['updates_url'] as String?) ?? url;
 
     if (inno['installer_icon'] != null && inno['installer_icon'] is! String) {
-      CliLogger.exitError("inno_bundle.installer_icon attribute is invalid "
+      CliLogger.exitError("$configName.installer_icon attribute is invalid "
           "in pubspec.yaml.");
     }
     final installerIcon = inno['installer_icon'] != null
@@ -199,12 +200,12 @@ class Config {
     if (installerIcon != defaultInstallerIconPlaceholder &&
         !File(installerIcon).existsSync()) {
       CliLogger.exitError(
-          "inno_bundle.installer_icon attribute value is invalid, "
+          "$configName.installer_icon attribute value is invalid, "
           "`$installerIcon` file does not exist.");
     }
 
     if (inno['languages'] != null && inno['languages'] is! List) {
-      CliLogger.exitError("inno_bundle.languages attribute is invalid "
+      CliLogger.exitError("$configName.languages attribute is invalid "
           "in pubspec.yaml, only a list of strings is allowed.");
     }
     final languages = (inno['languages'] as List?)
@@ -222,13 +223,13 @@ class Config {
     if (inno['admin'] != null &&
         inno['admin'] is! bool &&
         inno['admin'] != "auto") {
-      CliLogger.exitError("inno_bundle.admin attribute is invalid value "
+      CliLogger.exitError("$configName.admin attribute is invalid value "
           "in pubspec.yaml");
     }
     final admin = AdminMode.fromOption(inno['admin'] ?? true);
 
     if (inno['license_file'] != null && inno['license_file'] is! String) {
-      CliLogger.exitError("inno_bundle.license_file attribute is invalid "
+      CliLogger.exitError("$configName.license_file attribute is invalid "
           "in pubspec.yaml.");
     }
 
@@ -262,13 +263,13 @@ class Config {
     if (inno['vc_redist'] != null &&
         inno['vc_redist'] is! bool &&
         inno['vc_redist'] != "download") {
-      CliLogger.exitError("inno_bundle.vc_redist attribute is invalid value "
+      CliLogger.exitError("$configName.vc_redist attribute is invalid value "
           "in pubspec.yaml");
     }
     final vcRedist = VcRedistMode.fromOption(inno['vc_redist'] ?? true);
 
     if (inno['dlls'] != null && inno['dlls'] is! List) {
-      CliLogger.exitError("inno_bundle.dlls attribute is invalid "
+      CliLogger.exitError("$configName.dlls attribute is invalid "
           "in pubspec.yaml, only a list of dll entries is allowed.");
     }
     final dlls = ((inno['dlls'] ?? []) as List)
