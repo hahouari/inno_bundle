@@ -27,6 +27,8 @@ import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
+import 'dir_entry.dart';
+
 /// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
   /// The unique identifier (UUID) for the app being packaged.
@@ -95,6 +97,9 @@ class Config {
   /// List of dlls to be included in the installer.
   final List<DllEntry> dlls;
 
+  /// List of dirs to be included in the installer.
+  final List<DirEntry> dirs;
+
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
@@ -119,6 +124,7 @@ class Config {
     this.type = BuildType.debug,
     this.app = true,
     this.installer = true,
+    required this.dirs,
   });
 
   /// The name of the executable file that is created with flutter build.
@@ -283,6 +289,22 @@ class Config {
         .whereType<DllEntry>()
         .toList(growable: false);
 
+    if (inno['dirs'] != null && inno['dirs'] is! List) {
+      CliLogger.exitError("inno_bundle.dirs attribute is invalid "
+          "in pubspec.yaml, only a list of dirs entries is allowed.");
+    }
+    final dirs = ((inno['dirs'] ?? []) as List)
+        .map((d) {
+          if (d == null) return null;
+
+          final dllError = DirEntry.validateConfig(d);
+          if (dllError != null) CliLogger.exitError(dllError);
+
+          return DirEntry.fromJson(d);
+        })
+        .whereType<DirEntry>()
+        .toList(growable: false);
+
     return Config(
       pubspecFile: pubspecFile,
       buildArgs: cliConfig.buildArgs,
@@ -306,6 +328,7 @@ class Config {
       arch: arch,
       vcRedist: vcRedist,
       dlls: dlls,
+      dirs: dirs,
     );
   }
 

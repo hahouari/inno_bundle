@@ -165,6 +165,22 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
     return '$section\n';
   }
 
+  /// Generates the `[Dirs]` section, specifying the dirs and directories to include in the installer.
+  String _dirs() {
+    var section = "[Dirs]\n";
+    final dirs = config.dirs.toList();
+
+    for (final dir in dirs) {
+      final dirPermission = dir.permission;
+
+      final dirName = dir.name;
+
+      section += "\n Name: \"{app}\\$dirName\"; Permissions: $dirPermission";
+    }
+
+    return '$section\n';
+  }
+
   /// Generates the `[Icons]` section, defining the shortcuts for the installed application.
   String _icons() {
     return '''
@@ -230,6 +246,7 @@ end;
         _languages() +
         _tasks() +
         _files() +
+        _dirs() +
         _icons() +
         _run() +
         _downloadVcRedist();

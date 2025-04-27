@@ -96,6 +96,9 @@ inno_bundle:
     - arabic
   admin: auto
   arch: x64_compatible
+  dirs:
+    - name: appdata
+      permission: users-full
   # vc_redist: download
   # sign_tool:
   #   command: $p
