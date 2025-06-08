@@ -51,6 +51,21 @@ class AppBuilder {
       }
     }
 
+    /// Checks if the build process should be skipped based on the configuration.
+    if (config.skipBuild) {
+      CliLogger.info("Skipping building app...");
+
+      /// Verifies if the build directory exists and is not empty.
+      if (buildDir.existsSync() && buildDir.listSync().isNotEmpty) {
+        /// Returns the build directory if it exists and is not empty.
+        return buildDir;
+      } else {
+        /// Logs an error message if the build directory does not exist or is empty.
+        CliLogger.error(
+            "Build directory does not exist or is empty.exiting now....");
+        exit(1);
+      }
+    }
     final process = await Process.start(
       "flutter",
       [

@@ -96,9 +96,17 @@ class Config {
 
   /// List of dlls to be included in the installer.
   final List<DllEntry> dlls;
-  
+
   /// List of files to be included in the installer.
   final List<FileEntry> files;
+
+  /// Controls whether the app build process is skipped.
+  ///
+  /// If you're using a third-party build framework like Shorebird, set this to `true`
+  /// to bypass the default `flutter build windows` command.
+  ///
+  /// Note: This property is specifically intended for use with Shorebird or manual build.
+  final bool skipBuild;
 
   /// Creates a [Config] instance with default values.
   const Config({
@@ -125,6 +133,7 @@ class Config {
     this.type = BuildType.debug,
     this.app = true,
     this.installer = true,
+    this.skipBuild = false,
   });
 
   /// The name of the executable file that is created with flutter build.
