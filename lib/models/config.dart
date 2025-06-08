@@ -310,6 +310,8 @@ class Config {
         .whereType<FileEntry>()
         .toList(growable: false);
 
+    final skipBuild = inno['skipBuild'] as bool? ?? false;
+
     return Config(
       pubspecFile: pubspecFile,
       buildArgs: cliConfig.buildArgs,
@@ -334,6 +336,7 @@ class Config {
       vcRedist: vcRedist,
       dlls: dlls,
       files: files,
+      skipBuild: skipBuild,
     );
   }
 
