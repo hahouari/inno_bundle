@@ -10,6 +10,10 @@
 
 - Change unresolved publisher name from `Unknown User` to `Unknown Publisher`.
 
+- Update Inno Setup installation steps link.
+
+- Update Flutter Icon to reduce its bundle size from ~32KB to ~3.76KB.
+
 ## 0.9.0
 
 - Adds config to control VC++ redistributable, either to bundle it with the installer or download it during installation, [#13](https://github.com/hahouari/inno_bundle/issues/13)
