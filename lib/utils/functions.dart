@@ -133,6 +133,9 @@ void generateEssentials(
 
   // if inno_bundle section is not found, add it at the end of the file
   if (innoInsertLine == -1) {
+    // if the last line is not empty, add an empty line before the new section
+    if (lines.last.trim().isNotEmpty) lines.add("");
+
     lines.add("inno_bundle:");
     innoInsertLine = lines.length - 1;
   }
