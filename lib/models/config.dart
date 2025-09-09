@@ -7,8 +7,9 @@
 /// administrator mode, and whether to include the app or create an installer file.
 ///
 /// This file provides methods to create a [Config] instance from JSON or directly
-/// from the `pubspec.yaml` file, as well as a method to convert the configuration
-/// attributes into environment variables for further use.
+/// from the `pubspec.yaml` file and custom $configName if provided, as well as
+/// a method to convert the configuration attributes into environment variables
+/// for further use.
 library;
 
 import 'dart:io';
@@ -34,6 +35,9 @@ class Config {
 
   /// The pubspec file sourced for this configuration.
   final File pubspecFile;
+
+  /// The $configName sourced for this configuration.
+  final File configFile;
 
   /// The global pubspec name attribute, same name of the exe generated from flutter build.
   final String pubspecName;
@@ -98,6 +102,7 @@ class Config {
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
+    required this.configFile,
     required this.dlls,
     required this.buildArgs,
     required this.id,
@@ -131,54 +136,57 @@ class Config {
   ///
   /// Validates the configuration and exits with an error if invalid values are found.
   factory Config.fromJson(
-    Map<String, dynamic> json, {
+    Map<String, dynamic> json,
+    Map<String, dynamic> configJson, {
     required CliConfig cliConfig,
     required File pubspecFile,
+    required File configFile,
   }) {
-    if (json['inno_bundle'] is! Map<String, dynamic>) {
-      CliLogger.exitError("inno_bundle section is missing from pubspec.yaml.");
+    final configName =
+        configFile == pubspecFile ? "pubspec.yaml" : "config file";
+    if (configJson['inno_bundle'] is! Map<String, dynamic>) {
+      CliLogger.exitError("inno_bundle section is missing from $configName.");
     }
-    final Map<String, dynamic> inno = json['inno_bundle'];
+    final Map<String, dynamic> inno = configJson['inno_bundle'];
 
     if (inno['id'] is! String) {
       CliLogger.exitError(
-          "inno_bundle.id attribute is missing from pubspec.yaml. "
+          "inno_bundle.id attribute is missing from $configName. "
           "Run `dart run inno_bundle:guid` to generate a new one, "
-          "then put it in your pubspec.yaml.");
+          "then put it in your $configName.");
     } else if (!Uuid.isValidUUID(fromString: inno['id'])) {
-      CliLogger.exitError("inno_bundle.id from pubspec.yaml is not valid. "
+      CliLogger.exitError("inno_bundle.id from $configName is not valid. "
           "Run `dart run inno_bundle:guid` to generate a new one, "
-          "then put it in your pubspec.yaml.");
+          "then put it in your $configName.");
     }
     final String id = inno['id'];
 
     if (json['name'] is! String) {
-      CliLogger.exitError("name attribute is missing from pubspec.yaml.");
+      CliLogger.exitError("name attribute is missing from $configName.");
     }
     final String pubspecName = json['name'];
 
     if (inno['name'] != null && !validFilenameRegex.hasMatch(inno['name'])) {
-      CliLogger.exitError("inno_bundle.name from pubspec.yaml is not valid. "
+      CliLogger.exitError("inno_bundle.name from $configName is not valid. "
           "`${inno['name']}` is not a valid file name.");
     }
     final String name = inno['name'] ?? pubspecName;
 
     if ((cliConfig.appVersion ?? inno['version'] ?? json['version'])
         is! String) {
-      CliLogger.exitError("version attribute is missing from pubspec.yaml.");
+      CliLogger.exitError("version attribute is missing from $configName.");
     }
     final String version =
         cliConfig.appVersion ?? inno['version'] ?? json['version'];
 
     if ((inno['description'] ?? json['description']) is! String) {
-      CliLogger.exitError(
-          "description attribute is missing from pubspec.yaml.");
+      CliLogger.exitError("description attribute is missing from $configName.");
     }
     final String description = inno['description'] ?? json['description'];
 
     if ((inno['publisher'] ?? json['maintainer']) is! String) {
       CliLogger.exitError("maintainer or inno_bundle.publisher attributes are "
-          "missing from pubspec.yaml.");
+          "missing from $configName.");
     }
     final String publisher = inno['publisher'] ?? json['maintainer'];
 
@@ -188,7 +196,7 @@ class Config {
 
     if (inno['installer_icon'] != null && inno['installer_icon'] is! String) {
       CliLogger.exitError("inno_bundle.installer_icon attribute is invalid "
-          "in pubspec.yaml.");
+          "in $configName.");
     }
     final installerIcon = inno['installer_icon'] != null
         ? p.join(
@@ -205,7 +213,7 @@ class Config {
 
     if (inno['languages'] != null && inno['languages'] is! List) {
       CliLogger.exitError("inno_bundle.languages attribute is invalid "
-          "in pubspec.yaml, only a list of strings is allowed.");
+          "in $configName, only a list of strings is allowed.");
     }
     final languages = (inno['languages'] as List?)
             ?.map((l) {
@@ -223,13 +231,13 @@ class Config {
         inno['admin'] is! bool &&
         inno['admin'] != "auto") {
       CliLogger.exitError("inno_bundle.admin attribute is invalid value "
-          "in pubspec.yaml");
+          "in $configName");
     }
     final admin = AdminMode.fromOption(inno['admin'] ?? true);
 
     if (inno['license_file'] != null && inno['license_file'] is! String) {
       CliLogger.exitError("inno_bundle.license_file attribute is invalid "
-          "in pubspec.yaml.");
+          "in $configName.");
     }
 
     final licenseFilePath = p.join(
@@ -263,13 +271,13 @@ class Config {
         inno['vc_redist'] is! bool &&
         inno['vc_redist'] != "download") {
       CliLogger.exitError("inno_bundle.vc_redist attribute is invalid value "
-          "in pubspec.yaml");
+          "in $configName");
     }
     final vcRedist = VcRedistMode.fromOption(inno['vc_redist'] ?? true);
 
     if (inno['dlls'] != null && inno['dlls'] is! List) {
       CliLogger.exitError("inno_bundle.dlls attribute is invalid "
-          "in pubspec.yaml, only a list of dll entries is allowed.");
+          "in $configName, only a list of dll entries is allowed.");
     }
     final dlls = ((inno['dlls'] ?? []) as List)
         .map((d) {
@@ -285,6 +293,7 @@ class Config {
 
     return Config(
       pubspecFile: pubspecFile,
+      configFile: configFile,
       buildArgs: cliConfig.buildArgs,
       id: id,
       pubspecName: pubspecName,
@@ -312,13 +321,21 @@ class Config {
   /// Creates a [Config] instance directly from the `pubspec.yaml` file.
   ///
   /// Provides a convenient way to load configuration without manual JSON parsing.
-  factory Config.fromFile(File pubspecFile, CliConfig cliConfig) {
-    final json = readPubspec(pubspecFile);
+  factory Config.fromFile(
+    File pubspecFile,
+    File configFile,
+    CliConfig cliConfig,
+  ) {
+    final pubspecJson = readYaml(pubspecFile);
+    final configJson =
+        configFile == pubspecFile ? pubspecJson : readYaml(configFile);
 
     return Config.fromJson(
-      json,
+      pubspecJson,
+      configJson,
       cliConfig: cliConfig,
       pubspecFile: pubspecFile,
+      configFile: configFile,
     );
   }
 
@@ -327,6 +344,7 @@ class Config {
     final variables = <String, String>{
       'APP_ID': id,
       'PUBSPEC_NAME': pubspecName,
+      'CONFIG_FILE': configFile.path,
       'APP_NAME': name,
       'APP_NAME_CAMEL_CASE': camelCase(name),
       'APP_DESCRIPTION': description,

@@ -53,6 +53,10 @@ void main(List<String> arguments) async {
           'This will use namespace from --app-id-ns if provided',
     )
     ..addOption(
+      'path',
+      help: 'Path to custom config file. Default: pubspec.yaml',
+    )
+    ..addOption(
       "app-id-ns",
       help: "Namespace for --gen-app-id\nExample: www.example.com",
     )
@@ -88,15 +92,19 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
-  const filePath = 'pubspec.yaml';
-  final pubspecFile = File(filePath);
   final cliConfig = CliConfig.fromArgs(parsedArgs);
+  final configFilePath = parsedArgs['path'] as String?;
+  const pubspecFilePath = 'pubspec.yaml';
+  final pubspecFile = File(pubspecFilePath);
+  final configFile = configFilePath == null || configFilePath == pubspecFilePath
+      ? pubspecFile
+      : File(configFilePath);
 
   if (cliConfig.generateAppId || cliConfig.generatePublisher) {
-    generateEssentials(pubspecFile, cliConfig);
+    generateEssentials(pubspecFile, configFile, cliConfig);
   }
 
-  final config = Config.fromFile(pubspecFile, cliConfig);
+  final config = Config.fromFile(pubspecFile, configFile, cliConfig);
 
   if (envs) {
     print(config.toEnvironmentVariables());
