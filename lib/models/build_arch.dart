@@ -31,12 +31,12 @@ enum BuildArch {
   static final acceptedStringValues = ["x64", "x64_compatible"];
 
   /// Validate configuration option for [BuildArch].
-  static String? validateConfig(dynamic option) {
+  static String? validateConfig(dynamic option, {required String configName}) {
     if (option == null) return null;
     if (option is String && acceptedStringValues.contains(option)) {
       return null;
     }
-    return "inno_bundle.sign_tool attribute is invalid in pubspec.yaml.";
+    return "inno_bundle.sign_tool attribute is invalid in $configName.";
   }
 
   /// Parses configuration option to the desired [BuildArch].

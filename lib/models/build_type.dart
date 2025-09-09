@@ -1,9 +1,9 @@
 /// Represents the different build types supported for the software.
 ///
 /// This enum provides three build types:
-/// - [debug]: Represents a build type optimized for debugging.
-/// - [profile]: Represents a build type that allows profiling performance.
 /// - [release]: Represents a build type optimized for release to users.
+/// - [profile]: Represents a build type that allows profiling performance.
+/// - [debug]: Represents a build type optimized for debugging.
 ///
 /// The [dirName] getter returns the capitalized directory name associated with each build type.
 ///
@@ -23,9 +23,9 @@ import 'package:inno_bundle/utils/functions.dart';
 
 /// An enum representing the different build types supported for the software.
 enum BuildType {
-  debug,
+  release,
   profile,
-  release;
+  debug;
 
   /// Returns the directory name associated with the build type.
   String get dirName => capitalize(name);
@@ -34,10 +34,10 @@ enum BuildType {
   ///
   /// Prioritizes `release` over `profile` over `debug` if multiple flags are present.
   static BuildType fromArgs(ArgResults args) {
-    return args[release.name]
-        ? release
+    return args[debug.name]
+        ? debug
         : args[profile.name]
             ? profile
-            : debug;
+            : release;
   }
 }

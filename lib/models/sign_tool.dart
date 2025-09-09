@@ -63,6 +63,7 @@ class SignTool {
   /// Validate configuration option for [SignTool]
   static String? validateConfig(
     dynamic option, {
+    required String configName,
     String? signToolName,
     String? signToolCommand,
     String? signToolParams,
@@ -71,13 +72,13 @@ class SignTool {
     if (option is Map<String, dynamic>) {
       if ((signToolName ?? option['name']) == null &&
           (signToolCommand ?? option['command']) == null) {
-        return "inno_bundle.sign_tool on pubspec.yaml is expected to be "
+        return "inno_bundle.sign_tool in $configName is expected to be "
             "of type String or to at least have name or command fields.";
       }
       return null;
     }
 
-    return "inno_bundle.sign_tool attribute is invalid in pubspec.yaml.";
+    return "inno_bundle.sign_tool attribute is invalid in $configName.";
   }
 
   /// Parses configuration option to the desired [SignTool].

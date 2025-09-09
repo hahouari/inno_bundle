@@ -101,7 +101,7 @@ Map<String, dynamic> readYaml(File yamlFile) {
 }
 
 /// Generates a new app id (as UUID) for the app, if not already present.
-/// The new id is persisted in the pubspec.yaml file.
+/// The new id is persisted in the config file.
 ///
 /// The [ns] parameter is used to generate a namespaced UUID, if provided.
 void generateEssentials(

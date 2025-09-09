@@ -7,7 +7,7 @@
 /// administrator mode, and whether to include the app or create an installer file.
 ///
 /// This file provides methods to create a [Config] instance from JSON or directly
-/// from the `pubspec.yaml` file and custom $configName if provided, as well as
+/// from the `pubspec.yaml` file and custom config file if provided, as well as
 /// a method to convert the configuration attributes into environment variables
 /// for further use.
 library;
@@ -33,10 +33,10 @@ class Config {
   /// The unique identifier (UUID) for the app being packaged.
   final String id;
 
-  /// The pubspec file sourced for this configuration.
+  /// The pubspec file sourced for this configuration, used as a fallback source of values.
   final File pubspecFile;
 
-  /// The $configName sourced for this configuration.
+  /// The config file sourced for this configuration, used as the main source of values.
   final File configFile;
 
   /// The global pubspec name attribute, same name of the exe generated from flutter build.
@@ -78,7 +78,7 @@ class Config {
   /// Whether the installer requires administrator privileges.
   final AdminMode admin;
 
-  /// The build type (debug or release).
+  /// The build type (release, profile, or debug).
   final BuildType type;
 
   /// Whether to include the app in the installer.
@@ -121,7 +121,7 @@ class Config {
     required this.signTool,
     required this.arch,
     required this.vcRedist,
-    this.type = BuildType.debug,
+    this.type = BuildType.release,
     this.app = true,
     this.installer = true,
   });
@@ -132,7 +132,7 @@ class Config {
   /// The name of the executable file that will be created.
   String get exeName => "$name.exe";
 
-  /// Creates a [Config] instance from a JSON map, typically read from `pubspec.yaml`.
+  /// Creates a [Config] instance from a JSON map, typically read from `pubspec.yaml` and a config file (if provided).
   ///
   /// Validates the configuration and exits with an error if invalid values are found.
   factory Config.fromJson(
@@ -217,8 +217,8 @@ class Config {
     }
     final languages = (inno['languages'] as List?)
             ?.map((l) {
-              final languageError = Language.validateConfig(l);
-              if (languageError != null) CliLogger.exitError(languageError);
+              final error = Language.validateConfig(l, configName: configName);
+              if (error != null) CliLogger.exitError(error);
               final language = Language.getByNameOrNull(l);
               if (language == null) return null;
               return language;
@@ -251,6 +251,7 @@ class Config {
 
     final signToolError = SignTool.validateConfig(
       inno["sign_tool"],
+      configName: configName,
       signToolName: cliConfig.signToolName,
       signToolCommand: cliConfig.signToolCommand,
       signToolParams: cliConfig.signToolParams,
@@ -263,7 +264,8 @@ class Config {
       signToolParams: cliConfig.signToolParams,
     );
 
-    final archError = BuildArch.validateConfig(inno['arch']);
+    final archError =
+        BuildArch.validateConfig(inno['arch'], configName: configName);
     if (archError != null) CliLogger.exitError(archError);
     final arch = BuildArch.fromOption(inno['arch']);
 
@@ -283,7 +285,7 @@ class Config {
         .map((d) {
           if (d == null) return null;
 
-          final dllError = DllEntry.validateConfig(d);
+          final dllError = DllEntry.validateConfig(d, configName: configName);
           if (dllError != null) CliLogger.exitError(dllError);
 
           return DllEntry.fromJson(d);
@@ -318,7 +320,7 @@ class Config {
     );
   }
 
-  /// Creates a [Config] instance directly from the `pubspec.yaml` file.
+  /// Creates a [Config] instance directly from the `pubspec.yaml` file and a config file (if provided).
   ///
   /// Provides a convenient way to load configuration without manual JSON parsing.
   factory Config.fromFile(

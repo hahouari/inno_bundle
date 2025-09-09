@@ -35,9 +35,9 @@ Future<void> _buildInstaller(Config config, File scriptFile) async {
 /// Run to build installer
 void main(List<String> arguments) async {
   final parser = ArgParser()
-    ..addFlag(BuildType.release.name, negatable: false)
+    ..addFlag(BuildType.release.name, negatable: false, help: 'Default flag')
     ..addFlag(BuildType.profile.name, negatable: false)
-    ..addFlag(BuildType.debug.name, negatable: false, help: 'Default flag')
+    ..addFlag(BuildType.debug.name, negatable: false)
     ..addFlag('app', defaultsTo: true, help: 'Build app')
     ..addFlag('installer', defaultsTo: true, help: 'Build installer')
     ..addFlag(
@@ -49,7 +49,7 @@ void main(List<String> arguments) async {
     ..addFlag(
       'gen-app-id',
       defaultsTo: true,
-      help: 'Generate a random App ID into pubspec.yaml if non-existent\n'
+      help: 'Generate a random App ID into your config file if non-existent\n'
           'This will use namespace from --app-id-ns if provided',
     )
     ..addOption(
@@ -63,9 +63,9 @@ void main(List<String> arguments) async {
     ..addFlag(
       'gen-publisher',
       defaultsTo: true,
-      help: 'Generate a publisher name into pubspec.yaml if non-existent\n'
+      help: 'Generate a publisher name into config file if non-existent\n'
           'This will generate based on username of logged in user in machine\n'
-          'and only if maintainer field is not present in pubspec.yaml',
+          'and only if maintainer field is not present in config file',
     )
     ..addOption("build-args", help: "Append args to \"flutter build ...\"")
     ..addOption("app-version", help: "Override app version")

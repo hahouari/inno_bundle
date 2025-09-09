@@ -69,16 +69,16 @@ enum Language {
   }
 
   /// Validate configuration option for [Language].
-  static String? validateConfig(dynamic option) {
+  static String? validateConfig(dynamic option, {required String configName}) {
     if (option == null) return null;
     if (option is! String) {
       return "an entry in inno_bundle.languages attribute is invalid "
-          "in pubspec.yaml, expected a string, got $option.";
+          "in $configName, expected a string, got $option.";
     }
     final language = Language.getByNameOrNull(option);
     if (language == null) {
       return "an entry in inno_bundle.languages attribute is invalid "
-          "in pubspec.yaml, language `$option` is not supported.";
+          "in $configName, language `$option` is not supported.";
     }
     return null;
   }

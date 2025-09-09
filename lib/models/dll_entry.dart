@@ -63,44 +63,44 @@ class DllEntry {
     this.source = DllSource.project,
   });
 
-  static String? validateConfig(dynamic option) {
+  static String? validateConfig(dynamic option, {required String configName}) {
     if (option == null) return null;
     if (option is String) {
       if (!option.toLowerCase().endsWith('.dll')) {
-        return "path in inno_bundle.dlls in pubspec.yaml must point to a DLL file, "
+        return "path in inno_bundle.dlls in $configName must point to a DLL file, "
             "got $option.";
       }
       return null;
     }
     if (option is Map<String, dynamic>) {
       if (option['path'] == null) {
-        return "path field is missing from inno_bundle.dlls entry in pubspec.yaml, "
+        return "path field is missing from inno_bundle.dlls entry in $configName, "
             "it must be a string.";
       }
       final path = option['path'];
       if (path is! String) {
-        return "path field in inno_bundle.dlls entry in pubspec.yaml must be a string.";
+        return "path field in inno_bundle.dlls entry in $configName must be a string.";
       }
       if (!path.toLowerCase().endsWith('.dll')) {
-        return "path in inno_bundle.dlls in pubspec.yaml must point to a DLL file, "
+        return "path in inno_bundle.dlls in $configName must point to a DLL file, "
             "got $path.";
       }
       if (option['name'] != null && option['name'] is! String) {
-        return "name field in inno_bundle.dlls entry in pubspec.yaml must be a string or null.";
+        return "name field in inno_bundle.dlls entry in $configName must be a string or null.";
       }
       if (option['required'] != null && option['required'] is! bool) {
-        return "required field in inno_bundle.dlls entry in pubspec.yaml must be a boolean or null.";
+        return "required field in inno_bundle.dlls entry in $configName must be a boolean or null.";
       }
       if (option['source'] != null &&
           (option['source'] is! String ||
               !DllSource.literalValues.contains(option['source']))) {
-        return "source field in inno_bundle.dlls entry in pubspec.yaml must be "
+        return "source field in inno_bundle.dlls entry in $configName must be "
             "one of ${DllSource.literalValues.join(', ')} or null.";
       }
       return null;
     }
 
-    return "inno_bundle.dlls attribute is invalid in pubspec.yaml.";
+    return "inno_bundle.dlls attribute is invalid in $configName.";
   }
 
   factory DllEntry.fromJson(dynamic json) {
