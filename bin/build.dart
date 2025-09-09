@@ -93,12 +93,23 @@ void main(List<String> arguments) async {
   }
 
   final cliConfig = CliConfig.fromArgs(parsedArgs);
-  final configFilePath = parsedArgs['path'] as String?;
   const pubspecFilePath = 'pubspec.yaml';
   final pubspecFile = File(pubspecFilePath);
-  final configFile = configFilePath == null || configFilePath == pubspecFilePath
+  final defaultConfigFilePath = 'inno_bundle.yaml';
+  final defaultConfigFile = File(defaultConfigFilePath);
+  final configFilePath = parsedArgs['path'] as String?;
+
+  // if config file points to pubspec file, use same File instance,
+  // the intention is to first look up custom config file,
+  // if not provided, look up default config file `inno_bundle.yaml`,
+  // else, then look up pubspec file.
+  final configFile = configFilePath == pubspecFilePath
       ? pubspecFile
-      : File(configFilePath);
+      : configFilePath != null
+          ? File(configFilePath)
+          : defaultConfigFile.existsSync()
+              ? defaultConfigFile
+              : pubspecFile;
 
   if (cliConfig.generateAppId || cliConfig.generatePublisher) {
     generateEssentials(pubspecFile, configFile, cliConfig);
