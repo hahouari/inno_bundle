@@ -20,14 +20,15 @@ library;
 
 import 'dart:io';
 
-import 'package:inno_bundle/models/config.dart';
+import 'package:path/path.dart' as p;
+
 import 'package:inno_bundle/models/admin_mode.dart';
+import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/dll_entry.dart';
 import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
-import 'package:path/path.dart' as p;
 
 /// A class responsible for generating the Inno Setup Script (ISS) file for the installer.
 class ScriptBuilder {
@@ -124,11 +125,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
       final filePath = appFile.absolute.path;
       if (FileSystemEntity.isDirectorySync(filePath)) {
         final fileName = p.basename(filePath);
-        section += "Source: \"$filePath\\*\"; DestDir: \"{app}\\$fileName\"; "
-            "Flags: ignoreversion recursesubdirs createallsubdirs\n";
+        section += 'Source: "$filePath\\*"; DestDir: "{app}\\$fileName"; '
+            'Flags: ignoreversion recursesubdirs createallsubdirs\n';
       } else {
-        section += "Source: \"$filePath\"; DestDir: \"{app}\"; "
-            "Flags: ignoreversion\n";
+        section += 'Source: "$filePath"; DestDir: "{app}"; '
+            'Flags: ignoreversion\n';
       }
     }
 
@@ -158,8 +159,25 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
       final dllPath = p.join(scriptDirPath, p.basename(file.path));
       final dllName = dll.name;
       file.copySync(dllPath);
-      section += "Source: \"$dllPath\"; DestDir: \"{app}\"; "
-          "DestName: \"$dllName\"; Flags: ignoreversion\n";
+      section += 'Source: "$dllPath"; DestDir: "{app}"; '
+          'DestName: "$dllName"; Flags: ignoreversion\n';
+    }
+
+    final files = config.files.toList();
+    for (final f in files) {
+      final file = File(f.absolutePath);
+      if (!file.existsSync()) {
+        // if the file is not required, skip it, otherwise exit with error.
+        if (!f.required) continue;
+        CliLogger.exitError("Required file ${file.path} does not exist.");
+      }
+
+      final fPath = p.join(scriptDirPath, p.basename(file.path));
+      final fName = f.name;
+      file.copySync(fPath);
+      final destDir = f.destinationDir == null ? "{app}" : "{app}\\${f.destinationDir}";
+      section += 'Source: "$fPath"; DestDir: "$destDir"; '
+          'DestName: "$fName"; Flags: ignoreversion\n';
     }
 
     return '$section\n';
@@ -247,15 +265,7 @@ end;
   /// Generates the ISS script file and returns its path.
   Future<File> build() async {
     CliLogger.info("Generating ISS script...");
-    final script = scriptHeader +
-        _setup() +
-        _installDelete() +
-        _languages() +
-        _tasks() +
-        _files() +
-        _icons() +
-        _run() +
-        _downloadVcRedist();
+    final script = scriptHeader + _setup() + _installDelete() + _languages() + _tasks() + _files() + _icons() + _run() + _downloadVcRedist();
     final relScriptPath = p.joinAll([
       ...installerBuildDir,
       config.type.dirName,

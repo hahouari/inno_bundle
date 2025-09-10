@@ -27,8 +27,10 @@ library;
 
 import 'dart:io';
 
-import 'package:inno_bundle/utils/constants.dart';
 import 'package:path/path.dart' as p;
+
+import 'package:inno_bundle/models/file_raw_entry.dart';
+import 'package:inno_bundle/utils/constants.dart';
 
 /// Enum representing the source of the DLL.
 enum DllSource {
@@ -43,64 +45,23 @@ enum DllSource {
 }
 
 /// Class holding the DLL entry properties.
-class DllEntry {
-  /// The path to the DLL file.
-  final String path;
-
-  /// The name for the DLL. Defaults to the basename of the path.
-  final String name;
-
-  /// A flag indicating if the DLL is required. Defaults to true.
-  final bool required;
-
+class DllEntry extends FileRawEntry {
   /// An enum indicating the source of the DLL. Defaults to DllSource.project.
   final DllSource source;
 
-  DllEntry({
-    required this.path,
-    required this.name,
-    this.required = true,
+  const DllEntry({
+    required super.path,
+    required super.name,
+    super.required = true,
     this.source = DllSource.project,
   });
 
   static String? validateConfig(dynamic option, {required String configName}) {
-    if (option == null) return null;
-    if (option is String) {
-      if (!option.toLowerCase().endsWith('.dll')) {
-        return "path in inno_bundle.dlls in $configName must point to a DLL file, "
-            "got $option.";
-      }
-      return null;
-    }
-    if (option is Map<String, dynamic>) {
-      if (option['path'] == null) {
-        return "path field is missing from inno_bundle.dlls entry in $configName, "
-            "it must be a string.";
-      }
-      final path = option['path'];
-      if (path is! String) {
-        return "path field in inno_bundle.dlls entry in $configName must be a string.";
-      }
-      if (!path.toLowerCase().endsWith('.dll')) {
-        return "path in inno_bundle.dlls in $configName must point to a DLL file, "
-            "got $path.";
-      }
-      if (option['name'] != null && option['name'] is! String) {
-        return "name field in inno_bundle.dlls entry in $configName must be a string or null.";
-      }
-      if (option['required'] != null && option['required'] is! bool) {
-        return "required field in inno_bundle.dlls entry in $configName must be a boolean or null.";
-      }
-      if (option['source'] != null &&
-          (option['source'] is! String ||
-              !DllSource.literalValues.contains(option['source']))) {
-        return "source field in inno_bundle.dlls entry in $configName must be "
-            "one of ${DllSource.literalValues.join(', ')} or null.";
-      }
-      return null;
-    }
-
-    return "inno_bundle.dlls attribute is invalid in $configName.";
+    return FileRawEntry.validateConfig(
+      option,
+      propertyName: 'dlls',
+      requiredExtension: 'dll',
+    );
   }
 
   factory DllEntry.fromJson(dynamic json) {
@@ -143,6 +104,7 @@ class DllEntry {
   }
 
   /// Get dll file absolute path.
+  @override
   String get absolutePath {
     if (p.isAbsolute(path)) return path;
     if (source == DllSource.project) {

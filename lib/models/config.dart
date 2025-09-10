@@ -14,19 +14,21 @@ library;
 
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
+
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/dll_entry.dart';
+import 'package:inno_bundle/models/file_entry.dart';
 import 'package:inno_bundle/models/language.dart';
-import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/models/sign_tool.dart';
+import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
-import 'package:path/path.dart' as p;
-import 'package:uuid/uuid.dart';
 
 /// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
@@ -98,12 +100,16 @@ class Config {
 
   /// List of dlls to be included in the installer.
   final List<DllEntry> dlls;
+  
+  /// List of files to be included in the installer.
+  final List<FileEntry> files;
 
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
     required this.configFile,
     required this.dlls,
+    required this.files,
     required this.buildArgs,
     required this.id,
     required this.pubspecName,
@@ -293,6 +299,18 @@ class Config {
         .whereType<DllEntry>()
         .toList(growable: false);
 
+    final files = ((inno['files'] ?? []) as List)
+        .map((d) {
+          if (d == null) return null;
+
+          final dllError = FileEntry.validateConfig(d);
+          if (dllError != null) CliLogger.exitError(dllError);
+
+          return FileEntry.fromJson(d);
+        })
+        .whereType<FileEntry>()
+        .toList(growable: false);
+
     return Config(
       pubspecFile: pubspecFile,
       configFile: configFile,
@@ -317,6 +335,7 @@ class Config {
       arch: arch,
       vcRedist: vcRedist,
       dlls: dlls,
+      files: files,
     );
   }
 
