@@ -1,6 +1,12 @@
+## 0.10.1
+
+- Update `README.md` to align with breaking changes in `0.10.0`.
+
+- Correct position of checkbox that downloads VC++ runtime in last page of the installer.
+
 ## 0.10.0
 
-- **`(Breaking!)`** Change the default build type from `debug` to `release`, this was changed to match the expected behavior of an app bundler.
+- **`(Breaking!)`** Change the default build type from `debug` to `release`, this was changed to match the expected default behavior of an app bundler.
 
 - Adds `--path` CLI parameter to specify custom config file path [#15](https://github.com/hahouari/inno_bundle/pull/15#issuecomment-3268840258), also support reading config from `inno_bundle.yaml` file if available.
 
