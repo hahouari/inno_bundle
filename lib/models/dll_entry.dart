@@ -56,7 +56,7 @@ class DllEntry extends FileRawEntry {
     this.source = DllSource.project,
   });
 
-  static String? validateConfig(dynamic option) {
+  static String? validateConfig(dynamic option, {required String configName}) {
     return FileRawEntry.validateConfig(
       option,
       propertyName: 'dlls',

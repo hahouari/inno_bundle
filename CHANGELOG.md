@@ -1,8 +1,30 @@
+## 0.10.1
+
+- Update `README.md` to align with breaking changes in `0.10.0`.
+
+- Correct position of checkbox that downloads VC++ runtime in last page of the installer.
+
+## 0.10.0
+
+- **`(Breaking!)`** Change the default build type from `debug` to `release`, this was changed to match the expected default behavior of an app bundler.
+
+- Adds `--path` CLI parameter to specify custom config file path [#15](https://github.com/hahouari/inno_bundle/pull/15#issuecomment-3268840258), also support reading config from `inno_bundle.yaml` file if available.
+
+- Add environment variable `CONFIG_FILE` to CLI output of `dart run inno_bundle:build --envs`.
+
+- Update help and error messages to reflect which config file is being used.
+
+- Change unresolved publisher name from `Unknown User` to `Unknown Publisher`.
+
+- Update Inno Setup installation steps link.
+
+- Update Flutter Icon to reduce its bundle size from ~32KB to ~3.76KB.
+
 ## 0.9.0
 
-- Adds config to control VC++ redistributable, either to bundle it with the installer or download it during installation, [#13](https://github.com/hahouari/inno_bundle/issues/13)
+- Adds config to control VC++ redistributable, either to bundle it with the installer or download it during installation [#13](https://github.com/hahouari/inno_bundle/issues/13).
 
-- Adds support for including DLL files, [#11](https://github.com/hahouari/inno_bundle/issues/11)
+- Adds support for including DLL files [#11](https://github.com/hahouari/inno_bundle/issues/11).
 
 ## 0.8.0
 

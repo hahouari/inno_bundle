@@ -7,7 +7,7 @@ import 'package:inno_bundle/models/build_type.dart';
 
 /// A class representing the configuration for the command-line interface.
 class CliConfig {
-  /// The build type (debug, profile, or release).
+  /// The build type (release, profile, or debug).
   final BuildType type;
 
   /// Whether to include the app in the installer.
@@ -19,12 +19,12 @@ class CliConfig {
   /// Whether to install Inno Setup into your system, if not already installed.
   final bool installInnoSetup;
 
-  /// Whether to generate app id and save it to pubspec.yaml.
+  /// Whether to generate app id and save it to config file.
   final bool generateAppId;
 
-  /// Whether to generate publisher and save it to pubspec.yaml.
+  /// Whether to generate publisher and save it to config file.
   /// This will use username of logged in user in machine.
-  /// It will generate only if maintainer field is not present in pubspec.yaml.
+  /// It will generate only if maintainer field is not present in config file.
   final bool generatePublisher;
 
   /// Namespace for the App ID (as GUID).
@@ -47,7 +47,7 @@ class CliConfig {
 
   /// Creates a [CliConfig] instance with default values.
   const CliConfig({
-    this.type = BuildType.debug,
+    this.type = BuildType.release,
     this.app = true,
     this.installer = true,
     this.installInnoSetup = true,

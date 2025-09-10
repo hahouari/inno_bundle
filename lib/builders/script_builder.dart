@@ -212,18 +212,41 @@ Filename: "{app}\\${config.exePubspecName}"; Description: "{cm:LaunchProgram,{#S
 ; the installer will open default browser and download the Visual C++ Redistributable
 [Code]
 var
-  VCCheckBox: TCheckBox;
+  RunList: TNewCheckListBox;
+  VCCheckBox: TNewCheckBox;
 
-procedure InitializeWizard;
+// This section will create checkbox on the last page of the installer to download VC Runtime.
+procedure CurPageChanged(CurPageID: Integer);
 begin
-  // Create a new checkbox below the default one on the last page
-  VCCheckBox := TCheckBox.Create(WizardForm);
-  VCCheckBox.Parent := WizardForm.FinishedPage;
-  VCCheckBox.Caption := 'Download and install required Visual C++ runtime (recommended)';
-  VCCheckBox.Checked := True; // Checked by default
-  VCCheckBox.Left := WizardForm.RunList.Left; // Align with existing checkbox
-  VCCheckBox.Top := WizardForm.RunList.Top + 25; // Place it below existing checkbox
-  VCCheckBox.Width := WizardForm.RunList.Width;
+  if CurPageID = wpFinished then
+  begin
+    // The RunList is a TNewCheckListBox that contains checkboxes for [Run] entries
+    // It's created automatically when you have [Run] entries with postinstall flag
+    RunList := WizardForm.RunList;
+    
+    if RunList <> nil then
+    begin
+      // Create our custom checkbox below the RunList
+      VCCheckBox := TNewCheckBox.Create(WizardForm);
+      VCCheckBox.Parent := WizardForm.FinishedPage;
+      
+      // Position it below the RunList
+      VCCheckBox.SetBounds(
+        RunList.Left + 4,
+        RunList.Top + 25,
+        RunList.Width,
+        ScaleY(17)
+      );
+      
+      // Set the checkbox properties
+      VCCheckBox.Caption := 'Download and install required Visual C++ runtime (recommended)';
+      VCCheckBox.Checked := True; // Default checked
+      VCCheckBox.Font.Assign(WizardForm.FinishedLabel.Font);
+      
+      // Make sure it's visible
+      VCCheckBox.Visible := True;
+    end
+  end;
 end;
 
 // This runs *after* the user clicks "Finish" on the last page

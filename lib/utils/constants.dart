@@ -39,8 +39,8 @@ const String GUID_END_MESSAGE = '''\n
 ''';
 
 /// GitHub link for documentation on how to download and install Inoo Setup.
-const readmeDownloadStepLink = "https://github.com/hahouari/inno_bundle"
-    "?tab=readme-ov-file#1-install-inno-setup";
+const innoDownloadStepLink =
+    "https://github.com/hahouari/inno_bundle/wiki/Install-Inno-Setup";
 
 /// Relative build directory path for x64 windows app.
 const appBuildDir = ["build", "windows", "x64", "runner"];

@@ -15,14 +15,14 @@ CLI tool that simplifies bundling flutter apps into Windows installers using Inn
 dart pub add dev:inno_bundle
 ```
 
-For more advanced configuration with examples, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options).
+For setting up your configuration and examples, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options).
 
 ## 2. Build the Installer
 
-To run the build command on release mode
+Run the build command on release mode
 
 ```sh
-dart run inno_bundle:build --release
+dart run inno_bundle:build
 ```
 
 **Note:** This will generate the initial configuration if not present in your `pubspec.yaml`.

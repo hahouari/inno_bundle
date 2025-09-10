@@ -90,35 +90,52 @@ String getHomeDir() {
   return home;
 }
 
-/// Reads the [pubspecFile] and returns a map of its contents.
-/// The [pubspecFile] is passed as a [File] object instead of being hardcoded
+/// Reads the [yamlFile] and returns a map of its contents.
+/// The [yamlFile] is passed as a [File] object instead of being hardcoded
 /// because in the future, we may support reading multiple files for configuration.
-Map<String, dynamic> readPubspec(File pubspecFile) {
-  final yamlMap = loadYaml(pubspecFile.readAsStringSync()) as Map;
+Map<String, dynamic> readYaml(File yamlFile) {
+  final yamlMap = (loadYaml(yamlFile.readAsStringSync()) ?? YamlMap()) as Map;
   // yamlMap has the type YamlMap, which has several unwanted side effects
   var json = yamlToMap(yamlMap as YamlMap);
   return json;
 }
 
 /// Generates a new app id (as UUID) for the app, if not already present.
-/// The new id is persisted in the pubspec.yaml file.
+/// The new id is persisted in the config file.
 ///
 /// The [ns] parameter is used to generate a namespaced UUID, if provided.
-void generateEssentials(File pubspecFile, CliConfig cliConfig) {
+void generateEssentials(
+  File pubspecFile,
+  File configFile,
+  CliConfig cliConfig,
+) {
   // if neither app id nor publisher is to be generated, do nothing
   if (!cliConfig.generateAppId && !cliConfig.generatePublisher) return;
 
-  final json = readPubspec(pubspecFile);
-  final inno = json['inno_bundle'] ?? {};
+  final pubspecJson = readYaml(pubspecFile);
+
+  if (!configFile.existsSync()) {
+    CliLogger.exitError('The CLI param --path has an invalid value, '
+        'the given path does not exist.');
+  }
+
+  // if config file is a custom one, read 'inno_bundle' section from it,
+  // otherwise, read 'inno_bundle' section from pubspec.yaml.
+  final configJson =
+      configFile == pubspecFile ? pubspecJson : readYaml(configFile);
+  final inno = configJson['inno_bundle'] ?? {};
 
   // if inno_bundle essentials are already present, do nothing
   if (inno['id'] != null || inno['publisher'] != null) return;
 
-  final lines = pubspecFile.readAsLinesSync();
+  final lines = configFile.readAsLinesSync();
   var innoInsertLine = lines.indexWhere((l) => l.startsWith("inno_bundle:"));
 
   // if inno_bundle section is not found, add it at the end of the file
   if (innoInsertLine == -1) {
+    // if the last line is not empty, add an empty line before the new section
+    if (lines.last.trim().isNotEmpty) lines.add("");
+
     lines.add("inno_bundle:");
     innoInsertLine = lines.length - 1;
   }
@@ -135,13 +152,14 @@ void generateEssentials(File pubspecFile, CliConfig cliConfig) {
   }
 
   if (cliConfig.generatePublisher &&
-      json['maintainer'] == null &&
+      pubspecJson['maintainer'] == null &&
       inno['publisher'] == null) {
     innoInsertLine += 1;
-    lines.insert(innoInsertLine, "  publisher: ${getSystemUserName()}");
+    final publisher = getSystemUserName() ?? "Unknown Publisher";
+    lines.insert(innoInsertLine, "  publisher: $publisher");
   }
 
-  pubspecFile.writeAsStringSync(lines.join('\n'));
+  configFile.writeAsStringSync(lines.join('\n'));
 }
 
 /// Checks if Winget is installed on the system, and returns the path to the executable.
@@ -187,10 +205,9 @@ File? getInnoSetupExec({bool throwIfNotFound = true}) {
   if (!Directory(p.joinAll(innoSysDirPath)).existsSync() &&
       !Directory(p.joinAll(innoUserDirPath)).existsSync()) {
     if (throwIfNotFound) {
-      CliLogger.error("Inno Setup is not detected in your machine, "
-          "checkout our README on how to correctly install it:\n"
-          "${CliLogger.sLink(readmeDownloadStepLink, level: CliLoggerLevel.two)}");
-      exit(1);
+      CliLogger.exitError("Inno Setup is not detected in your machine, "
+          "checkout our docs on how to correctly install it:\n"
+          "${CliLogger.sLink(innoDownloadStepLink, level: CliLoggerLevel.two)}");
     }
     return null;
   }
@@ -204,16 +221,14 @@ File? getInnoSetupExec({bool throwIfNotFound = true}) {
   if (userExecFile.existsSync()) return userExecFile;
 
   if (throwIfNotFound) {
-    CliLogger.error("Inno Setup installation in your machine is corrupted "
-        "or incomplete, checkout our README on how to correctly install it:\n"
-        "${CliLogger.sLink(readmeDownloadStepLink, level: CliLoggerLevel.two)}");
-    exit(1);
+    CliLogger.exitError("Inno Setup installation in your machine is corrupted "
+        "or incomplete, checkout our docs on how to correctly install it:\n"
+        "${CliLogger.sLink(innoDownloadStepLink, level: CliLoggerLevel.two)}");
   }
   return null;
 }
 
 /// Get the logged in username in the machine.
-String getSystemUserName() =>
+String? getSystemUserName() =>
     Platform.environment['USER'] ?? // Linux/macOS
-    Platform.environment['USERNAME'] ?? // Windows
-    'Unknown User';
+    Platform.environment['USERNAME']; // Windows

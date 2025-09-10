@@ -35,9 +35,9 @@ Future<void> _buildInstaller(Config config, File scriptFile) async {
 /// Run to build installer
 void main(List<String> arguments) async {
   final parser = ArgParser()
-    ..addFlag(BuildType.release.name, negatable: false)
+    ..addFlag(BuildType.release.name, negatable: false, help: 'Default flag')
     ..addFlag(BuildType.profile.name, negatable: false)
-    ..addFlag(BuildType.debug.name, negatable: false, help: 'Default flag')
+    ..addFlag(BuildType.debug.name, negatable: false)
     ..addFlag('app', defaultsTo: true, help: 'Build app')
     ..addFlag('installer', defaultsTo: true, help: 'Build installer')
     ..addFlag(
@@ -49,8 +49,12 @@ void main(List<String> arguments) async {
     ..addFlag(
       'gen-app-id',
       defaultsTo: true,
-      help: 'Generate a random App ID into pubspec.yaml if non-existent\n'
+      help: 'Generate a random App ID into your config file if non-existent\n'
           'This will use namespace from --app-id-ns if provided',
+    )
+    ..addOption(
+      'path',
+      help: 'Path to custom config file. Default: pubspec.yaml',
     )
     ..addOption(
       "app-id-ns",
@@ -59,9 +63,9 @@ void main(List<String> arguments) async {
     ..addFlag(
       'gen-publisher',
       defaultsTo: true,
-      help: 'Generate a publisher name into pubspec.yaml if non-existent\n'
+      help: 'Generate a publisher name into config file if non-existent\n'
           'This will generate based on username of logged in user in machine\n'
-          'and only if maintainer field is not present in pubspec.yaml',
+          'and only if maintainer field is not present in config file',
     )
     ..addOption("build-args", help: "Append args to \"flutter build ...\"")
     ..addOption("app-version", help: "Override app version")
@@ -88,15 +92,30 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
-  const filePath = 'pubspec.yaml';
-  final pubspecFile = File(filePath);
   final cliConfig = CliConfig.fromArgs(parsedArgs);
+  const pubspecFilePath = 'pubspec.yaml';
+  final pubspecFile = File(pubspecFilePath);
+  final defaultConfigFilePath = 'inno_bundle.yaml';
+  final defaultConfigFile = File(defaultConfigFilePath);
+  final configFilePath = parsedArgs['path'] as String?;
+
+  // if config file points to pubspec file, use same File instance,
+  // the intention is to first look up custom config file,
+  // if not provided, look up default config file `inno_bundle.yaml`,
+  // else, then look up pubspec file.
+  final configFile = configFilePath == pubspecFilePath
+      ? pubspecFile
+      : configFilePath != null
+          ? File(configFilePath)
+          : defaultConfigFile.existsSync()
+              ? defaultConfigFile
+              : pubspecFile;
 
   if (cliConfig.generateAppId || cliConfig.generatePublisher) {
-    generateEssentials(pubspecFile, cliConfig);
+    generateEssentials(pubspecFile, configFile, cliConfig);
   }
 
-  final config = Config.fromFile(pubspecFile, cliConfig);
+  final config = Config.fromFile(pubspecFile, configFile, cliConfig);
 
   if (envs) {
     print(config.toEnvironmentVariables());
