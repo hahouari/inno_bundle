@@ -175,7 +175,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
       final fPath = p.join(scriptDirPath, p.basename(file.path));
       final fName = f.name;
       file.copySync(fPath);
-      final destDir = f.destinationDir == null ? "{app}" : "{app}\\${f.destinationDir}";
+      final destDir =
+          f.destinationDir == null ? "{app}" : "{app}\\${f.destinationDir}";
       section += 'Source: "$fPath"; DestDir: "$destDir"; '
           'DestName: "$fName"; Flags: ignoreversion\n';
     }
@@ -215,7 +216,22 @@ var
   RunList: TNewCheckListBox;
   VCCheckBox: TNewCheckBox;
 
-// This section will create checkbox on the last page of the installer to download VC Runtime.
+// Repositions the VCCheckBox relative to the RunList's current position when the window is resized
+procedure OnWizardFormResize(Sender: TObject);
+begin
+  if (VCCheckBox <> nil) and (RunList <> nil) and WizardForm.FinishedPage.Visible then
+  begin
+    // Reposition the checkbox relative to the RunList's current position
+    VCCheckBox.SetBounds(
+      RunList.Left + 4,
+      RunList.Top + 25,
+      VCCheckBox.Width,
+      VCCheckBox.Height
+    );
+  end;
+end;
+
+// Create checkbox on the last page of the installer to download VC Runtime.
 procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpFinished then
@@ -245,6 +261,9 @@ begin
       
       // Make sure it's visible
       VCCheckBox.Visible := True;
+            
+      // Assign the resize event handler
+      WizardForm.OnResize := @OnWizardFormResize;
     end
   end;
 end;
@@ -265,7 +284,15 @@ end;
   /// Generates the ISS script file and returns its path.
   Future<File> build() async {
     CliLogger.info("Generating ISS script...");
-    final script = scriptHeader + _setup() + _installDelete() + _languages() + _tasks() + _files() + _icons() + _run() + _downloadVcRedist();
+    final script = scriptHeader +
+        _setup() +
+        _installDelete() +
+        _languages() +
+        _tasks() +
+        _files() +
+        _icons() +
+        _run() +
+        _downloadVcRedist();
     final relScriptPath = p.joinAll([
       ...installerBuildDir,
       config.type.dirName,
