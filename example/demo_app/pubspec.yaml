@@ -96,7 +96,7 @@ inno_bundle:
     - arabic
   admin: auto
   arch: x64_compatible
-  dlls:
+  files:
     - path: msvcp140.dll
       source: system32
       destination: lalaland

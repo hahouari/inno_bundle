@@ -7,6 +7,7 @@ import 'package:inno_bundle/builders/script_builder.dart';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
 
@@ -129,6 +130,7 @@ void main(List<String> arguments) async {
   final appBuildDir = await _buildApp(config);
   final scriptFile = await _buildScript(config, appBuildDir);
   await _buildInstaller(config, scriptFile);
+  CliLogger.flushDeferred();
 
   if (hf) print(BUILD_END_MESSAGE);
 }

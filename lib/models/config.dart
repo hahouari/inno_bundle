@@ -14,9 +14,6 @@ library;
 
 import 'dart:io';
 
-import 'package:path/path.dart' as p;
-import 'package:uuid/uuid.dart';
-
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
@@ -28,6 +25,8 @@ import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
+import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 
 /// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
@@ -279,8 +278,10 @@ class Config {
     final vcRedist = VcRedistMode.fromOption(inno['vc_redist'] ?? true);
 
     if (inno['dlls'] != null) {
-      CliLogger.warning("inno_bundle.dlls attribute is deprecated, "
-          "use inno_bundle.files instead.");
+      CliLogger.addDeferred(
+        "inno_bundle.dlls attribute is deprecated, use inno_bundle.files instead.",
+        kind: CliLoggerKind.warning,
+      );
 
       if (inno['dlls'] is! List) {
         CliLogger.exitError("inno_bundle.dlls attribute is invalid "

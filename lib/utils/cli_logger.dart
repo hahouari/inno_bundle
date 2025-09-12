@@ -19,6 +19,18 @@ enum CliLoggerLevel {
   three,
 }
 
+/// Class holding the deferred message properties.
+class DeferredMessage {
+  /// The message text.
+  final String text;
+
+  /// The message kind.
+  final CliLoggerKind kind;
+
+  /// Creates a [DeferredMessage] instance with the given properties.
+  const DeferredMessage(this.text, this.kind);
+}
+
 // Reset:   \x1B[0m
 // Black:   \x1B[30m
 // White:   \x1B[37m
@@ -30,8 +42,8 @@ enum CliLoggerLevel {
 
 /// Cli Logger
 class CliLogger {
-  /// Constructor
-  CliLogger();
+  /// Static list of deferred messages.
+  static final List<DeferredMessage> _deferredMessages = [];
 
   /// Log info
   static void info(
@@ -57,8 +69,7 @@ class CliLogger {
     CliLoggerLevel level = CliLoggerLevel.one,
     int exitCode = 1,
   }) {
-    final space = _getSpace(level);
-    print('$space❌  $message');
+    CliLogger.error(message, level: level);
     exit(exitCode);
   }
 
@@ -104,4 +115,44 @@ class CliLogger {
     }
     return space;
   }
+
+  /// Adds a message to the list of deferred messages.
+  static void addDeferred(String message, {required CliLoggerKind kind}) {
+    _deferredMessages.add(DeferredMessage(message, kind));
+  }
+
+  /// Prints all deferred messages and clears the list.
+  static void flushDeferred() {
+    // Print empty line to separate deferred messages from the rest of the output
+    if (_deferredMessages.isNotEmpty) print("");
+
+    // Print all deferred messages
+    for (final message in _deferredMessages) {
+      switch (message.kind) {
+        case CliLoggerKind.warning:
+          warning(message.text);
+          break;
+        case CliLoggerKind.error:
+          error(message.text);
+          break;
+        case CliLoggerKind.success:
+          success(message.text);
+          break;
+        default:
+          info(message.text);
+          break;
+      }
+    }
+
+    // Clear the list of deferred messages
+    _deferredMessages.clear();
+  }
+}
+
+/// Enum for the different logging kinds.
+enum CliLoggerKind {
+  info,
+  warning,
+  error,
+  success,
 }
