@@ -1,3 +1,7 @@
+## 0.11.1
+
+- Update `README.md` to include topics and links to wiki pages.
+
 ## 0.11.0
 
 - **`(Deprecation!)`** Deprecate `dlls` attribute in `inno_bundle` section, use `files` instead.
