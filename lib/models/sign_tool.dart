@@ -52,6 +52,7 @@ class SignTool {
   /// The delay in milliseconds between retry attempts.
   final int retryDelay;
 
+  /// Create a [SignTool] instance with the given properties.
   const SignTool({
     required this.name,
     required this.command,

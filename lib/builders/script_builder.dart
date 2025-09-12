@@ -20,11 +20,11 @@ library;
 
 import 'dart:io';
 
+import 'package:inno_bundle/models/file_entry.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/config.dart';
-import 'package:inno_bundle/models/dll_entry.dart';
 import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
@@ -133,37 +133,22 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
       }
     }
 
-    // adding optional DLL files from System32 (if they are available),
+    // adding optional files from System32 (if they are available),
     // so that the end user is not required to install
     // MS Visual C++ redistributable to run the app.
-    final dlls = config.dlls.toList();
+    final files = config.files.toList();
     if (config.vcRedist == VcRedistMode.bundle) {
-      dlls.addAll(DllEntry.vcEntries);
+      files.addAll(FileEntry.vcEntries);
     }
 
-    // copy all the dll files to the installer build directory
+    // copy all the files to the installer build directory
     final scriptDirPath = p.joinAll([
       Directory.systemTemp.absolute.path,
       "${camelCase(config.name)}Installer",
       config.type.dirName,
     ]);
     Directory(scriptDirPath).createSync(recursive: true);
-    for (final dll in dlls) {
-      final file = File(dll.absolutePath);
-      if (!file.existsSync()) {
-        // if the file is not required, skip it, otherwise exit with error.
-        if (!dll.required) continue;
-        CliLogger.exitError("Required DLL file ${file.path} does not exist.");
-      }
 
-      final dllPath = p.join(scriptDirPath, p.basename(file.path));
-      final dllName = dll.name;
-      file.copySync(dllPath);
-      section += 'Source: "$dllPath"; DestDir: "{app}"; '
-          'DestName: "$dllName"; Flags: ignoreversion\n';
-    }
-
-    final files = config.files.toList();
     for (final f in files) {
       final file = File(f.absolutePath);
       if (!file.existsSync()) {
@@ -175,8 +160,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
       final fPath = p.join(scriptDirPath, p.basename(file.path));
       final fName = f.name;
       file.copySync(fPath);
-      final destDir =
-          f.destinationDir == null ? "{app}" : "{app}\\${f.destinationDir}";
+      final destDir = p.join("{app}", f.destination ?? "");
       section += 'Source: "$fPath"; DestDir: "$destDir"; '
           'DestName: "$fName"; Flags: ignoreversion\n';
     }

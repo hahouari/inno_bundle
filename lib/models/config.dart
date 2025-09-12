@@ -21,7 +21,6 @@ import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
-import 'package:inno_bundle/models/dll_entry.dart';
 import 'package:inno_bundle/models/file_entry.dart';
 import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/models/sign_tool.dart';
@@ -98,9 +97,6 @@ class Config {
   /// The mode for handling the Visual C++ Redistributable.
   final VcRedistMode vcRedist;
 
-  /// List of dlls to be included in the installer.
-  final List<DllEntry> dlls;
-  
   /// List of files to be included in the installer.
   final List<FileEntry> files;
 
@@ -108,7 +104,6 @@ class Config {
   const Config({
     required this.pubspecFile,
     required this.configFile,
-    required this.dlls,
     required this.files,
     required this.buildArgs,
     required this.id,
@@ -283,30 +278,30 @@ class Config {
     }
     final vcRedist = VcRedistMode.fromOption(inno['vc_redist'] ?? true);
 
-    if (inno['dlls'] != null && inno['dlls'] is! List) {
-      CliLogger.exitError("inno_bundle.dlls attribute is invalid "
-          "in $configName, only a list of dll entries is allowed.");
+    if (inno['dlls'] != null) {
+      CliLogger.warning("inno_bundle.dlls attribute is deprecated, "
+          "use inno_bundle.files instead.");
+
+      if (inno['dlls'] is! List) {
+        CliLogger.exitError("inno_bundle.dlls attribute is invalid "
+            "in $configName, only a list of dll entries is allowed.");
+      }
     }
-    final dlls = ((inno['dlls'] ?? []) as List)
-        .map((d) {
-          if (d == null) return null;
 
-          final dllError = DllEntry.validateConfig(d, configName: configName);
-          if (dllError != null) CliLogger.exitError(dllError);
+    if (inno['files'] != null && inno['files'] is! List) {
+      CliLogger.exitError("inno_bundle.files attribute is invalid "
+          "in $configName, only a list of file entries is allowed.");
+    }
 
-          return DllEntry.fromJson(d);
-        })
-        .whereType<DllEntry>()
-        .toList(growable: false);
+    // merge dlls and files for backward compatibility, in later versions, the dlls attribute will be removed.
+    final files = [...inno['dlls'] ?? [], ...(inno['files'] ?? [])]
+        .map((file) {
+          if (file == null) return null;
 
-    final files = ((inno['files'] ?? []) as List)
-        .map((d) {
-          if (d == null) return null;
+          final e = FileEntry.validateConfig(file, configName: configName);
+          if (e != null) CliLogger.exitError(e);
 
-          final dllError = FileEntry.validateConfig(d);
-          if (dllError != null) CliLogger.exitError(dllError);
-
-          return FileEntry.fromJson(d);
+          return FileEntry.fromJson(file);
         })
         .whereType<FileEntry>()
         .toList(growable: false);
@@ -334,7 +329,6 @@ class Config {
       signTool: signTool,
       arch: arch,
       vcRedist: vcRedist,
-      dlls: dlls,
       files: files,
     );
   }

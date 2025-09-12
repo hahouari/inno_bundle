@@ -68,7 +68,7 @@ class CliLogger {
     CliLoggerLevel level = CliLoggerLevel.one,
   }) {
     final space = _getSpace(level);
-    print('\x1B[33m$space🚧 $message\x1B[0m');
+    print('\x1B[33m$space🚧  $message\x1B[0m');
   }
 
   /// Logs a success message at the given level.

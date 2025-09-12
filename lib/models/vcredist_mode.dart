@@ -3,7 +3,7 @@
 ///
 /// The [VcRedistMode] enum provides three options:
 /// - [VcRedistMode.bundle]: Bundles the VCRedist with the installer.
-/// - [VcRedistMode.download]: Downloads the VCRedist during installation.
+/// - [VcRedistMode.download]: Downloads the VCRedist after the installer closes.
 /// - [VcRedistMode.none]: Does not include or download the VCRedist.
 ///
 /// The file also includes a [fromOption] method that allows for parsing a
