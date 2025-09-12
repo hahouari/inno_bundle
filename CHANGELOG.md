@@ -1,3 +1,7 @@
+## 0.11.2
+
+- Add screenshot to `pubspec.yaml`, it is used to display the package icon in [pub.dev](https://pub.dev/).
+
 ## 0.11.1
 
 - Update `README.md` to include topics and links to wiki pages.
