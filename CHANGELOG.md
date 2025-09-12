@@ -1,8 +1,20 @@
+## 0.11.0
+
+- **`(Deprecation!)`** Deprecate `dlls` attribute in `inno_bundle` section, use `files` instead.
+
+- Add `files` attribute to `inno_bundle` section to allow including additional files in the installer [#18](https://github.com/hahouari/inno_bundle/pull/18).
+
+- Add `destination` attribute to `FileEntry` to specify the destination directory for the file.
+
+- Fix VC++ redistributable checkbox position when installer window is resizing.
+
+- Enhance error messages by implementing `DeferredMessage` class to print important messages at the end of the installer generation process.
+
 ## 0.10.1
 
 - Update `README.md` to align with breaking changes in `0.10.0`.
 
-- Correct position of checkbox that downloads VC++ runtime in last page of the installer.
+- Correct position of checkbox that downloads VC++ redistributable in last page of the installer.
 
 ## 0.10.0
 
