@@ -7,6 +7,10 @@
 
 CLI tool that simplifies bundling flutter apps into Windows installers using Inno Setup.
 
+# Note
+
+This package is tested on Inno Setup version 6.4.1 to version 6.5.3.
+
 # Guide
 
 ## 1. Install `inno_bundle` package into your project
@@ -22,7 +26,7 @@ For setting up your configuration and examples, see [Configuration Options](http
 Run the build command on release mode
 
 ```sh
-dart run inno_bundle:build
+dart run inno_bundle
 ```
 
 **Note:** This will generate the initial configuration if not present in your `pubspec.yaml`.
