@@ -2,7 +2,7 @@
 
 - **`(Deprecation!)`** Deprecate `dlls` attribute in `inno_bundle` section, use `files` instead.
 
-- **`(Breaking!)`** Deprecate `dart run inno_bundle:build` command, use `dart run inno_bundle` instead, `build` is now the default command.
+- **`(Deprecation!)`** Deprecate `dart run inno_bundle:build` command, use `dart run inno_bundle` instead, `build` is now the default command.
 
 - Add `files` attribute to `inno_bundle` section to allow including additional files in the installer [#18](https://github.com/hahouari/inno_bundle/pull/18).
 
