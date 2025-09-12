@@ -1,15 +1,10 @@
 # Inno Bundle
 
 [![pub package](https://img.shields.io/pub/v/inno_bundle.svg)](https://pub.dev/packages/inno_bundle)
-![chocolatey version](https://img.shields.io/chocolatey/v/InnoSetup)
 [![inno setup](https://img.shields.io/badge/Inno_Setup-v6.4.1-blue)](https://jrsoftware.org/isinfo.php)
 ![hahouari-inno-setup](https://img.shields.io/badge/@hahouari-Inno_Setup-blue)
 
 CLI tool that simplifies bundling flutter apps into Windows installers using Inno Setup.
-
-# Note
-
-This package is tested on Inno Setup version 6.4.1 to version 6.5.3.
 
 # Guide
 
@@ -18,8 +13,6 @@ This package is tested on Inno Setup version 6.4.1 to version 6.5.3.
 ```sh
 dart pub add dev:inno_bundle
 ```
-
-For setting up your configuration and examples, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options).
 
 ## 2. Build the Installer
 
@@ -31,9 +24,9 @@ dart run inno_bundle
 
 **Note:** This will generate the initial configuration if not present in your `pubspec.yaml`.
 
-If you need other use cases with our CLI tool, look up [CLI Options](https://github.com/hahouari/inno_bundle/wiki/CLI-Tool-Options).
-
 # More Options and Examples
+
+To configure your installer with examples, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options), and if you need other use cases with our CLI tool, look up [CLI Options](https://github.com/hahouari/inno_bundle/wiki/CLI-Tool-Options).
 
 You can find more detailed documentation on customizing `inno_bundle`, including examples, on the [GitHub wiki pages](https://github.com/hahouari/inno_bundle/wiki).
 
