@@ -26,9 +26,9 @@ dart run inno_bundle
 
 # More Options and Examples
 
-To configure your installer with examples, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options), and if you need other use cases with our CLI tool, look up [CLI Options](https://github.com/hahouari/inno_bundle/wiki/CLI-Tool-Options).
+You can find detailed documentation on customizing `inno_bundle`, including examples, on the [GitHub wiki pages](https://github.com/hahouari/inno_bundle/wiki).
 
-You can find more detailed documentation on customizing `inno_bundle`, including examples, on the [GitHub wiki pages](https://github.com/hahouari/inno_bundle/wiki).
+To configure your installer, see [Configuration Options](https://github.com/hahouari/inno_bundle/wiki/Configuration-Options), and if you need other use cases with our CLI tool, look up [CLI Options](https://github.com/hahouari/inno_bundle/wiki/CLI-Tool-Options).
 
 # Using GitHub Workflow?
 
