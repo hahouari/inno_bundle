@@ -12,6 +12,8 @@
 
 - Enhance error messages by implementing `DeferredMessage` class to print important messages at the end of the installer generation process.
 
+- Clean flutter dependency entirely from the package.
+
 ## 0.10.1
 
 - Update `README.md` to align with breaking changes in `0.10.0`.
