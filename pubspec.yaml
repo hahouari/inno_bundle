@@ -3,11 +3,13 @@ description: CLI tool for automating Windows installer creation using Inno Setup
 maintainer: Hocine Abdellatif Houari
 version: 0.11.1
 homepage: https://github.com/hahouari/inno_bundle
-
 topics:
   - windows
   - installer
   - tool
+screenshots:
+  - description: Inno Bundle CLI tool
+    path: example/demo_app/assets/images/installer.png
 
 environment:
   sdk: ">=3.2.3 <4.0.0"
