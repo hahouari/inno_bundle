@@ -17,6 +17,7 @@ import 'dart:io';
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
+import 'package:inno_bundle/models/build_tool.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/file_entry.dart';
 import 'package:inno_bundle/models/language.dart';
@@ -93,6 +94,12 @@ class Config {
   /// Arguments to be passed to flutter build.
   final String? buildArgs;
 
+  /// Arguments to be passed to shorebird release.
+  final String? shorebirdArgs;
+
+  /// The tool to use for building the app (flutter or shorebird).
+  final BuildTool buildTool;
+
   /// The mode for handling the Visual C++ Redistributable.
   final VcRedistMode vcRedist;
 
@@ -105,6 +112,8 @@ class Config {
     required this.configFile,
     required this.files,
     required this.buildArgs,
+    required this.shorebirdArgs,
+    required this.buildTool,
     required this.id,
     required this.pubspecName,
     required this.name,
@@ -311,6 +320,12 @@ class Config {
       pubspecFile: pubspecFile,
       configFile: configFile,
       buildArgs: cliConfig.buildArgs,
+      shorebirdArgs:
+          cliConfig.shorebirdArgs ?? (inno['shorebird_args'] as String?),
+      buildTool: cliConfig.hasBuildToolArg
+          ? cliConfig.buildTool
+          : BuildTool.fromOption(
+              inno['build_tool'] ?? cliConfig.buildTool.name),
       id: id,
       pubspecName: pubspecName,
       name: name,

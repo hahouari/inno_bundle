@@ -4,6 +4,7 @@ library;
 
 import 'package:args/args.dart';
 import 'package:inno_bundle/models/build_type.dart';
+import 'package:inno_bundle/models/build_tool.dart';
 
 /// A class representing the configuration for the command-line interface.
 class CliConfig {
@@ -33,6 +34,15 @@ class CliConfig {
   /// Arguments to be passed to flutter build.
   final String? buildArgs;
 
+  /// Optional additional args to be passed to shorebird release.
+  final String? shorebirdArgs;
+
+  /// Selected tool to build the Windows app.
+  final BuildTool buildTool;
+
+  /// Whether `--build-tool` was explicitly provided on the CLI.
+  final bool hasBuildToolArg;
+
   /// Override app version.
   final String? appVersion;
 
@@ -55,10 +65,13 @@ class CliConfig {
     this.generatePublisher = true,
     this.appIdNamespace,
     this.buildArgs,
+    this.shorebirdArgs,
     this.appVersion,
     this.signToolName,
     this.signToolCommand,
     this.signToolParams,
+    this.buildTool = BuildTool.flutter,
+    this.hasBuildToolArg = false,
   });
 
   /// Creates a [CliConfig] instance from command-line arguments using [ArgResults].
@@ -72,10 +85,13 @@ class CliConfig {
       appIdNamespace: args['app-id-ns'],
       generatePublisher: args['gen-publisher'],
       buildArgs: args['build-args'],
+      shorebirdArgs: args['shorebird-args'],
       appVersion: args['app-version'],
       signToolName: args['sign-tool-name'],
       signToolCommand: args['sign-tool-command'],
       signToolParams: args['sign-tool-params'],
+      buildTool: BuildTool.fromArgs(args),
+      hasBuildToolArg: args.wasParsed('build-tool'),
     );
   }
 }

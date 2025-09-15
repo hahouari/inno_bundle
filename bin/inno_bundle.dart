@@ -69,6 +69,14 @@ void main(List<String> arguments) async {
           'and only if maintainer field is not present in config file',
     )
     ..addOption("build-args", help: "Append args to \"flutter build ...\"")
+    ..addOption("shorebird-args",
+        help: "Append args to \"shorebird release windows ...\"")
+    ..addOption(
+      "build-tool",
+      help: "Select build tool: flutter (default) or shorebird",
+      allowed: ["flutter", "shorebird"],
+      defaultsTo: "flutter",
+    )
     ..addOption("app-version", help: "Override app version")
     ..addOption("sign-tool-name", help: "Override sign tool name")
     ..addOption("sign-tool-command", help: "Override sign tool command")

@@ -10,6 +10,8 @@ library;
 import 'dart:io';
 
 import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/models/build_tool.dart';
+import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:path/path.dart' as p;
 import 'package:inno_bundle/utils/cli_logger.dart';
@@ -51,9 +53,35 @@ class AppBuilder {
       }
     }
 
-    final process = await Process.start(
-      "flutter",
-      [
+    // Choose build tool
+    final bool useShorebird = config.buildTool == BuildTool.shorebird;
+
+    Process process;
+    if (useShorebird) {
+      // Build using Shorebird: shorebird release windows ...
+      final shorebirdArgs = <String>[
+        'release',
+        'windows',
+        if (config.type != BuildType.release) '--${config.type.name}',
+        // users will typically set version via pubspec; shorebird uses app_version internally for releases if needed
+      ];
+
+      // Append any user-specified args string as a single token to match existing style
+      final extra = config.shorebirdArgs;
+      if (extra != null && extra.isNotEmpty) {
+        shorebirdArgs.add(extra);
+      }
+
+      process = await Process.start(
+        'shorebird',
+        shorebirdArgs,
+        runInShell: true,
+        workingDirectory: Directory.current.path,
+        mode: ProcessStartMode.inheritStdio,
+      );
+    } else {
+      // Default: Build using Flutter
+      final flutterArgs = <String>[
         'build',
         'windows',
         './lib/main.dart',
@@ -64,12 +92,21 @@ class AppBuilder {
         buildName,
         '--build-number',
         buildNumber,
-        config.buildArgs ?? "",
-      ],
-      runInShell: true,
-      workingDirectory: Directory.current.path,
-      mode: ProcessStartMode.inheritStdio,
-    );
+      ];
+
+      final extra = config.buildArgs;
+      if (extra != null && extra.isNotEmpty) {
+        flutterArgs.add(extra);
+      }
+
+      process = await Process.start(
+        'flutter',
+        flutterArgs,
+        runInShell: true,
+        workingDirectory: Directory.current.path,
+        mode: ProcessStartMode.inheritStdio,
+      );
+    }
 
     final exitCode = await process.exitCode;
 
