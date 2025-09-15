@@ -24,6 +24,20 @@ dart run inno_bundle
 
 **Note:** This will generate the initial configuration if not present in your `pubspec.yaml`.
 
+### Use Shorebird for the app build (optional)
+
+To build using Shorebird instead of Flutter (enables code-push workflows):
+
+```sh
+dart run inno_bundle --build-tool shorebird
+```
+
+Pass extra Shorebird args if needed (example):
+
+```sh
+dart run inno_bundle --build-tool shorebird --shorebird-args "--artifact=exe"
+```
+
 # More Options and Examples
 
 You can find detailed documentation on customizing `inno_bundle`, including examples, on the [GitHub wiki pages](https://github.com/hahouari/inno_bundle/wiki).
