@@ -24,6 +24,20 @@ dart run inno_bundle
 
 **Note:** This will generate the initial configuration if not present in your `pubspec.yaml`.
 
+### Use Shorebird for the app build (optional)
+
+To build using Shorebird instead of Flutter (enables code-push workflows):
+
+```sh
+dart run inno_bundle --build-tool shorebird
+```
+
+Pass extra Shorebird args if needed (example):
+
+```sh
+dart run inno_bundle --build-tool shorebird --shorebird-args "--artifact=exe"
+```
+
 # More Options and Examples
 
 You can find detailed documentation on customizing `inno_bundle`, including examples, on the [GitHub wiki pages](https://github.com/hahouari/inno_bundle/wiki).
@@ -43,3 +57,20 @@ You can copy the [build.yaml](https://github.com/hahouari/flutter_inno_workflows
 # Reporting Issues
 
 If you encounter any issues <a href="https://github.com/hahouari/inno_bundle/issues" target="_blank">please report them here</a>.
+
+## Shorebird support (optional)
+
+By default, `inno_bundle` uses the Flutter CLI to build your app (`flutter build windows`). You can opt into Shorebird releases to enable code-push based workflows.
+
+- CLI flags:
+	- `--build-tool shorebird` to use Shorebird
+	- `--shorebird-args "--artifact=exe --staged"` to pass extra args to `shorebird release windows`
+- YAML config (`inno_bundle.yaml` or `pubspec.yaml` under `inno_bundle`):
+	- `build_tool: shorebird`
+
+Commands executed:
+
+- Shorebird: `shorebird release windows [--debug|--profile] <shorebird-args>`
+- Flutter (default): `flutter build windows ./lib/main.dart --<mode> --obfuscate --split-debug-info=build/obfuscate --build-name <x> --build-number <y> <build-args>`
+
+This is non-breaking; existing usage requires no changes.
