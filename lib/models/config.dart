@@ -332,8 +332,19 @@ class Config {
         .whereType<FileEntry>()
         .toList(growable: false);
 
-    final fileExtensionsAssociations = (inno['file_extensions_associations'] as List?)?.cast<String>() ?? <String>[];
-    final fileExtensionsAssociationsExclude = (inno['file_extensions_associations_exclude'] as List?)?.cast<String>() ?? <String>[];
+    final hasAnyCharRegex = RegExp(r'[^\s]');
+    List<String> _ensureListSplit(List? original) {
+      final list = <String>[];
+      if (original == null) return list;
+      for (final extensionPart in original) {
+        final extensions = (extensionPart as String).split(',');
+        list.addAll(extensions.where(hasAnyCharRegex.hasMatch));
+      }
+      return list;
+    }
+
+    final fileExtensionsAssociations = _ensureListSplit(inno['file_extensions_associations'] as List?);
+    final fileExtensionsAssociationsExclude = _ensureListSplit(inno['file_extensions_associations_exclude'] as List?);
 
     return Config(
       pubspecFile: pubspecFile,
