@@ -14,10 +14,13 @@ library;
 
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
+
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
-import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/build_tool.dart';
+import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/file_entry.dart';
 import 'package:inno_bundle/models/language.dart';
@@ -26,8 +29,6 @@ import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
-import 'package:path/path.dart' as p;
-import 'package:uuid/uuid.dart';
 
 /// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
@@ -106,11 +107,26 @@ class Config {
   /// List of files to be included in the installer.
   final List<FileEntry> files;
 
+  /// List of file extensions to **assign for/associate with** the app (ie. "Open with" in file explorer menu).
+  /// 
+  /// WARNING: Do NOT remove extensions after they were added (and app was installed on user device), 
+  /// Use [fileExtensionsAssociationsExclude] instead to properly remove file associations without
+  /// the need to uninstall the app.
+  final List<String> fileExtensionsAssociations;
+
+  /// List of file extensions to **remove** in case they were added in [fileExtensionsAssociations] before.
+  /// 
+  /// Normally, the file associations will get removed on app uninstall, but this can be used to dynamically
+  /// remove them with a normal update.
+  final List<String> fileExtensionsAssociationsExclude;
+
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
     required this.configFile,
     required this.files,
+    required this.fileExtensionsAssociations,
+    required this.fileExtensionsAssociationsExclude,
     required this.buildArgs,
     required this.shorebirdArgs,
     required this.buildTool,
@@ -316,6 +332,9 @@ class Config {
         .whereType<FileEntry>()
         .toList(growable: false);
 
+    final fileExtensionsAssociations = (inno['file_extensions_associations'] as List?)?.cast<String>() ?? <String>[];
+    final fileExtensionsAssociationsExclude = (inno['file_extensions_associations_exclude'] as List?)?.cast<String>() ?? <String>[];
+
     return Config(
       pubspecFile: pubspecFile,
       configFile: configFile,
@@ -346,6 +365,8 @@ class Config {
       arch: arch,
       vcRedist: vcRedist,
       files: files,
+      fileExtensionsAssociations: fileExtensionsAssociations,
+      fileExtensionsAssociationsExclude: fileExtensionsAssociationsExclude,
     );
   }
 
