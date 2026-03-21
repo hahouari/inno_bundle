@@ -19,7 +19,6 @@ import 'package:uuid/uuid.dart';
 
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
-import 'package:inno_bundle/models/build_tool.dart';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/file_entry.dart';
@@ -95,12 +94,6 @@ class Config {
   /// Arguments to be passed to flutter build.
   final String? buildArgs;
 
-  /// Arguments to be passed to shorebird release.
-  final String? shorebirdArgs;
-
-  /// The tool to use for building the app (flutter or shorebird).
-  final BuildTool buildTool;
-
   /// The mode for handling the Visual C++ Redistributable.
   final VcRedistMode vcRedist;
 
@@ -108,14 +101,14 @@ class Config {
   final List<FileEntry> files;
 
   /// List of file extensions to **assign for/associate with** the app (ie. "Open with" in file explorer menu).
-  /// 
-  /// WARNING: Do NOT remove extensions after they were added (and app was installed on user device), 
+  ///
+  /// WARNING: Do NOT remove extensions after they were added (and app was installed on user device),
   /// Use [fileExtensionsAssociationsExclude] instead to properly remove file associations without
   /// the need to uninstall the app.
   final List<String> fileExtensionsAssociations;
 
   /// List of file extensions to **remove** in case they were added in [fileExtensionsAssociations] before.
-  /// 
+  ///
   /// Normally, the file associations will get removed on app uninstall, but this can be used to dynamically
   /// remove them with a normal update.
   final List<String> fileExtensionsAssociationsExclude;
@@ -128,8 +121,6 @@ class Config {
     required this.fileExtensionsAssociations,
     required this.fileExtensionsAssociationsExclude,
     required this.buildArgs,
-    required this.shorebirdArgs,
-    required this.buildTool,
     required this.id,
     required this.pubspecName,
     required this.name,
@@ -343,19 +334,15 @@ class Config {
       return list;
     }
 
-    final fileExtensionsAssociations = _ensureListSplit(inno['file_extensions_associations'] as List?);
-    final fileExtensionsAssociationsExclude = _ensureListSplit(inno['file_extensions_associations_exclude'] as List?);
+    final fileExtensionsAssociations =
+        _ensureListSplit(inno['file_extensions_associations'] as List?);
+    final fileExtensionsAssociationsExclude =
+        _ensureListSplit(inno['file_extensions_associations_exclude'] as List?);
 
     return Config(
       pubspecFile: pubspecFile,
       configFile: configFile,
       buildArgs: cliConfig.buildArgs,
-      shorebirdArgs:
-          cliConfig.shorebirdArgs ?? (inno['shorebird_args'] as String?),
-      buildTool: cliConfig.hasBuildToolArg
-          ? cliConfig.buildTool
-          : BuildTool.fromOption(
-              inno['build_tool'] ?? cliConfig.buildTool.name),
       id: id,
       pubspecName: pubspecName,
       name: name,
