@@ -14,6 +14,9 @@ library;
 
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
+
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
@@ -25,8 +28,6 @@ import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
-import 'package:path/path.dart' as p;
-import 'package:uuid/uuid.dart';
 
 /// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
@@ -99,11 +100,26 @@ class Config {
   /// List of files to be included in the installer.
   final List<FileEntry> files;
 
+  /// List of file extensions to **assign for/associate with** the app (ie. "Open with" in file explorer menu).
+  ///
+  /// WARNING: Do NOT remove extensions after they were added (and app was installed on user device),
+  /// Use [fileExtensionsAssociationsExclude] instead to properly remove file associations without
+  /// the need to uninstall the app.
+  final List<String> fileExtensionsAssociations;
+
+  /// List of file extensions to **remove** in case they were added in [fileExtensionsAssociations] before.
+  ///
+  /// Normally, the file associations will get removed on app uninstall, but this can be used to dynamically
+  /// remove them with a normal update.
+  final List<String> fileExtensionsAssociationsExclude;
+
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
     required this.configFile,
     required this.files,
+    required this.fileExtensionsAssociations,
+    required this.fileExtensionsAssociationsExclude,
     required this.buildArgs,
     required this.id,
     required this.pubspecName,
@@ -307,6 +323,22 @@ class Config {
         .whereType<FileEntry>()
         .toList(growable: false);
 
+    final hasAnyCharRegex = RegExp(r'[^\s]');
+    List<String> _ensureListSplit(List? original) {
+      final list = <String>[];
+      if (original == null) return list;
+      for (final extensionPart in original) {
+        final extensions = (extensionPart as String).split(',');
+        list.addAll(extensions.where(hasAnyCharRegex.hasMatch));
+      }
+      return list;
+    }
+
+    final fileExtensionsAssociations =
+        _ensureListSplit(inno['file_extensions_associations'] as List?);
+    final fileExtensionsAssociationsExclude =
+        _ensureListSplit(inno['file_extensions_associations_exclude'] as List?);
+
     return Config(
       pubspecFile: pubspecFile,
       configFile: configFile,
@@ -331,6 +363,8 @@ class Config {
       arch: arch,
       vcRedist: vcRedist,
       files: files,
+      fileExtensionsAssociations: fileExtensionsAssociations,
+      fileExtensionsAssociationsExclude: fileExtensionsAssociationsExclude,
     );
   }
 

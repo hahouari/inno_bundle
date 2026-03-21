@@ -20,11 +20,11 @@ library;
 
 import 'dart:io';
 
-import 'package:inno_bundle/models/file_entry.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/models/file_entry.dart';
 import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
@@ -86,6 +86,7 @@ ArchitecturesInstallIn64BitMode=${config.arch.value}
 DisableDirPage=auto
 DisableProgramGroupPage=auto
 ${config.signTool != null ? config.signTool?.toInnoCode() : ""}
+${config.fileExtensionsAssociations.isNotEmpty || config.fileExtensionsAssociationsExclude.isNotEmpty ? "ChangesAssociations=yes" : ""}
 \n''';
   }
 
@@ -265,6 +266,62 @@ end;
 \n''';
   }
 
+  String _fileExtensionsAssociationsText() {
+    if (config.fileExtensionsAssociations.isEmpty && config.fileExtensionsAssociationsExclude.isEmpty) return '';
+    final name = config.name;
+
+    String extensionCommandBuilder(String ext, String Function(String extWithDot, String extWithoutDot, String regLocationName) fn) {
+      String extWithDot;
+      String extWithoutDot;
+      if (ext.startsWith('.')) {
+        extWithDot = ext;
+        extWithoutDot = ext.substring(1);
+      } else {
+        extWithDot = '.$ext';
+        extWithoutDot = ext;
+      }
+      final regLocationName = '$name$extWithDot';
+      return fn(extWithDot, extWithoutDot, regLocationName);
+    }
+
+    final createCapabilityKeyCommand = '''
+Root: HKA; Subkey: "Software\\${name}"; Flags: uninsdeletekeyifempty
+Root: HKA; Subkey: "Software\\${name}\\Capability"; ValueType: string; ValueName: "ApplicationName"; ValueData: "${name}"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\\${name}\\Capability"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "${config.description}"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\\RegisteredApplications"; ValueType: string; ValueName: "${name}"; ValueData: "Software\\${name}\\Capability"; Flags: uninsdeletevalue
+''';
+
+    final removeOldExtensionsCommands = config.fileExtensionsAssociationsExclude.map(
+      (ext) {
+        return extensionCommandBuilder(ext, (extWithDot, extWithoutDot, regLocationName) {
+          return 'Root: HKA; Subkey: "Software\\Classes\\$regLocationName"; Flags: deletekey';
+        });
+      },
+    ).join('\n');
+    final allExtensionsCommands = config.fileExtensionsAssociations.map(
+      (ext) {
+        return extensionCommandBuilder(ext, (extWithDot, extWithoutDot, regLocationName) {
+          return '''
+Root: HKA; Subkey: "Software\\${name}\\Capability\\FileAssociations"; ValueType: string; ValueName: "$extWithDot"; ValueData: "$regLocationName"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\\Classes\\$extWithDot\\OpenWithProgids"; ValueType: string; ValueName: "$regLocationName"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\\Classes\\$regLocationName"; ValueType: string; ValueName: ""; ValueData: "${extWithoutDot.toUpperCase()} File"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\${config.exePubspecName},0"
+Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${config.exePubspecName}"" ""%1"""
+Root: HKA; Subkey: "Software\\Classes\\Applications\\${name}\\SupportedTypes"; ValueType: string; ValueName: "$extWithDot"; ValueData: ""
+''';
+        });
+      },
+    ).join('\n');
+
+    return '''
+[Registry]
+
+$createCapabilityKeyCommand
+$removeOldExtensionsCommands
+$allExtensionsCommands
+\n''';
+  }
+
   /// Generates the ISS script file and returns its path.
   Future<File> build() async {
     CliLogger.info("Generating ISS script...");
@@ -274,6 +331,7 @@ end;
         _languages() +
         _tasks() +
         _files() +
+        _fileExtensionsAssociationsText() +
         _icons() +
         _run() +
         _downloadVcRedist();
