@@ -103,23 +103,23 @@ class Config {
   /// List of file extensions to **assign for/associate with** the app (ie. "Open with" in file explorer menu).
   ///
   /// WARNING: Do NOT remove extensions after they were added (and app was installed on user device),
-  /// Use [fileExtensionsAssociationsExclude] instead to properly remove file associations without
+  /// Use [excludedFileExts] instead to properly remove file associations without
   /// the need to uninstall the app.
-  final List<String> fileExtensionsAssociations;
+  final List<String> includedFileExts;
 
-  /// List of file extensions to **remove** in case they were added in [fileExtensionsAssociations] before.
+  /// List of file extensions to **remove** in case they were added in [includedFileExts] before.
   ///
   /// Normally, the file associations will get removed on app uninstall, but this can be used to dynamically
   /// remove them with a normal update.
-  final List<String> fileExtensionsAssociationsExclude;
+  final List<String> excludedFileExts;
 
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
     required this.configFile,
     required this.files,
-    required this.fileExtensionsAssociations,
-    required this.fileExtensionsAssociationsExclude,
+    required this.includedFileExts,
+    required this.excludedFileExts,
     required this.buildArgs,
     required this.id,
     required this.pubspecName,
@@ -334,9 +334,9 @@ class Config {
       return list;
     }
 
-    final fileExtensionsAssociations =
+    final includedFileExts =
         _ensureListSplit(inno['file_extensions_associations'] as List?);
-    final fileExtensionsAssociationsExclude =
+    final excludedFileExts =
         _ensureListSplit(inno['file_extensions_associations_exclude'] as List?);
 
     return Config(
@@ -363,8 +363,8 @@ class Config {
       arch: arch,
       vcRedist: vcRedist,
       files: files,
-      fileExtensionsAssociations: fileExtensionsAssociations,
-      fileExtensionsAssociationsExclude: fileExtensionsAssociationsExclude,
+      includedFileExts: includedFileExts,
+      excludedFileExts: excludedFileExts,
     );
   }
 
