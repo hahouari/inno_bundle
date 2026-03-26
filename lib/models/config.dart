@@ -145,9 +145,6 @@ class Config {
   /// The name of the executable file that is created with flutter build.
   String get exePubspecName => "$pubspecName.exe";
 
-  /// The name of the executable file that will be created.
-  String get exeName => "$name.exe";
-
   /// Creates a [Config] instance from a JSON map, typically read from `pubspec.yaml` and a config file (if provided).
   ///
   /// Validates the configuration and exits with an error if invalid values are found.
