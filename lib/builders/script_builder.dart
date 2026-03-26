@@ -300,7 +300,7 @@ Root: HKA; Subkey: "Software\\Classes\\$dotExt\\OpenWithProgids"; ValueType: str
 Root: HKA; Subkey: "Software\\Classes\\$regLocationName"; ValueType: string; ValueName: ""; ValueData: "${ext.toUpperCase()} File"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\${config.exePubspecName},0"
 Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${config.exePubspecName}"" ""%1"""
-Root: HKA; Subkey: "Software\\Classes\\Applications\\${name}\\SupportedTypes"; ValueType: string; ValueName: "$dotExt"; ValueData: ""
+Root: HKA; Subkey: "Software\\Classes\\Applications\\${config.exePubspecName}\\SupportedTypes"; ValueType: string; ValueName: "$dotExt"; ValueData: ""
 ''';
   }
 
