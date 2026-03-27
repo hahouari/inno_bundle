@@ -65,7 +65,7 @@ class ScriptBuilder {
 AppId=${config.id}
 AppName=${config.name}
 UninstallDisplayName=${config.name}
-UninstallDisplayIcon={app}\\${config.exePubspecName}
+UninstallDisplayIcon={app}\\${config.pubspecNameDotExe}
 AppVersion=${config.version}
 AppPublisher=${config.publisher}
 AppPublisherURL=${config.url}
@@ -173,8 +173,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
   String _icons() {
     return '''
 [Icons]
-Name: "{autoprograms}\\${config.name}"; Filename: "{app}\\${config.exePubspecName}"
-Name: "{autodesktop}\\${config.name}"; Filename: "{app}\\${config.exePubspecName}"; Tasks: desktopicon
+Name: "{autoprograms}\\${config.name}"; Filename: "{app}\\${config.pubspecNameDotExe}"
+Name: "{autodesktop}\\${config.name}"; Filename: "{app}\\${config.pubspecNameDotExe}"; Tasks: desktopicon
 \n''';
   }
 
@@ -182,7 +182,7 @@ Name: "{autodesktop}\\${config.name}"; Filename: "{app}\\${config.exePubspecName
   String _run() {
     return '''
 [Run]
-Filename: "{app}\\${config.exePubspecName}"; Description: "{cm:LaunchProgram,{#StringChange('${config.name}', '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\\${config.pubspecNameDotExe}"; Description: "{cm:LaunchProgram,{#StringChange('${config.name}', '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 \n''';
   }
 
@@ -298,9 +298,9 @@ end;
 Root: HKA; Subkey: "Software\\${name}\\Capability\\FileAssociations"; ValueType: string; ValueName: "$dotExt"; ValueData: "$regLocationName"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\\Classes\\$dotExt\\OpenWithProgids"; ValueType: string; ValueName: "$regLocationName"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\\Classes\\$regLocationName"; ValueType: string; ValueName: ""; ValueData: "${ext.toUpperCase()} File"; Flags: uninsdeletekey
-Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\${config.exePubspecName},0"
-Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${config.exePubspecName}"" ""%1"""
-Root: HKA; Subkey: "Software\\Classes\\Applications\\${config.exePubspecName}\\SupportedTypes"; ValueType: string; ValueName: "$dotExt"; ValueData: ""
+Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\\${config.pubspecNameDotExe},0"
+Root: HKA; Subkey: "Software\\Classes\\$regLocationName\\shell\\open\\command"; ValueType: string; ValueName: ""; ValueData: """{app}\\${config.pubspecNameDotExe}"" ""%1"""
+Root: HKA; Subkey: "Software\\Classes\\Applications\\${config.pubspecNameDotExe}\\SupportedTypes"; ValueType: string; ValueName: "$dotExt"; ValueData: ""
 ''';
   }
 
