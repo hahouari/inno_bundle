@@ -92,6 +92,17 @@ class Language {
     return null;
   }
 
+  /// Prints all supported language names separated by `, ` and exits.
+  ///
+  /// Shows the Inno Setup installation directory used for discovery.
+  static Never listLanguages() {
+    final innoDir = getInnoSetupExec()!.parent;
+    final names = all.map((l) => l.name).join(', ');
+    CliLogger.info('Languages discovered from ${innoDir.path}:');
+    print("$names\n");
+    exit(0);
+  }
+
   /// Returns a list of all supported languages by scanning the Inno Setup installation directory.
   static List<Language> get all {
     if (_cachedLangs.isNotEmpty) return _cachedLangs;

@@ -7,6 +7,7 @@ import 'package:inno_bundle/builders/script_builder.dart';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
@@ -80,11 +81,13 @@ void main(List<String> arguments) async {
       help: "Print env variables and exit",
     )
     ..addFlag('hf', defaultsTo: true, help: 'Print header and footer')
+    ..addFlag('list-languages', negatable: false, help: 'List all supported languages and exit')
     ..addFlag('help', abbr: 'h', negatable: false, help: 'Print help and exit');
   final parsedArgs = parser.parse(arguments);
   final envs = parsedArgs['envs'] as bool;
   final hf = parsedArgs['hf'] as bool;
   final help = parsedArgs['help'] as bool;
+  final listLanguages = parsedArgs['list-languages'] as bool;
 
   if (hf) print(START_MESSAGE);
 
@@ -92,6 +95,8 @@ void main(List<String> arguments) async {
     print("${parser.usage}\n");
     exit(0);
   }
+
+  if (listLanguages) Language.listLanguages();
 
   final cliConfig = CliConfig.fromArgs(parsedArgs);
   const pubspecFilePath = 'pubspec.yaml';
