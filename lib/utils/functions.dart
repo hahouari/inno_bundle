@@ -205,7 +205,7 @@ File? getInnoSetupExec({bool throwIfNotFound = true}) {
   if (!Directory(p.joinAll(innoSysDirPath)).existsSync() &&
       !Directory(p.joinAll(innoUserDirPath)).existsSync()) {
     if (throwIfNotFound) {
-      CliLogger.exitError("Inno Setup is not detected in your machine, "
+      CliLogger.exitError("Inno Setup 6 is not detected in your machine, "
           "checkout our docs on how to correctly install it:\n"
           "${CliLogger.sLink(innoDownloadStepLink, level: CliLoggerLevel.two)}");
     }
