@@ -91,9 +91,9 @@ inno_bundle:
   installer_icon: assets/images/installer.ico
   license_file: assets/LICENSE.txt
   languages:
-    - english
-    - french
-    - arabic
+    - English
+    - French
+    - Arabic
   admin: auto
   arch: x64_compatible
   files:

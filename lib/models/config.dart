@@ -238,7 +238,7 @@ class Config {
             })
             .whereType<Language>()
             .toList(growable: false) ??
-        Language.values;
+        Language.all;
 
     if (inno['admin'] != null &&
         inno['admin'] is! bool &&

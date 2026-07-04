@@ -26,3 +26,6 @@ dependencies:
 dev_dependencies:
   test: ^1.26.3
   lints: ^6.0.0
+
+inno_bundle:
+  id: 505f0030-77e7-11f1-a278-d3311db693d8
