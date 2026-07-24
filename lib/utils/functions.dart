@@ -238,8 +238,10 @@ String? getSystemUserName() =>
 /// If [githubToken] is provided, it is sent as a Bearer token in the
 /// `Authorization` header (used to raise GitHub API rate limits).
 /// Returns `null` on any HTTP error or parse failure.
-Future<Map<String, dynamic>?> fetchGitHubJson(String url,
-    {String? githubToken}) async {
+Future<Map<String, dynamic>?> fetchGitHubJson(
+  String url, {
+  String? githubToken,
+}) async {
   final client = HttpClient();
   try {
     final request = await client.getUrl(Uri.parse(url));
@@ -286,8 +288,10 @@ Future<void> downloadFile(String url, String destPath) async {
 Future<String?> sha256HashFile(String filePath) async {
   try {
     final result = await Process.run(
-        'certutil', ['-hashfile', filePath, 'SHA256'],
-        runInShell: true);
+      'certutil',
+      ['-hashfile', filePath, 'SHA256'],
+      runInShell: true,
+    );
     if (result.exitCode != 0) return null;
     final lines =
         (result.stdout as String).split('\n').map((l) => l.trim()).toList();
