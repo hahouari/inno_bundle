@@ -34,7 +34,13 @@ const String BUILD_END_MESSAGE = '''\n
 
 /// End message for the CLI
 const String GUID_END_MESSAGE = '''\n
-============> GUID GENERATED SUCCESSFULLY <===========
+============> GUID GENERATED SUCCESSFULLY <============
+                  ❤️  THANK YOU!  ❤️
+''';
+
+/// End message for the CLI's setup_versions command
+const String SETUP_VERSIONS_END_MESSAGE = '''\n
+============> VERSIONS SET UP SUCCESSFULLY <============
                   ❤️  THANK YOU!  ❤️
 ''';
 

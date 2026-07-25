@@ -232,3 +232,70 @@ File? getInnoSetupExec({bool throwIfNotFound = true}) {
 String? getSystemUserName() =>
     Platform.environment['USER'] ?? // Linux/macOS
     Platform.environment['USERNAME']; // Windows
+
+/// Fetches JSON from a URL and returns the parsed map.
+///
+/// If [githubToken] is provided, it is sent as a Bearer token in the
+/// `Authorization` header (used to raise GitHub API rate limits).
+/// Returns `null` on any HTTP error or parse failure.
+Future<Map<String, dynamic>?> fetchGitHubJson(String url,
+    {String? githubToken}) async {
+  final client = HttpClient();
+  try {
+    final request = await client.getUrl(Uri.parse(url));
+    request.headers.set('User-Agent', 'inno_bundle');
+    request.headers.set('Accept', 'application/json');
+    if (githubToken != null && githubToken.isNotEmpty) {
+      request.headers.set('Authorization', 'Bearer $githubToken');
+    }
+    final response = await request.close();
+    final body = await response.transform(utf8.decoder).join();
+    if (response.statusCode != 200) return null;
+    return jsonDecode(body) as Map<String, dynamic>;
+  } catch (_) {
+    return null;
+  } finally {
+    client.close();
+  }
+}
+
+/// Downloads a file from [url] and writes it to [destPath].
+///
+/// Throws an [HttpException] if the server returns a non-200 status code.
+Future<void> downloadFile(String url, String destPath) async {
+  final client = HttpClient();
+  try {
+    final request = await client.getUrl(Uri.parse(url));
+    request.headers.set('User-Agent', 'inno_bundle');
+    final response = await request.close();
+    if (response.statusCode != 200) {
+      throw HttpException('HTTP ${response.statusCode}');
+    }
+    final file = File(destPath);
+    final sink = file.openWrite();
+    await response.pipe(sink);
+    await sink.close();
+  } finally {
+    client.close();
+  }
+}
+
+/// Computes the SHA256 hash of a file using `certutil` (Windows).
+///
+/// Returns `null` if `certutil` is unavailable or the hash cannot be parsed.
+Future<String?> sha256HashFile(String filePath) async {
+  try {
+    final result = await Process.run(
+        'certutil', ['-hashfile', filePath, 'SHA256'],
+        runInShell: true);
+    if (result.exitCode != 0) return null;
+    final lines =
+        (result.stdout as String).split('\n').map((l) => l.trim()).toList();
+    for (final line in lines) {
+      if (RegExp(r'^[a-fA-F0-9]{64}$').hasMatch(line)) return line;
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
