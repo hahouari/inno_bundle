@@ -11,6 +11,7 @@ import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
+import 'package:inno_bundle/utils/inno_bundle_error.dart';
 
 /// Builds the application using the provided configuration.
 ///
@@ -121,7 +122,12 @@ void main(List<String> arguments) async {
     generateEssentials(pubspecFile, configFile, cliConfig);
   }
 
-  final config = Config.fromFile(pubspecFile, configFile, cliConfig);
+  late final Config config;
+  try {
+    config = Config.fromFile(pubspecFile, configFile, cliConfig);
+  } on InnoBundleError catch (e) {
+    CliLogger.exitError(e.message);
+  }
 
   if (envs) {
     print(config.toEnvironmentVariables());
@@ -132,9 +138,13 @@ void main(List<String> arguments) async {
     await installInnoSetup();
   }
 
-  final appBuildDir = await _buildApp(config);
-  final scriptFile = await _buildScript(config, appBuildDir);
-  await _buildInstaller(config, scriptFile);
+  try {
+    final appBuildDir = await _buildApp(config);
+    final scriptFile = await _buildScript(config, appBuildDir);
+    await _buildInstaller(config, scriptFile);
+  } on InnoBundleError catch (e) {
+    CliLogger.exitError(e.message);
+  }
   CliLogger.flushDeferred();
 
   if (hf) print(BUILD_END_MESSAGE);

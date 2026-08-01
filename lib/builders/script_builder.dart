@@ -46,7 +46,7 @@ class ScriptBuilder {
   String _setup() {
     final outputDir = p.joinAll([
       Directory.current.path,
-      ...installerBuildDir,
+      ...config.outputDir,
       config.type.dirName,
     ]);
 
@@ -330,10 +330,11 @@ $addedExtsCommands
 \n''';
   }
 
-  /// Generates the ISS script file and returns its path.
-  Future<File> build() async {
-    CliLogger.info("Generating ISS script...");
-    final script = scriptHeader +
+  /// Returns the generated ISS script content as a string.
+  ///
+  /// Does not write to disk — useful for inspection in tests.
+  String buildScript() {
+    return scriptHeader +
         _setup() +
         _installDelete() +
         _languages() +
@@ -343,8 +344,14 @@ $addedExtsCommands
         _icons() +
         _run() +
         _downloadVcRedist();
+  }
+
+  /// Generates the ISS script file and returns its path.
+  Future<File> build() async {
+    CliLogger.info("Generating ISS script...");
+    final script = buildScript();
     final relScriptPath = p.joinAll([
-      ...installerBuildDir,
+      ...config.outputDir,
       config.type.dirName,
       "inno-script.iss",
     ]);

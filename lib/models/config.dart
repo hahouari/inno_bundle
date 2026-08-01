@@ -28,6 +28,7 @@ import 'package:inno_bundle/models/vcredist_mode.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
+import 'package:inno_bundle/utils/inno_bundle_error.dart';
 
 /// A class representing the configuration for building a Windows installer using Inno Setup.
 class Config {
@@ -113,6 +114,12 @@ class Config {
   /// remove them with a normal update.
   final List<String> excludedFileExts;
 
+  /// Relative path segments for the installer output directory.
+  ///
+  /// Defaults to [installerBuildDir] (`build/windows/x64/installer`).
+  /// Not read from YAML — used internally and overridable in tests.
+  final List<String> outputDir;
+
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
@@ -140,6 +147,7 @@ class Config {
     this.type = BuildType.release,
     this.app = true,
     this.installer = true,
+    this.outputDir = installerBuildDir,
   });
 
   /// The name of the executable file that is created with flutter build.
@@ -154,51 +162,54 @@ class Config {
     required CliConfig cliConfig,
     required File pubspecFile,
     required File configFile,
+    List<String> outputDir = installerBuildDir,
   }) {
     final configName =
         configFile == pubspecFile ? "pubspec.yaml" : "config file";
     if (configJson['inno_bundle'] is! Map<String, dynamic>) {
-      CliLogger.exitError("inno_bundle section is missing from $configName.");
+      throw InnoBundleError("inno_bundle section is missing from $configName.");
     }
     final Map<String, dynamic> inno = configJson['inno_bundle'];
 
     if (inno['id'] is! String) {
-      CliLogger.exitError(
+      throw InnoBundleError(
           "inno_bundle.id attribute is missing from $configName. "
           "Run `dart run inno_bundle:guid` to generate a new one, "
           "then put it in your $configName.");
     } else if (!Uuid.isValidUUID(fromString: inno['id'])) {
-      CliLogger.exitError("inno_bundle.id from $configName is not valid. "
+      throw InnoBundleError("inno_bundle.id from $configName is not valid. "
           "Run `dart run inno_bundle:guid` to generate a new one, "
           "then put it in your $configName.");
     }
     final String id = inno['id'];
 
     if (json['name'] is! String) {
-      CliLogger.exitError("name attribute is missing from $configName.");
+      throw InnoBundleError("name attribute is missing from $configName.");
     }
     final String pubspecName = json['name'];
 
     if (inno['name'] != null && !validFilenameRegex.hasMatch(inno['name'])) {
-      CliLogger.exitError("inno_bundle.name from $configName is not valid. "
+      throw InnoBundleError("inno_bundle.name from $configName is not valid. "
           "`${inno['name']}` is not a valid file name.");
     }
     final String name = inno['name'] ?? pubspecName;
 
     if ((cliConfig.appVersion ?? inno['version'] ?? json['version'])
         is! String) {
-      CliLogger.exitError("version attribute is missing from $configName.");
+      throw InnoBundleError("version attribute is missing from $configName.");
     }
     final String version =
         cliConfig.appVersion ?? inno['version'] ?? json['version'];
 
     if ((inno['description'] ?? json['description']) is! String) {
-      CliLogger.exitError("description attribute is missing from $configName.");
+      throw InnoBundleError(
+          "description attribute is missing from $configName.");
     }
     final String description = inno['description'] ?? json['description'];
 
     if ((inno['publisher'] ?? json['maintainer']) is! String) {
-      CliLogger.exitError("maintainer or inno_bundle.publisher attributes are "
+      throw InnoBundleError(
+          "maintainer or inno_bundle.publisher attributes are "
           "missing from $configName.");
     }
     final String publisher = inno['publisher'] ?? json['maintainer'];
@@ -208,7 +219,7 @@ class Config {
     final updatesUrl = (inno['updates_url'] as String?) ?? url;
 
     if (inno['installer_icon'] != null && inno['installer_icon'] is! String) {
-      CliLogger.exitError("inno_bundle.installer_icon attribute is invalid "
+      throw InnoBundleError("inno_bundle.installer_icon attribute is invalid "
           "in $configName.");
     }
     final installerIcon = inno['installer_icon'] != null
@@ -219,19 +230,19 @@ class Config {
         : defaultInstallerIconPlaceholder;
     if (installerIcon != defaultInstallerIconPlaceholder &&
         !File(installerIcon).existsSync()) {
-      CliLogger.exitError(
+      throw InnoBundleError(
           "inno_bundle.installer_icon attribute value is invalid, "
           "`$installerIcon` file does not exist.");
     }
 
     if (inno['languages'] != null && inno['languages'] is! List) {
-      CliLogger.exitError("inno_bundle.languages attribute is invalid "
+      throw InnoBundleError("inno_bundle.languages attribute is invalid "
           "in $configName, only a list of strings is allowed.");
     }
     final languages = (inno['languages'] as List?)
             ?.map((l) {
               final error = Language.validateConfig(l, configName: configName);
-              if (error != null) CliLogger.exitError(error);
+              if (error != null) throw InnoBundleError(error);
               final language = Language.getByNameOrNull(l);
               if (language == null) return null;
               return language;
@@ -243,13 +254,13 @@ class Config {
     if (inno['admin'] != null &&
         inno['admin'] is! bool &&
         inno['admin'] != "auto") {
-      CliLogger.exitError("inno_bundle.admin attribute is invalid value "
+      throw InnoBundleError("inno_bundle.admin attribute is invalid value "
           "in $configName");
     }
     final admin = AdminMode.fromOption(inno['admin'] ?? true);
 
     if (inno['license_file'] != null && inno['license_file'] is! String) {
-      CliLogger.exitError("inno_bundle.license_file attribute is invalid "
+      throw InnoBundleError("inno_bundle.license_file attribute is invalid "
           "in $configName.");
     }
 
@@ -269,7 +280,7 @@ class Config {
       signToolCommand: cliConfig.signToolCommand,
       signToolParams: cliConfig.signToolParams,
     );
-    if (signToolError != null) CliLogger.exitError(signToolError);
+    if (signToolError != null) throw InnoBundleError(signToolError);
     final signTool = SignTool.fromOption(
       inno['sign_tool'],
       signToolName: cliConfig.signToolName,
@@ -279,13 +290,13 @@ class Config {
 
     final archError =
         BuildArch.validateConfig(inno['arch'], configName: configName);
-    if (archError != null) CliLogger.exitError(archError);
+    if (archError != null) throw InnoBundleError(archError);
     final arch = BuildArch.fromOption(inno['arch']);
 
     if (inno['vc_redist'] != null &&
         inno['vc_redist'] is! bool &&
         inno['vc_redist'] != "download") {
-      CliLogger.exitError("inno_bundle.vc_redist attribute is invalid value "
+      throw InnoBundleError("inno_bundle.vc_redist attribute is invalid value "
           "in $configName");
     }
     final vcRedist = VcRedistMode.fromOption(inno['vc_redist'] ?? true);
@@ -297,13 +308,13 @@ class Config {
       );
 
       if (inno['dlls'] is! List) {
-        CliLogger.exitError("inno_bundle.dlls attribute is invalid "
+        throw InnoBundleError("inno_bundle.dlls attribute is invalid "
             "in $configName, only a list of dll entries is allowed.");
       }
     }
 
     if (inno['files'] != null && inno['files'] is! List) {
-      CliLogger.exitError("inno_bundle.files attribute is invalid "
+      throw InnoBundleError("inno_bundle.files attribute is invalid "
           "in $configName, only a list of file entries is allowed.");
     }
 
@@ -313,7 +324,7 @@ class Config {
           if (file == null) return null;
 
           final e = FileEntry.validateConfig(file, configName: configName);
-          if (e != null) CliLogger.exitError(e);
+          if (e != null) throw InnoBundleError(e);
 
           return FileEntry.fromJson(file);
         })
@@ -362,6 +373,7 @@ class Config {
       files: files,
       includedFileExts: includedFileExts,
       excludedFileExts: excludedFileExts,
+      outputDir: outputDir,
     );
   }
 
@@ -371,8 +383,9 @@ class Config {
   factory Config.fromFile(
     File pubspecFile,
     File configFile,
-    CliConfig cliConfig,
-  ) {
+    CliConfig cliConfig, {
+    List<String> outputDir = installerBuildDir,
+  }) {
     final pubspecJson = readYaml(pubspecFile);
     final configJson =
         configFile == pubspecFile ? pubspecJson : readYaml(configFile);
@@ -383,6 +396,7 @@ class Config {
       cliConfig: cliConfig,
       pubspecFile: pubspecFile,
       configFile: configFile,
+      outputDir: outputDir,
     );
   }
 

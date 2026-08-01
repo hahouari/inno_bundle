@@ -21,8 +21,14 @@ class InstallerBuilder {
   /// The Inno Setup script file to be used for building the installer.
   final File scriptFile;
 
+  /// Optional override for the ISCC.exe path.
+  ///
+  /// When set, bypasses [getInnoSetupExec] auto-detection. Used by tests
+  /// to point at a specific versioned installation.
+  final String? isccExecutable;
+
   /// Creates an instance of [InstallerBuilder] with the given [config] and [scriptFile].
-  const InstallerBuilder(this.config, this.scriptFile);
+  const InstallerBuilder(this.config, this.scriptFile, {this.isccExecutable});
 
   /// Builds the installer using Inno Setup and returns the directory containing the output files.
   ///
@@ -34,7 +40,9 @@ class InstallerBuilder {
       return Directory("");
     }
 
-    final execFile = getInnoSetupExec()!;
+    final execFile = isccExecutable != null
+        ? File(isccExecutable!)
+        : getInnoSetupExec()!;
     var params = [scriptFile.path];
     if (config.signTool != null && config.signTool!.command.isNotEmpty) {
       params.add('/S${config.signTool!.name}=${config.signTool!.command}');
