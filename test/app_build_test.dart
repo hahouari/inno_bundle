@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 
 import 'package:inno_bundle/builders/app_builder.dart';
-import 'package:inno_bundle/models/cli_config.dart';
+import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/models/config.dart';
 
 /// Relative path from repo root to the demo app used as a test fixture.
@@ -15,7 +15,7 @@ void main() {
       final config = Config.fromJson(
         {'name': 'x', 'description': 'x', 'version': '1.0', 'maintainer': 'x'},
         {'inno_bundle': {'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff'}},
-        cliConfig: CliConfig(),
+        cliConfig: InnoBundleCliArgs(),
         pubspecFile: File(''),
         configFile: File(''),
       );

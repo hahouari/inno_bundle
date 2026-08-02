@@ -1,31 +1,30 @@
-/// CLI argument parser for the `setup_versions` command.
+/// The `setup_versions` command manages versioned Inno Setup installations.
 ///
-/// Parses the arguments received by the `bin/setup_versions.dart` entry point
-/// into a [SetupVersionsCliArgs] instance via [SetupVersionsCliArgs.parse],
-/// using the options declared in [SetupVersionsCliArgs.parser].
+/// Inno_bundle can test against multiple Inno Setup versions, each installed
+/// into its own folder. This class models the arguments that drive that setup:
+/// which versions to install, where to put them, and the output framing. See
+/// the `bin/setup_versions.dart` entry point for how these are consumed.
 import 'package:args/args.dart';
 import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 
-/// Holds the parsed command-line arguments for the `setup_versions` command.
-///
-/// Exposes the resolved [versions], [outRoot], [hf] and [help] values so the
-/// entry point can drive the installation of Inno Setup versions without
-/// re-parsing the raw arguments.
+/// The resolved CLI options for the `setup_versions` command.
 class SetupVersionsCliArgs {
-  /// Comma-separated Inno Setup versions to install, split into a list.
+  /// The Inno Setup versions requested for installation, in order.
   final List<String> versions;
 
-  /// Root directory for extracted versions.
+  /// Root directory under which each version is installed.
+  ///
+  /// Each version gets its own subfolder (e.g. `<outRoot>/6.3.3/`).
   final String outRoot;
 
-  /// Whether to print header and footer messages.
+  /// Whether to print the header/footer lines framing the output.
   final bool hf;
 
-  /// Whether the `--help` flag was passed.
+  /// Whether to print usage and exit without installing anything.
   final bool help;
 
-  /// Creates an instance with the given [versions], [outRoot], [hf] and [help].
+  /// Creates an instance with the given values.
   SetupVersionsCliArgs({
     required this.versions,
     required this.outRoot,
@@ -33,7 +32,9 @@ class SetupVersionsCliArgs {
     required this.help,
   });
 
-  /// Declares the CLI options accepted by the `setup_versions` command.
+  /// Declares the options accepted by the `setup_versions` command.
+  ///
+  /// The `help:` strings are shown verbatim to users through `--help`.
   static ArgParser parser = ArgParser()
     ..addOption(
       'versions',
@@ -57,7 +58,7 @@ class SetupVersionsCliArgs {
       help: 'Print help and exit',
     );
 
-  /// Returns the parser usage message followed by usage examples.
+  /// Returns the usage message for the command, including runnable examples.
   String helpMessage() {
     return "${parser.usage}\n"
         '\nExamples:'
@@ -68,8 +69,8 @@ class SetupVersionsCliArgs {
 
   /// Parses the given [arguments] into a [SetupVersionsCliArgs].
   ///
-  /// Splits the `--versions` option on commas and trims each entry, and maps
-  /// the remaining options onto the corresponding fields.
+  /// The comma-separated `--versions` option is split into a list and trimmed;
+  /// every other option maps directly onto a field.
   factory SetupVersionsCliArgs.parse(List<String> arguments) {
     final parsedArgs = parser.parse(arguments);
     return SetupVersionsCliArgs(

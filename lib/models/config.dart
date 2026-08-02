@@ -17,10 +17,10 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
+import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
-import 'package:inno_bundle/models/cli_config.dart';
 import 'package:inno_bundle/models/file_entry.dart';
 import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/models/sign_tool.dart';
@@ -159,7 +159,7 @@ class Config {
   factory Config.fromJson(
     Map<String, dynamic> json,
     Map<String, dynamic> configJson, {
-    required CliConfig cliConfig,
+    required InnoBundleCliArgs cliConfig,
     required File pubspecFile,
     required File configFile,
     List<String> outputDir = installerBuildDir,
@@ -383,7 +383,7 @@ class Config {
   factory Config.fromFile(
     File pubspecFile,
     File configFile,
-    CliConfig cliConfig, {
+    InnoBundleCliArgs cliConfig, {
     List<String> outputDir = installerBuildDir,
   }) {
     final pubspecJson = readYaml(pubspecFile);

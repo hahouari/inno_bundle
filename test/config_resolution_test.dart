@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 import 'dart:io';
 
 import 'package:inno_bundle/models/build_type.dart';
-import 'package:inno_bundle/models/cli_config.dart';
+import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/utils/inno_bundle_error.dart';
 
@@ -25,7 +25,7 @@ void main() {
       final config = Config.fromJson(
         json,
         innoJson,
-        cliConfig: CliConfig(),
+        cliConfig: InnoBundleCliArgs(),
         pubspecFile: File(''),
         configFile: File(''),
       );
@@ -43,7 +43,7 @@ void main() {
         () => Config.fromJson(
           {'name': 'x'},
           {},
-          cliConfig: CliConfig(),
+          cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
         ),
@@ -56,7 +56,7 @@ void main() {
         () => Config.fromJson(
           {'name': 'x'},
           {'inno_bundle': {}},
-          cliConfig: CliConfig(),
+          cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
         ),
@@ -69,7 +69,7 @@ void main() {
         () => Config.fromJson(
           {'name': 'x'},
           {'inno_bundle': {'id': 'not-a-uuid'}},
-          cliConfig: CliConfig(),
+          cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
         ),
@@ -82,7 +82,7 @@ void main() {
         () => Config.fromJson(
           {},
           {'inno_bundle': {'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff'}},
-          cliConfig: CliConfig(),
+          cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
         ),
@@ -99,7 +99,7 @@ void main() {
               'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff',
             },
           },
-          cliConfig: CliConfig(),
+          cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
         ),

@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:inno_bundle/models/cli_config.dart';
+import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/installer_icon.dart';
@@ -107,7 +107,7 @@ Map<String, dynamic> readYaml(File yamlFile) {
 void generateEssentials(
   File pubspecFile,
   File configFile,
-  CliConfig cliConfig,
+  InnoBundleCliArgs cliConfig,
 ) {
   // if neither app id nor publisher is to be generated, do nothing
   if (!cliConfig.generateAppId && !cliConfig.generatePublisher) return;

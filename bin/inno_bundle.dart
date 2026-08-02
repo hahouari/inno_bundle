@@ -1,11 +1,14 @@
+/// The `inno_bundle` command-line entry point.
+///
+/// Its role is to turn user-facing command-line flags plus a config file into
+/// a finished Windows installer, chaining the app, script and installer
+/// builders described in the `builders/` package.
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:inno_bundle/builders/app_builder.dart';
 import 'package:inno_bundle/builders/installer_builder.dart';
 import 'package:inno_bundle/builders/script_builder.dart';
-import 'package:inno_bundle/models/build_type.dart';
-import 'package:inno_bundle/models/cli_config.dart';
+import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
@@ -35,77 +38,29 @@ Future<void> _buildInstaller(Config config, File scriptFile) async {
   await builder.build();
 }
 
-/// Run to build installer
+/// Entry point of the `inno_bundle` command.
+///
+/// Walks the whole build pipeline from the parsed arguments: resolve the
+/// config, generate missing essentials, ensure Inno Setup is installed, then
+/// produce the app and its installer. Every step is gated by the flags modeled
+/// in [InnoBundleCliArgs].
 void main(List<String> arguments) async {
-  final parser = ArgParser()
-    ..addFlag(BuildType.release.name, negatable: false, help: 'Default flag')
-    ..addFlag(BuildType.profile.name, negatable: false)
-    ..addFlag(BuildType.debug.name, negatable: false)
-    ..addFlag('app', defaultsTo: true, help: 'Build app')
-    ..addFlag('installer', defaultsTo: true, help: 'Build installer')
-    ..addFlag(
-      'install-inno',
-      defaultsTo: true,
-      help: 'Install Inno Setup into your system if not already installed\n'
-          'This requires Winget to be already available on the system',
-    )
-    ..addFlag(
-      'gen-app-id',
-      defaultsTo: true,
-      help: 'Generate a random App ID into your config file if non-existent\n'
-          'This will use namespace from --app-id-ns if provided',
-    )
-    ..addOption(
-      'path',
-      help: 'Path to custom config file. Default: pubspec.yaml',
-    )
-    ..addOption(
-      "app-id-ns",
-      help: "Namespace for --gen-app-id\nExample: www.example.com",
-    )
-    ..addFlag(
-      'gen-publisher',
-      defaultsTo: true,
-      help: 'Generate a publisher name into config file if non-existent\n'
-          'This will generate based on username of logged in user in machine\n'
-          'and only if maintainer field is not present in config file',
-    )
-    ..addOption("build-args", help: "Append args to \"flutter build ...\"")
-    ..addOption("app-version", help: "Override app version")
-    ..addOption("sign-tool-name", help: "Override sign tool name")
-    ..addOption("sign-tool-command", help: "Override sign tool command")
-    ..addOption("sign-tool-params", help: "Override sign tool params")
-    ..addFlag(
-      'envs',
-      defaultsTo: false,
-      negatable: false,
-      help: "Print env variables and exit",
-    )
-    ..addFlag('hf', defaultsTo: true, help: 'Print header and footer')
-    ..addFlag('list-languages',
-        negatable: false, help: 'List all supported languages and exit')
-    ..addFlag('help', abbr: 'h', negatable: false, help: 'Print help and exit');
-  final parsedArgs = parser.parse(arguments);
-  final envs = parsedArgs['envs'] as bool;
-  final hf = parsedArgs['hf'] as bool;
-  final help = parsedArgs['help'] as bool;
-  final listLanguages = parsedArgs['list-languages'] as bool;
+  final cliArgs = InnoBundleCliArgs.parse(arguments);
 
-  if (hf) print(START_MESSAGE);
+  if (cliArgs.hf) print(START_MESSAGE);
 
-  if (help) {
-    print("${parser.usage}\n");
+  if (cliArgs.help) {
+    print(cliArgs.helpMessage());
     exit(0);
   }
 
-  if (listLanguages) Language.listLanguages();
+  if (cliArgs.listLanguages) Language.listLanguages();
 
   const pubspecFilePath = 'pubspec.yaml';
   final pubspecFile = File(pubspecFilePath);
   final defaultConfigFilePath = 'inno_bundle.yaml';
   final defaultConfigFile = File(defaultConfigFilePath);
-  final configFilePath = parsedArgs['path'] as String?;
-  final cliConfig = CliConfig.fromArgs(parsedArgs);
+  final configFilePath = cliArgs.path;
 
   // if config file points to pubspec file, use same File instance,
   // the intention is to first look up custom config file,
@@ -119,23 +74,23 @@ void main(List<String> arguments) async {
               ? defaultConfigFile
               : pubspecFile;
 
-  if (cliConfig.generateAppId || cliConfig.generatePublisher) {
-    generateEssentials(pubspecFile, configFile, cliConfig);
+  if (cliArgs.generateAppId || cliArgs.generatePublisher) {
+    generateEssentials(pubspecFile, configFile, cliArgs);
   }
 
   late final Config config;
   try {
-    config = Config.fromFile(pubspecFile, configFile, cliConfig);
+    config = Config.fromFile(pubspecFile, configFile, cliArgs);
   } on InnoBundleError catch (e) {
     CliLogger.exitError(e.message);
   }
 
-  if (envs) {
+  if (cliArgs.envs) {
     print(config.toEnvironmentVariables());
     exit(0);
   }
 
-  if (cliConfig.installInnoSetup && cliConfig.installer) {
+  if (cliArgs.installInnoSetup && cliArgs.installer) {
     await installInnoSetup();
   }
 
@@ -148,5 +103,5 @@ void main(List<String> arguments) async {
   }
   CliLogger.flushDeferred();
 
-  if (hf) print(BUILD_END_MESSAGE);
+  if (cliArgs.hf) print(BUILD_END_MESSAGE);
 }

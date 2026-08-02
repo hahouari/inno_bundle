@@ -1,35 +1,36 @@
+/// The `inno_bundle id` command-line entry point.
+///
+/// This is a small standalone tool that produces an App ID (a GUID) for use
+/// as the `inno_bundle.id` value in a config file. It accepts an optional `--ns`
+/// namespace so the same name always yields the same namespaced UUID.
 import 'dart:io';
 
-import 'package:args/args.dart';
+import 'package:inno_bundle/cli_args_parsers/id_cli_args.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
 
-/// Run to generate an App ID (as GUID)
+/// Generates an App ID (as a GUID) and prints it to stdout.
+///
+/// Uses a namespaced UUID when [`--ns`] is provided, otherwise a random UUID,
+/// then exits. The value is meant to be copied into the config file.
 void main(List<String> arguments) {
-  final parser = ArgParser()
-    ..addOption('ns', help: "Namespace, ex: google.com")
-    ..addFlag('hf', defaultsTo: true, help: 'Print header and footer')
-    ..addFlag('help', abbr: 'h', negatable: false, help: 'Print help and exit');
+  final cliArgs = IdCliArgs.parse(arguments);
 
-  final parsedArgs = parser.parse(arguments);
-  final ns = parsedArgs['ns'] as String?;
-  final hf = parsedArgs['hf'] as bool;
-  final help = parsedArgs['help'] as bool;
+  if (cliArgs.hf) print(START_MESSAGE);
 
-  if (hf) print(START_MESSAGE);
-
-  if (help) {
-    print("${parser.usage}\n");
+  if (cliArgs.help) {
+    print(cliArgs.helpMessage());
     exit(0);
   }
 
+  final ns = cliArgs.ns;
   if (ns != null) {
     print(uuid.v5(Namespace.url.value, ns));
   } else {
     print(uuid.v1());
   }
 
-  if (hf) print(GUID_END_MESSAGE);
+  if (cliArgs.hf) print(GUID_END_MESSAGE);
 }
