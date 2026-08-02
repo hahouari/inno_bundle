@@ -82,7 +82,8 @@ void main(List<String> arguments) async {
       help: "Print env variables and exit",
     )
     ..addFlag('hf', defaultsTo: true, help: 'Print header and footer')
-    ..addFlag('list-languages', negatable: false, help: 'List all supported languages and exit')
+    ..addFlag('list-languages',
+        negatable: false, help: 'List all supported languages and exit')
     ..addFlag('help', abbr: 'h', negatable: false, help: 'Print help and exit');
   final parsedArgs = parser.parse(arguments);
   final envs = parsedArgs['envs'] as bool;
@@ -99,12 +100,12 @@ void main(List<String> arguments) async {
 
   if (listLanguages) Language.listLanguages();
 
-  final cliConfig = CliConfig.fromArgs(parsedArgs);
   const pubspecFilePath = 'pubspec.yaml';
   final pubspecFile = File(pubspecFilePath);
   final defaultConfigFilePath = 'inno_bundle.yaml';
   final defaultConfigFile = File(defaultConfigFilePath);
   final configFilePath = parsedArgs['path'] as String?;
+  final cliConfig = CliConfig.fromArgs(parsedArgs);
 
   // if config file points to pubspec file, use same File instance,
   // the intention is to first look up custom config file,

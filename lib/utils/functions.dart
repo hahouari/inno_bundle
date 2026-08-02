@@ -303,3 +303,16 @@ Future<String?> sha256HashFile(String filePath) async {
     return null;
   }
 }
+
+/// Retrieves the GitHub token from environment variables.
+String? get gitHubToken {
+  return Platform.environment['GITHUB_TOKEN'] ??
+      Platform.environment['GH_TOKEN'];
+}
+
+/// Asserts that the current operating system is Windows, else exits with an error.
+void assertOsWindows() {
+  if (!Platform.isWindows) {
+    CliLogger.exitError('This command is only supported on Windows.');
+  }
+}

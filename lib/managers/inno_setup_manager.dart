@@ -13,11 +13,11 @@ class InnoSetupManager {
 
   /// Creates a manager rooted at [versionsDir].
   ///
-  /// If omitted, defaults to `$USERPROFILE/.inno_bundle/inno` (Windows) or
-  /// `$HOME/.inno_bundle/inno` (other platforms).
+  /// If omitted, defaults to `$USERPROFILE/.inno_bundle/versions` (Windows) or
+  /// `$HOME/.inno_bundle/versions` (other platforms).
   InnoSetupManager({String? versionsDir})
       : versionsDir =
-            versionsDir ?? p.join(getHomeDir(), '.inno_bundle', 'inno');
+            versionsDir ?? p.join(getHomeDir(), '.inno_bundle', 'versions');
 
   /// Returns the absolute path to `ISCC.exe` for [version], or `null` if that
   /// version is not yet installed.
@@ -42,7 +42,7 @@ class InnoSetupManager {
       ..sort();
   }
 
-  /// Ensures [version] is downloaded, verified, and extracted.
+  /// Ensures [version] is downloaded, checksum verified, and extracted.
   ///
   /// Returns `null` on success, or an error message describing the failure.
   /// Already-installed versions are silently skipped.
