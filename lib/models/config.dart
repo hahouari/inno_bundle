@@ -153,6 +153,25 @@ class Config {
   /// The name of the executable file that is created with flutter build.
   String get pubspecNameDotExe => "$pubspecName.exe";
 
+  /// Resolves which file the command should read its config from.
+  ///
+  /// A custom [configPath] (from the `--path` flag) wins; otherwise
+  /// [defaultConfigFile] is used when present on disk, falling back to
+  /// [pubspecFile].
+  ///
+  /// When [configPath] points to the pubspec file, [pubspecFile] is returned
+  /// so that `configFile == pubspecFile` holds downstream.
+  static File resolveConfigFile({
+    required String? configPath,
+    required File pubspecFile,
+    required File defaultConfigFile,
+  }) {
+    if (configPath == pubspecFileName) return pubspecFile;
+    if (configPath != null) return File(configPath);
+    if (defaultConfigFile.existsSync()) return defaultConfigFile;
+    return pubspecFile;
+  }
+
   /// Creates a [Config] instance from a JSON map, typically read from `pubspec.yaml` and a config file (if provided).
   ///
   /// Validates the configuration and exits with an error if invalid values are found.

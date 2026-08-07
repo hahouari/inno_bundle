@@ -56,23 +56,13 @@ void main(List<String> arguments) async {
 
   if (cliArgs.listLanguages) Language.listLanguages();
 
-  const pubspecFilePath = 'pubspec.yaml';
-  final pubspecFile = File(pubspecFilePath);
-  final defaultConfigFilePath = 'inno_bundle.yaml';
-  final defaultConfigFile = File(defaultConfigFilePath);
-  final configFilePath = cliArgs.path;
-
-  // if config file points to pubspec file, use same File instance,
-  // the intention is to first look up custom config file,
-  // if not provided, look up default config file `inno_bundle.yaml`,
-  // else, then look up pubspec file.
-  final configFile = configFilePath == pubspecFilePath
-      ? pubspecFile
-      : configFilePath != null
-          ? File(configFilePath)
-          : defaultConfigFile.existsSync()
-              ? defaultConfigFile
-              : pubspecFile;
+  final pubspecFile = File(pubspecFileName);
+  final defaultConfigFile = File(defaultConfigFileName);
+  final configFile = Config.resolveConfigFile(
+    configPath: cliArgs.path,
+    pubspecFile: pubspecFile,
+    defaultConfigFile: defaultConfigFile,
+  );
 
   if (cliArgs.generateAppId || cliArgs.generatePublisher) {
     generateEssentials(pubspecFile, configFile, cliArgs);

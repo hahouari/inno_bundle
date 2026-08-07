@@ -44,6 +44,12 @@ const String SETUP_VERSIONS_END_MESSAGE = '''\n
                   ❤️  THANK YOU!  ❤️
 ''';
 
+/// Default name of the Flutter project manifest.
+const String pubspecFileName = 'pubspec.yaml';
+
+/// Default name of the package's own config file.
+const String defaultConfigFileName = 'inno_bundle.yaml';
+
 /// GitHub link for documentation on how to download and install Inoo Setup.
 const innoDownloadStepLink =
     "https://github.com/hahouari/inno_bundle/wiki/Install-Inno-Setup";

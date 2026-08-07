@@ -5,9 +5,62 @@ import 'dart:io';
 import 'package:inno_bundle/models/build_type.dart';
 import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/models/config.dart';
+import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/inno_bundle_error.dart';
+import 'package:path/path.dart' as p;
 
 void main() {
+  group('Config file resolution', () {
+    test('uses the default config file when it exists', () {
+      final tempDir = Directory.systemTemp.createTempSync('inno_resolve_');
+      addTearDown(() => tempDir.deleteSync(recursive: true));
+      final defaultConfigFile =
+          File(p.join(tempDir.path, defaultConfigFileName));
+      defaultConfigFile.writeAsStringSync('');
+
+      final resolved = Config.resolveConfigFile(
+        configPath: null,
+        pubspecFile: File(''),
+        defaultConfigFile: defaultConfigFile,
+      );
+
+      expect(resolved, same(defaultConfigFile));
+    });
+
+    test('falls back to pubspec.yaml when the default config file is absent',
+        () {
+      final pubspecFile = File('pubspec.yaml');
+      final resolved = Config.resolveConfigFile(
+        configPath: null,
+        pubspecFile: pubspecFile,
+        defaultConfigFile: File('inno_bundle.yaml'),
+      );
+
+      expect(resolved, same(pubspecFile));
+    });
+
+    test('a custom config path wins over the default config file', () {
+      final resolved = Config.resolveConfigFile(
+        configPath: 'custom_config.yaml',
+        pubspecFile: File('pubspec.yaml'),
+        defaultConfigFile: File('inno_bundle.yaml'),
+      );
+
+      expect(resolved.path, 'custom_config.yaml');
+    });
+
+    test('returns the pubspec file when the config path points to it', () {
+      final pubspecFile = File('pubspec.yaml');
+      final resolved = Config.resolveConfigFile(
+        configPath: 'pubspec.yaml',
+        pubspecFile: pubspecFile,
+        defaultConfigFile: File('inno_bundle.yaml'),
+      );
+
+      expect(resolved, same(pubspecFile));
+    });
+  });
+
   group('Config resolution', () {
     test('applies defaults when optional props are omitted', () {
       final json = {
