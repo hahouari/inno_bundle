@@ -8,10 +8,6 @@
 /// - Globally used regular expressions.
 library;
 
-import 'package:path/path.dart' as p;
-
-import 'package:inno_bundle/utils/functions.dart';
-
 /// Start message for the CLI
 const String START_MESSAGE = '''\n
 ╔════════════════════════════════════════════════════╗
@@ -52,27 +48,6 @@ const String pubspecFileName = 'pubspec.yaml';
 /// Default name of the package's own config file.
 const String defaultConfigFileName = 'inno_bundle.yaml';
 
-/// Root directory where the package manages its versioned Inno Setup installs.
-final String innoManagedVersionsDir = p.join(
-  getHomeDir(),
-  '.inno_bundle',
-  'versions',
-);
-
-/// Default Inno Setup version used when no install is detected and one needs
-/// to be fetched through the version manager.
-const String defaultInnoSetupVersion = '6.3.3';
-
-final defaultManagedInnoSetupPath = p.join(
-  innoManagedVersionsDir,
-  defaultInnoSetupVersion,
-  'ISCC.exe',
-);
-
-/// GitHub link for documentation on how to download and install Inoo Setup.
-const innoDownloadStepLink =
-    "https://github.com/hahouari/inno_bundle/wiki/Install-Inno-Setup";
-
 /// Relative build directory path for x64 windows app.
 const appBuildDir = ["build", "windows", "x64", "runner"];
 
@@ -85,33 +60,6 @@ const system32 = ["C:", "Windows", "System32"];
 /// List of DLL files that must be included to avoid missing dll files issue for users.
 /// See https://github.com/hahouari/inno_bundle/wiki/Handling-Missing-DLL-Files.
 const vcDllFiles = ["msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll"];
-
-/// Inno Setup installation path when installed on the system level.
-const innoSysDirPath = ["C:", "Program Files (x86)", "Inno Setup 6"];
-
-/// Inno Setup installation path when installed on user-specific level.
-final innoUserDirPath = [
-  getHomeDir(),
-  "AppData",
-  "Local",
-  "Programs",
-  "Inno Setup 6"
-];
-
-/// Inno Setup installation sub command for winget to install silently,
-/// with no upgrade, no prompts, and no UI windows.
-final innoSetupInstallationSubCommand = [
-  "install",
-  "--id",
-  "JRSoftware.InnoSetup",
-  "--exact",
-  "--version",
-  "6.4.1",
-  "--silent",
-  "--no-upgrade",
-  "--source",
-  "winget"
-];
 
 /// Placeholder used by inno_bundle to signify that the default installer icon should be used.
 const defaultInstallerIconPlaceholder = "__default_installer__icon__";

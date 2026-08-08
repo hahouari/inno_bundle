@@ -5,7 +5,7 @@
 /// which versions to install, where to put them, and the output framing. See
 /// the `bin/setup_versions.dart` entry point for how these are consumed.
 import 'package:args/args.dart';
-import 'package:inno_bundle/utils/constants.dart';
+import 'package:inno_bundle/managers/inno_setup_manager.dart';
 
 /// The resolved CLI options for the `setup_versions` command.
 class SetupVersionsCliArgs {
@@ -37,12 +37,12 @@ class SetupVersionsCliArgs {
   static ArgParser parser = ArgParser()
     ..addOption(
       'versions',
-      defaultsTo: defaultInnoSetupVersion,
+      defaultsTo: InnoSetupManager.defaultVersion,
       help: 'Comma-separated Inno Setup versions to install',
     )
     ..addOption(
       'out-root',
-      defaultsTo: innoManagedVersionsDir,
+      defaultsTo: InnoSetupManager.innoManagedVersionsDir,
       help: 'Root directory for extracted versions',
     )
     ..addFlag(

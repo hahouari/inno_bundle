@@ -16,14 +16,16 @@ void main() {
   final innoVersions = discoverInnoVersions();
 
   if (innoVersions.isEmpty) {
-    test('installer build (SKIPPED — set INNO_VERSIONS_DIR)', () {}, skip: true);
+    test('installer build (SKIPPED — set INNO_VERSIONS_DIR)', () {},
+        skip: true);
     return;
   }
 
   for (final version in innoVersions) {
     group('InstallerBuilder against Inno $version', () {
       final manager = InnoSetupManager(
-          versionsDir: Platform.environment['INNO_VERSIONS_DIR']);
+        versionsDir: Platform.environment['INNO_VERSIONS_DIR'],
+      );
       final isccPath = manager.isccPath(version);
 
       test('compiles a valid installer .exe from a script', () {

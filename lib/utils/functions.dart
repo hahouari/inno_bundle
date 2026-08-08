@@ -7,7 +7,6 @@ import 'dart:typed_data';
 
 import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
-import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/installer_icon.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
@@ -162,106 +161,6 @@ void generateEssentials(
   configFile.writeAsStringSync(lines.join('\n'));
 }
 
-/// Checks if Winget is installed on the system, and returns the path to the executable.
-Future<String> getWingetExec() async {
-  final process = await Process.run('where.exe', ['winget']);
-
-  final exitCode = process.exitCode;
-  if (exitCode != 0) {
-    CliLogger.error("Winget is not detected in your machine, "
-        "Passing --install-inno-setup requires Winget to be installed.\n");
-    exit(exitCode);
-  }
-  return process.stdout.toString().trim();
-}
-
-/// Installs Inno Setup into your system if not already installed with Winget.
-Future<void> installInnoSetup() async {
-  final innoSetupExec = getInnoSetupExec(throwIfNotFound: false);
-  if (innoSetupExec != null) {
-    CliLogger.info("Inno Setup is already installed.");
-    return;
-  }
-
-  final wingetExec = await getWingetExec();
-  final wingetFile = File(wingetExec);
-
-  final process = await Process.start(
-    wingetFile.path,
-    innoSetupInstallationSubCommand,
-    runInShell: true,
-    workingDirectory: Directory.current.path,
-    mode: ProcessStartMode.inheritStdio,
-  );
-
-  final exitCode = await process.exitCode;
-  if (exitCode != 0) exit(exitCode);
-}
-
-/// Locates the Inno Setup executable file, ensuring its proper installation.
-///
-/// Throws a [ProcessException] if Inno Setup is not found or is corrupted.
-File? getInnoSetupExec({bool throwIfNotFound = true}) {
-  if (!Directory(p.joinAll(innoSysDirPath)).existsSync() &&
-      !Directory(p.joinAll(innoUserDirPath)).existsSync()) {
-    if (throwIfNotFound) {
-      CliLogger.exitError("Inno Setup 6 is not detected in your machine, "
-          "checkout our docs on how to correctly install it:\n"
-          "${CliLogger.sLink(innoDownloadStepLink, level: CliLoggerLevel.two)}");
-    }
-    return null;
-  }
-
-  final sysExec = p.joinAll([...innoSysDirPath, "ISCC.exe"]);
-  final sysExecFile = File(sysExec);
-  final userExec = p.joinAll([...innoUserDirPath, "ISCC.exe"]);
-  final userExecFile = File(userExec);
-
-  if (sysExecFile.existsSync()) return sysExecFile;
-  if (userExecFile.existsSync()) return userExecFile;
-
-  if (throwIfNotFound) {
-    CliLogger.exitError("Inno Setup installation in your machine is corrupted "
-        "or incomplete, checkout our docs on how to correctly install it:\n"
-        "${CliLogger.sLink(innoDownloadStepLink, level: CliLoggerLevel.two)}");
-  }
-  return null;
-}
-
-/// Returns the `ISCC.exe` of every version managed under [versionsDir]
-/// (defaults to [innoManagedVersionsDir]), sorted by version in descending
-/// order (highest first).
-List<File> installedVersionedIsccs([String? versionsDir]) {
-  final dir = Directory(versionsDir ?? innoManagedVersionsDir);
-  if (!dir.existsSync()) return [];
-
-  final isccs = <File>[];
-  for (final entry in dir.listSync().whereType<Directory>()) {
-    final iscc = File(p.join(entry.path, 'ISCC.exe'));
-    if (iscc.existsSync()) isccs.add(iscc);
-  }
-
-  isccs.sort((a, b) {
-    final cmp = compareVersions(
-      p.basename(a.parent.path),
-      p.basename(b.parent.path),
-    );
-    return cmp == 0 ? 0 : -cmp;
-  });
-  return isccs;
-}
-
-/// Resolves the Inno Setup executable to use, or `null` when none is present.
-///
-/// Prefers a version-managed silent install under [innoManagedVersionsDir]
-/// (highest version first), then falls back to a system/user installed Inno
-/// Setup (e.g. from Winget). It does not trigger any installation here.
-File? resolveInnoSetupExec() {
-  final versioned = installedVersionedIsccs();
-  if (versioned.isNotEmpty) return versioned.first;
-  return getInnoSetupExec(throwIfNotFound: false);
-}
-
 /// Compares two dotted version strings numerically, e.g. `6.10.0` > `6.3.3`.
 int compareVersions(String a, String b) {
   final partsA = a.split('.').map(int.tryParse).toList();
@@ -279,55 +178,6 @@ int compareVersions(String a, String b) {
 String? getSystemUserName() =>
     Platform.environment['USER'] ?? // Linux/macOS
     Platform.environment['USERNAME']; // Windows
-
-/// Fetches JSON from a URL and returns the parsed map.
-///
-/// If [githubToken] is provided, it is sent as a Bearer token in the
-/// `Authorization` header (used to raise GitHub API rate limits).
-/// Returns `null` on any HTTP error or parse failure.
-Future<Map<String, dynamic>?> fetchGitHubJson(
-  String url, {
-  String? githubToken,
-}) async {
-  final client = HttpClient();
-  try {
-    final request = await client.getUrl(Uri.parse(url));
-    request.headers.set('User-Agent', 'inno_bundle');
-    request.headers.set('Accept', 'application/json');
-    if (githubToken != null && githubToken.isNotEmpty) {
-      request.headers.set('Authorization', 'Bearer $githubToken');
-    }
-    final response = await request.close();
-    final body = await response.transform(utf8.decoder).join();
-    if (response.statusCode != 200) return null;
-    return jsonDecode(body) as Map<String, dynamic>;
-  } catch (_) {
-    return null;
-  } finally {
-    client.close();
-  }
-}
-
-/// Downloads a file from [url] and writes it to [destPath].
-///
-/// Throws an [HttpException] if the server returns a non-200 status code.
-Future<void> downloadFile(String url, String destPath) async {
-  final client = HttpClient();
-  try {
-    final request = await client.getUrl(Uri.parse(url));
-    request.headers.set('User-Agent', 'inno_bundle');
-    final response = await request.close();
-    if (response.statusCode != 200) {
-      throw HttpException('HTTP ${response.statusCode}');
-    }
-    final file = File(destPath);
-    final sink = file.openWrite();
-    await response.pipe(sink);
-    await sink.close();
-  } finally {
-    client.close();
-  }
-}
 
 /// Computes the SHA256 hash of a file using `certutil` (Windows).
 ///

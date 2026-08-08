@@ -66,15 +66,15 @@ void main(List<String> arguments) async {
   );
 
   // Resolve which Inno Setup will be used (managed or system/Winget install).
-  File? innoSetupExec = resolveInnoSetupExec();
+  File? innoSetupExec = InnoSetupManager.resolveInnoSetupExec();
 
   if (cliArgs.installInnoSetup && cliArgs.installer && innoSetupExec == null) {
-    final error = await InnoSetupManager().ensureVersion(
-      defaultInnoSetupVersion,
+    final innoVersionManager = InnoSetupManager();
+    final error = await innoVersionManager.ensureDefaultVersion(
       githubToken: gitHubToken,
     );
     if (error != null) CliLogger.exitError(error);
-    innoSetupExec = File(defaultManagedInnoSetupPath);
+    innoSetupExec = File(innoVersionManager.defaultIsccPath);
   }
 
   if (innoSetupExec == null) {
@@ -91,8 +91,7 @@ void main(List<String> arguments) async {
 
   late final Config config;
   try {
-    config = Config.fromFile(
-        pubspecFile, configFile, innoSetupExec, cliArgs);
+    config = Config.fromFile(pubspecFile, configFile, innoSetupExec, cliArgs);
   } on InnoBundleError catch (e) {
     CliLogger.exitError(e.message);
   }
