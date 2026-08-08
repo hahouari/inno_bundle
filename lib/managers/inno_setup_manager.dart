@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/functions.dart';
 import 'package:path/path.dart' as p;
 
@@ -13,11 +14,10 @@ class InnoSetupManager {
 
   /// Creates a manager rooted at [versionsDir].
   ///
-  /// If omitted, defaults to `$USERPROFILE/.inno_bundle/versions` (Windows) or
-  /// `$HOME/.inno_bundle/versions` (other platforms).
+  /// If omitted, defaults to [innoManagedVersionsDir]
+  /// (`$USERPROFILE/.inno_bundle/versions` on Windows).
   InnoSetupManager({String? versionsDir})
-      : versionsDir =
-            versionsDir ?? p.join(getHomeDir(), '.inno_bundle', 'versions');
+      : versionsDir = versionsDir ?? innoManagedVersionsDir;
 
   /// Returns the absolute path to `ISCC.exe` for [version], or `null` if that
   /// version is not yet installed.
@@ -30,16 +30,9 @@ class InnoSetupManager {
   /// Lists every version subfolder under [versionsDir] that contains
   /// `ISCC.exe`.
   List<String> get installedVersions {
-    final dir = Directory(versionsDir);
-    if (!dir.existsSync()) return [];
-    return dir
-        .listSync()
-        .whereType<Directory>()
-        .map((d) => p.basename(d.path))
-        .where(
-            (name) => File(p.join(versionsDir, name, 'ISCC.exe')).existsSync())
-        .toList()
-      ..sort();
+    return installedVersionedIsccs(versionsDir)
+        .map((f) => p.basename(f.parent.path))
+        .toList();
   }
 
   /// Ensures [version] is downloaded, checksum verified, and extracted.

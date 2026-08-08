@@ -6,10 +6,13 @@ import 'package:inno_bundle/builders/app_builder.dart';
 import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/models/config.dart';
 
+import 'support/language_fixture.dart';
+
 /// Relative path from repo root to the demo app used as a test fixture.
 const fixtureAppPath = 'example/demo_app';
 
 void main() {
+  initTestLanguages();
   group('AppBuilder', () {
     test('requires a Flutter project directory', () {
       final config = Config.fromJson(
@@ -18,6 +21,7 @@ void main() {
         cliConfig: InnoBundleCliArgs(),
         pubspecFile: File(''),
         configFile: File(''),
+        innoSetupExec: File('test_iscc.exe'),
       );
 
       expect(

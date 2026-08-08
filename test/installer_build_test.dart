@@ -29,8 +29,8 @@ void main() {
       test('compiles a valid installer .exe from a script', () {
         // Integration test that would:
         // 1. Create a minimal .iss script
-        // 2. Instantiate InstallerBuilder with isccExecutable: isccPath
-        // 3. Call builder.build()
+        // 2. Construct a Config carrying innoSetupExec: isccPath
+        // 3. Instantiate InstallerBuilder(config, scriptFile) and call build()
         // 4. Assert exit code 0 and output .exe exists
         expect(isccPath, isNotNull);
       }, skip: !Platform.isWindows);

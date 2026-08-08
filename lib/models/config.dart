@@ -120,6 +120,13 @@ class Config {
   /// Not read from YAML — used internally and overridable in tests.
   final List<String> outputDir;
 
+  /// The resolved ISCC.exe executable used to build the installer.
+  ///
+  /// Set per build by the caller (after Inno Setup resolution/install), and
+  /// consumed by the installer builder. Not read from YAML — it reflects
+  /// the selected Inno Setup install on the machine running the build.
+  final File innoSetupExec;
+
   /// Creates a [Config] instance with default values.
   const Config({
     required this.pubspecFile,
@@ -144,6 +151,7 @@ class Config {
     required this.signTool,
     required this.arch,
     required this.vcRedist,
+    required this.innoSetupExec,
     this.type = BuildType.release,
     this.app = true,
     this.installer = true,
@@ -178,9 +186,10 @@ class Config {
   factory Config.fromJson(
     Map<String, dynamic> json,
     Map<String, dynamic> configJson, {
-    required InnoBundleCliArgs cliConfig,
     required File pubspecFile,
     required File configFile,
+    required File innoSetupExec,
+    required InnoBundleCliArgs cliConfig,
     List<String> outputDir = installerBuildDir,
   }) {
     final configName =
@@ -393,15 +402,20 @@ class Config {
       includedFileExts: includedFileExts,
       excludedFileExts: excludedFileExts,
       outputDir: outputDir,
+      innoSetupExec: innoSetupExec,
     );
   }
 
   /// Creates a [Config] instance directly from the `pubspec.yaml` file and a config file (if provided).
   ///
   /// Provides a convenient way to load configuration without manual JSON parsing.
+  ///
+  /// [innoSetupExec] carries the resolved ISCC.exe [File] for this build, so
+  /// the installer builder knows which Inno Setup to use.
   factory Config.fromFile(
     File pubspecFile,
     File configFile,
+    File innoSetupExec,
     InnoBundleCliArgs cliConfig, {
     List<String> outputDir = installerBuildDir,
   }) {
@@ -416,6 +430,7 @@ class Config {
       pubspecFile: pubspecFile,
       configFile: configFile,
       outputDir: outputDir,
+      innoSetupExec: innoSetupExec,
     );
   }
 

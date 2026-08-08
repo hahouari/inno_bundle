@@ -6,7 +6,10 @@ import 'package:inno_bundle/builders/script_builder.dart';
 import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
 import 'package:inno_bundle/models/config.dart';
 
+import 'support/language_fixture.dart';
+
 void main() {
+  initTestLanguages();
   group('.iss script generation', () {
     late Directory tempDir;
     late Directory appDir;
@@ -40,6 +43,7 @@ void main() {
         pubspecFile: File(''),
         configFile: File(''),
         outputDir: outputDir,
+        innoSetupExec: File('test_iscc.exe'),
       );
     }
 

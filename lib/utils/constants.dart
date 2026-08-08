@@ -8,6 +8,8 @@
 /// - Globally used regular expressions.
 library;
 
+import 'package:path/path.dart' as p;
+
 import 'package:inno_bundle/utils/functions.dart';
 
 /// Start message for the CLI
@@ -49,6 +51,23 @@ const String pubspecFileName = 'pubspec.yaml';
 
 /// Default name of the package's own config file.
 const String defaultConfigFileName = 'inno_bundle.yaml';
+
+/// Root directory where the package manages its versioned Inno Setup installs.
+final String innoManagedVersionsDir = p.join(
+  getHomeDir(),
+  '.inno_bundle',
+  'versions',
+);
+
+/// Default Inno Setup version used when no install is detected and one needs
+/// to be fetched through the version manager.
+const String defaultInnoSetupVersion = '6.3.3';
+
+final defaultManagedInnoSetupPath = p.join(
+  innoManagedVersionsDir,
+  defaultInnoSetupVersion,
+  'ISCC.exe',
+);
 
 /// GitHub link for documentation on how to download and install Inoo Setup.
 const innoDownloadStepLink =

@@ -5,6 +5,7 @@
 ///
 /// Example usage:
 /// ```dart
+/// Language.loadLanguages(isccPath);
 /// var language = Language("French");
 /// print(language.innoEntry); // Outputs: Name: "French"; MessagesFile: "compiler:Languages\\French.isl"
 /// ```
@@ -14,19 +15,19 @@
 /// - [name]: The name of the language, derived from the filename, or English for Default.isl.
 ///
 /// Methods:
+/// - [loadLanguages]: Populates the language cache from a given Inno Setup install.
 /// - [getByNameOrNull]: Retrieves a [Language] instance by its name, or `null` if not found.
 /// - [validateConfig]: Validates a configuration option for [Language],
 ///   ensuring it is a valid string and corresponds to a supported language.
 /// - [innoEntry]: Generates the Inno Setup language item for this language,
 ///   formatted for inclusion in an Inno Setup script.
-/// - [all]: Returns a list of all supported languages by scanning the Inno Setup installation directory.
+/// - [all]: Returns all supported languages for the selected Inno Setup install.
 library;
 
 import 'dart:io';
+import 'package:inno_bundle/utils/inno_bundle_error.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
 import 'package:path/path.dart' as p;
-
-import 'package:inno_bundle/utils/functions.dart';
 
 /// A language supported by the Inno Setup installer.
 class Language {
@@ -48,10 +49,36 @@ class Language {
   /// The name of the language, derived from the filename, or English for Default.isl.
   final String name;
 
-  /// Cache for all supported languages to avoid repeated directory scans.
+  /// Cache of supported languages for the selected Inno Setup install.
   static List<Language> _cachedLangs = [];
 
-  // const Language(this.file);
+  /// Loads the supported languages for the given Inno Setup executable path.
+  ///
+  /// Scans the installation directory containing [innoSetupPath] for
+  /// `Default.isl` (English) and every `Languages/*.isl` file, and replaces
+  /// the previously cached set. This is the only way to populate [all].
+  static void loadLanguages(String innoSetupPath) {
+    final innoDir = File(innoSetupPath).parent;
+    final languagesDir = Directory(p.join(innoDir.path, "Languages"));
+    final languages = <Language>[];
+
+    // for English, the default language.
+    if (File(p.join(innoDir.path, "Default.isl")).existsSync()) {
+      languages.add(Language._("English", "Default.isl"));
+    }
+    // rest of the languages are in the Languages directory.
+    if (languagesDir.existsSync()) {
+      languagesDir
+          .listSync()
+          .where((file) => file is File && file.path.endsWith(".isl"))
+          .forEach((file) {
+        final fileName = p.basename(file.path);
+        final fileStem = p.basenameWithoutExtension(fileName);
+        languages.add(Language._(fileStem, "Languages\\${fileName}"));
+      });
+    }
+    _cachedLangs = languages;
+  }
 
   /// Retrieves a [Language] instance by its name, or `null` if not found.
   static Language? getByNameOrNull(String name) {
@@ -79,7 +106,7 @@ class Language {
     }
     final language = Language.getByNameOrNull(option);
     if (language == null) {
-      return "an entry in inno_bundle.languages attribute is invalid "
+      return "an option in inno_bundle.languages attribute is invalid "
           "in $configName, language `$option` is not supported.";
     }
 
@@ -94,36 +121,21 @@ class Language {
 
   /// Prints all supported language names separated by `, ` and exits.
   ///
-  /// Shows the Inno Setup installation directory used for discovery.
+  /// Expects [loadLanguages] to have been called beforehand.
   static Never listLanguages() {
-    final innoDir = getInnoSetupExec()!.parent;
     final names = all.map((l) => l.name).join(', ');
-    CliLogger.info('Languages discovered from ${innoDir.path}:');
     print("$names\n");
     exit(0);
   }
 
-  /// Returns a list of all supported languages by scanning the Inno Setup installation directory.
+  /// All supported languages for the selected Inno Setup install.
+  ///
+  /// Throws an [InnoBundleError] if [loadLanguages] has not been called yet.
   static List<Language> get all {
-    if (_cachedLangs.isNotEmpty) return _cachedLangs;
-    final innoDir = getInnoSetupExec()!.parent;
-    final languagesDir = Directory(p.join(innoDir.path, "Languages"));
-    final languages = <Language>[];
-
-    // for English, the default language.
-    if (File(p.join(innoDir.path, "Default.isl")).existsSync()) {
-      languages.add(Language._("English", "Default.isl"));
+    if (_cachedLangs.isEmpty) {
+      throw InnoBundleError(
+          'Language.loadLanguages() must be called before accessing Language.all.');
     }
-    // rest of the languages are in the Languages directory.
-    languagesDir
-        .listSync()
-        .where((file) => file is File && file.path.endsWith(".isl"))
-        .forEach((file) {
-      final fileName = p.basename(file.path);
-      final fileStem = p.basenameWithoutExtension(fileName);
-      languages.add(Language._(fileStem, "Languages\\${fileName}"));
-    });
-    _cachedLangs = languages;
-    return languages;
+    return _cachedLangs;
   }
 }

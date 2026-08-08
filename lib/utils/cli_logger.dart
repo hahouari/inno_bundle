@@ -64,7 +64,7 @@ class CliLogger {
   }
 
   /// Logs a error message at the given level and exits with given code.
-  static void exitError(
+  static Never exitError(
     String message, {
     CliLoggerLevel level = CliLoggerLevel.one,
     int exitCode = 1,

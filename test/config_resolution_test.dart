@@ -9,7 +9,10 @@ import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/inno_bundle_error.dart';
 import 'package:path/path.dart' as p;
 
+import 'support/language_fixture.dart';
+
 void main() {
+  initTestLanguages();
   group('Config file resolution', () {
     test('uses the default config file when it exists', () {
       final tempDir = Directory.systemTemp.createTempSync('inno_resolve_');
@@ -81,6 +84,7 @@ void main() {
         cliConfig: InnoBundleCliArgs(),
         pubspecFile: File(''),
         configFile: File(''),
+        innoSetupExec: File('test_iscc.exe'),
       );
 
       expect(config.publisher, 'Test User');
@@ -99,6 +103,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
+          innoSetupExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -112,6 +117,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
+          innoSetupExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -125,6 +131,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
+          innoSetupExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -138,6 +145,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
+          innoSetupExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -155,6 +163,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
+          innoSetupExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );

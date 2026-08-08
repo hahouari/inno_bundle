@@ -228,6 +228,53 @@ File? getInnoSetupExec({bool throwIfNotFound = true}) {
   return null;
 }
 
+/// Returns the `ISCC.exe` of every version managed under [versionsDir]
+/// (defaults to [innoManagedVersionsDir]), sorted by version in descending
+/// order (highest first).
+List<File> installedVersionedIsccs([String? versionsDir]) {
+  final dir = Directory(versionsDir ?? innoManagedVersionsDir);
+  if (!dir.existsSync()) return [];
+
+  final isccs = <File>[];
+  for (final entry in dir.listSync().whereType<Directory>()) {
+    final iscc = File(p.join(entry.path, 'ISCC.exe'));
+    if (iscc.existsSync()) isccs.add(iscc);
+  }
+
+  isccs.sort((a, b) {
+    final cmp = compareVersions(
+      p.basename(a.parent.path),
+      p.basename(b.parent.path),
+    );
+    return cmp == 0 ? 0 : -cmp;
+  });
+  return isccs;
+}
+
+/// Resolves the Inno Setup executable to use, or `null` when none is present.
+///
+/// Prefers a version-managed silent install under [innoManagedVersionsDir]
+/// (highest version first), then falls back to a system/user installed Inno
+/// Setup (e.g. from Winget). It does not trigger any installation here.
+File? resolveInnoSetupExec() {
+  final versioned = installedVersionedIsccs();
+  if (versioned.isNotEmpty) return versioned.first;
+  return getInnoSetupExec(throwIfNotFound: false);
+}
+
+/// Compares two dotted version strings numerically, e.g. `6.10.0` > `6.3.3`.
+int compareVersions(String a, String b) {
+  final partsA = a.split('.').map(int.tryParse).toList();
+  final partsB = b.split('.').map(int.tryParse).toList();
+  final length = partsA.length > partsB.length ? partsA.length : partsB.length;
+  for (var i = 0; i < length; i++) {
+    final pa = i < partsA.length ? (partsA[i] ?? 0) : 0;
+    final pb = i < partsB.length ? (partsB[i] ?? 0) : 0;
+    if (pa != pb) return pa.compareTo(pb);
+  }
+  return 0;
+}
+
 /// Get the logged in username in the machine.
 String? getSystemUserName() =>
     Platform.environment['USER'] ?? // Linux/macOS
