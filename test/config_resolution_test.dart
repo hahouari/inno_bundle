@@ -84,7 +84,7 @@ void main() {
         cliConfig: InnoBundleCliArgs(),
         pubspecFile: File(''),
         configFile: File(''),
-        innoSetupExec: File('test_iscc.exe'),
+        innoExec: File('test_iscc.exe'),
       );
 
       expect(config.publisher, 'Test User');
@@ -103,7 +103,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
-          innoSetupExec: File('test_iscc.exe'),
+          innoExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -117,7 +117,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
-          innoSetupExec: File('test_iscc.exe'),
+          innoExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -127,11 +127,13 @@ void main() {
       expect(
         () => Config.fromJson(
           {'name': 'x'},
-          {'inno_bundle': {'id': 'not-a-uuid'}},
+          {
+            'inno_bundle': {'id': 'not-a-uuid'}
+          },
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
-          innoSetupExec: File('test_iscc.exe'),
+          innoExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -141,11 +143,13 @@ void main() {
       expect(
         () => Config.fromJson(
           {},
-          {'inno_bundle': {'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff'}},
+          {
+            'inno_bundle': {'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff'}
+          },
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
-          innoSetupExec: File('test_iscc.exe'),
+          innoExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );
@@ -163,7 +167,7 @@ void main() {
           cliConfig: InnoBundleCliArgs(),
           pubspecFile: File(''),
           configFile: File(''),
-          innoSetupExec: File('test_iscc.exe'),
+          innoExec: File('test_iscc.exe'),
         ),
         throwsA(isA<InnoBundleError>()),
       );

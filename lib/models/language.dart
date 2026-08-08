@@ -54,11 +54,11 @@ class Language {
 
   /// Loads the supported languages for the given Inno Setup executable path.
   ///
-  /// Scans the installation directory containing [innoSetupPath] for
+  /// Scans the installation directory containing [innoPath] for
   /// `Default.isl` (English) and every `Languages/*.isl` file, and replaces
   /// the previously cached set. This is the only way to populate [all].
-  static void loadLanguages(String innoSetupPath) {
-    final innoDir = File(innoSetupPath).parent;
+  static void loadLanguages(String innoPath) {
+    final innoDir = File(innoPath).parent;
     final languagesDir = Directory(p.join(innoDir.path, "Languages"));
     final languages = <Language>[];
 

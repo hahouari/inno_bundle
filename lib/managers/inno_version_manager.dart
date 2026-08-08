@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 /// directory. Each version lives in its own subfolder (e.g. `<root>/6.3.3/`).
 ///
 /// Use [ensureVersion] to download, verify, and extract a version if missing.
-class InnoSetupManager {
+class InnoVersionManager {
   /// Root directory containing version-named subfolders.
   final String versionsDir;
 
@@ -44,7 +44,7 @@ class InnoSetupManager {
   /// Creates a manager rooted at [versionsDir].
   ///
   /// If omitted, defaults to [innoManagedVersionsDir].
-  InnoSetupManager({String? versionsDir})
+  InnoVersionManager({String? versionsDir})
       : versionsDir = versionsDir ?? innoManagedVersionsDir;
 
   /// Returns the absolute path to `ISCC.exe` for [version], or `null` if that
@@ -75,7 +75,7 @@ class InnoSetupManager {
   /// ([innoUserDirPath]). When [throwIfNotFound] is `true` (the default), prints
   /// a guidance link via [CliLogger] and exits if no usable install is found or
   /// it appears corrupted; otherwise returns `null`.
-  static File? getMachineInnoSetupExec({bool throwIfNotFound = true}) {
+  static File? getMachineInnoExec({bool throwIfNotFound = true}) {
     if (!Directory(p.joinAll(innoSysDirPath)).existsSync() &&
         !Directory(p.joinAll(innoUserDirPath)).existsSync()) {
       if (throwIfNotFound) {
@@ -95,7 +95,8 @@ class InnoSetupManager {
     if (userExecFile.existsSync()) return userExecFile;
 
     if (throwIfNotFound) {
-      CliLogger.exitError("Inno Setup installation in your machine is corrupted "
+      CliLogger.exitError(
+          "Inno Setup installation in your machine is corrupted "
           "or incomplete, checkout our docs on how to correctly install it:\n"
           "${CliLogger.sLink(innoDownloadStepLink, level: CliLoggerLevel.two)}");
     }
@@ -130,10 +131,10 @@ class InnoSetupManager {
   /// Prefers a version-managed silent install under [innoManagedVersionsDir]
   /// (highest version first), then falls back to a system/user installed Inno
   /// Setup (e.g. from Winget). It does not trigger any installation here.
-  static File? resolveInnoSetupExec() {
+  static File? resolveInnoExec() {
     final versioned = installedVersionedIsccs();
     if (versioned.isNotEmpty) return versioned.first;
-    return getMachineInnoSetupExec(throwIfNotFound: false);
+    return getMachineInnoExec(throwIfNotFound: false);
   }
 
   /// Fetches GitHub release data from [url] and returns the parsed JSON map.

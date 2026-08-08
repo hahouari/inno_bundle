@@ -9,7 +9,7 @@ import 'package:inno_bundle/builders/app_builder.dart';
 import 'package:inno_bundle/builders/installer_builder.dart';
 import 'package:inno_bundle/builders/script_builder.dart';
 import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
-import 'package:inno_bundle/managers/inno_setup_manager.dart';
+import 'package:inno_bundle/managers/inno_version_manager.dart';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/utils/cli_logger.dart';
@@ -35,7 +35,7 @@ Future<File> _buildScript(Config config, Directory appDir) async {
 
 /// Builds the installer using the provided configuration and Inno Setup script file.
 ///
-/// Uses the ISCC executable path carried on [Config.innoSetupExec].
+/// Uses the ISCC executable path carried on [Config.innoExec].
 Future<void> _buildInstaller(Config config, File scriptFile) async {
   final builder = InstallerBuilder(config, scriptFile);
   await builder.build();
@@ -66,24 +66,24 @@ void main(List<String> arguments) async {
   );
 
   // Resolve which Inno Setup will be used (managed or system/Winget install).
-  File? innoSetupExec = InnoSetupManager.resolveInnoSetupExec();
+  File? innoExec = InnoVersionManager.resolveInnoExec();
 
-  if (cliArgs.installInnoSetup && cliArgs.installer && innoSetupExec == null) {
-    final innoVersionManager = InnoSetupManager();
+  if (cliArgs.installInnoSetup && cliArgs.installer && innoExec == null) {
+    final innoVersionManager = InnoVersionManager();
     final error = await innoVersionManager.ensureDefaultVersion(
       githubToken: gitHubToken,
     );
     if (error != null) CliLogger.exitError(error);
-    innoSetupExec = File(innoVersionManager.defaultIsccPath);
+    innoExec = File(innoVersionManager.defaultIsccPath);
   }
 
-  if (innoSetupExec == null) {
+  if (innoExec == null) {
     CliLogger.exitError('Inno Setup is not detected in your machine, '
         'use --install-inno or run `dart run inno_bundle:setup_versions` to '
         'install it.');
   }
 
-  Language.loadLanguages(innoSetupExec.path);
+  Language.loadLanguages(innoExec.path);
 
   if (cliArgs.generateAppId || cliArgs.generatePublisher) {
     generateEssentials(pubspecFile, configFile, cliArgs);
@@ -91,7 +91,7 @@ void main(List<String> arguments) async {
 
   late final Config config;
   try {
-    config = Config.fromFile(pubspecFile, configFile, innoSetupExec, cliArgs);
+    config = Config.fromFile(pubspecFile, configFile, innoExec, cliArgs);
   } on InnoBundleError catch (e) {
     CliLogger.exitError(e.message);
   }

@@ -2,7 +2,7 @@
 /// creating the installer for the application using Inno Setup.
 ///
 /// The [InstallerBuilder] class builds the installer based on the provided
-/// configuration and script file, using the [Config.innoSetupExec] path for
+/// configuration and script file, using the [Config.innoExec] path for
 /// the ISCC executable. It also supports signing the installer if a
 /// [SignTool] is configured.
 library;
@@ -26,7 +26,7 @@ class InstallerBuilder {
   /// Builds the installer using Inno Setup and returns the directory containing the output files.
   ///
   /// Skips the build process if [config.installer] is `false`.
-  /// Uses [Config.innoSetupExec] to locate ISCC.exe.
+  /// Uses [Config.innoExec] to locate ISCC.exe.
   /// Throws a [ProcessException] if the Inno Setup process fails.
   Future<Directory> build() async {
     if (!config.installer) {
@@ -34,7 +34,7 @@ class InstallerBuilder {
       return Directory("");
     }
 
-    final execFile = config.innoSetupExec;
+    final execFile = config.innoExec;
     var params = [scriptFile.path];
     if (config.signTool != null && config.signTool!.command.isNotEmpty) {
       params.add('/S${config.signTool!.name}=${config.signTool!.command}');

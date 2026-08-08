@@ -125,7 +125,7 @@ class Config {
   /// Set per build by the caller (after Inno Setup resolution/install), and
   /// consumed by the installer builder. Not read from YAML — it reflects
   /// the selected Inno Setup install on the machine running the build.
-  final File innoSetupExec;
+  final File innoExec;
 
   /// Creates a [Config] instance with default values.
   const Config({
@@ -151,7 +151,7 @@ class Config {
     required this.signTool,
     required this.arch,
     required this.vcRedist,
-    required this.innoSetupExec,
+    required this.innoExec,
     this.type = BuildType.release,
     this.app = true,
     this.installer = true,
@@ -188,7 +188,7 @@ class Config {
     Map<String, dynamic> configJson, {
     required File pubspecFile,
     required File configFile,
-    required File innoSetupExec,
+    required File innoExec,
     required InnoBundleCliArgs cliConfig,
     List<String> outputDir = installerBuildDir,
   }) {
@@ -402,7 +402,7 @@ class Config {
       includedFileExts: includedFileExts,
       excludedFileExts: excludedFileExts,
       outputDir: outputDir,
-      innoSetupExec: innoSetupExec,
+      innoExec: innoExec,
     );
   }
 
@@ -410,12 +410,12 @@ class Config {
   ///
   /// Provides a convenient way to load configuration without manual JSON parsing.
   ///
-  /// [innoSetupExec] carries the resolved ISCC.exe [File] for this build, so
+  /// [innoExec] carries the resolved ISCC.exe [File] for this build, so
   /// the installer builder knows which Inno Setup to use.
   factory Config.fromFile(
     File pubspecFile,
     File configFile,
-    File innoSetupExec,
+    File innoExec,
     InnoBundleCliArgs cliConfig, {
     List<String> outputDir = installerBuildDir,
   }) {
@@ -430,7 +430,7 @@ class Config {
       pubspecFile: pubspecFile,
       configFile: configFile,
       outputDir: outputDir,
-      innoSetupExec: innoSetupExec,
+      innoExec: innoExec,
     );
   }
 

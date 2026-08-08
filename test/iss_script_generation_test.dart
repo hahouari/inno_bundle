@@ -43,11 +43,12 @@ void main() {
         pubspecFile: File(''),
         configFile: File(''),
         outputDir: outputDir,
-        innoSetupExec: File('test_iscc.exe'),
+        innoExec: File('test_iscc.exe'),
       );
     }
 
-    test('includes [Setup] section with id, publisher, version from config', () {
+    test('includes [Setup] section with id, publisher, version from config',
+        () {
       final config = _config(outputDir: ['tmp', 'inno_out']);
       final builder = ScriptBuilder(config, appDir);
 
@@ -60,7 +61,8 @@ void main() {
       expect(script, contains('AppPublisher=Test User'));
     });
 
-    test('includes one [Files] entry per DLL in the required-DLL allowlist', () {
+    test('includes one [Files] entry per DLL in the required-DLL allowlist',
+        () {
       final config = _config(outputDir: ['tmp', 'inno_out']);
       final builder = ScriptBuilder(config, appDir);
 
