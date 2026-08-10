@@ -1,0 +1,83 @@
+name: Cross-version
+
+# Runs the cross-Inno-version test matrix on Windows. On every push/PR, this
+# installs the canonical matrix of Inno Setup versions (computed live from the
+# jrsoftware/issrc GitHub releases, see test/support/inno_versions.dart) into
+# the package's managed directory (`$HOME/.inno_bundle/versions` — the same path
+# `dart run inno_bundle` reads from), then runs `dart analyze`, `dart format`,
+# and `dart test`.
+# The matrix rule is: one entry per minor, the latest patch, no betas, floored
+# at 6.4.0 (today: 6.4.3, 6.5.4, 6.6.1, 6.7.3, 7.0.2).
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+  cross-version:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Resolve package deps
+        run: dart pub get
+
+      - name: Resolve demo_app deps
+        working-directory: example/demo_app
+        run: flutter pub get
+
+      # Compute the canonical matrix live from GitHub, then reuse it for both
+      # the install step and the cache key. Falls back to a pinned matrix only
+      # if the live fetch is unreachable or rate-limited.
+      - name: Compute Inno Setup version matrix
+        id: matrix
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $matrix = & dart run --no-pub tool/print_matrix.dart 2>$null
+          $csv = ($matrix | Where-Object { $_ -match ',' } | Select-Object -Last 1).Trim()
+          if ([string]::IsNullOrWhiteSpace($csv)) {
+            Write-Warning 'Live matrix fetch failed; falling back to pinned matrix.'
+            $csv = '6.4.3,6.5.4,6.6.1,6.7.3,7.0.2'
+          }
+          Write-Host "Matrix: $csv"
+          "versions=$csv" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      # Cache the package's real managed dir so subsequent runs skip the
+      # (slow) Inno installer downloads/extractions. setup_versions installs
+      # here by default; dart run inno_bundle reads from here by default.
+      - name: Cache Inno Setup installs
+        id: inno-cache
+        uses: actions/cache@v4
+        with:
+          path: ~\.inno_bundle\versions
+          key: inno-versions-${{ steps.matrix.outputs.versions }}
+
+      - name: Install Inno Setup matrix versions
+        if: steps.inno-cache.outputs.cache-hit != 'true'
+        run: dart run --no-pub inno_bundle:setup_versions --versions ${{ steps.matrix.outputs.versions }}
+
+      - name: Analyze
+        run: dart analyze
+
+      - name: Format check
+        run: dart format --set-exit-if-changed .
+
+      - name: Test across all Inno versions
+        run: dart test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

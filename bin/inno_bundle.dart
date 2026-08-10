@@ -65,7 +65,8 @@ void main(List<String> arguments) async {
     defaultConfigFile: defaultConfigFile,
   );
 
-  // Resolve which Inno Setup will be used (managed or system/Winget install).
+  // Resolve which Inno Setup will be used (managed under
+// ~/.inno_bundle/versions or a system-wide install).
   File? innoExec = InnoVersionManager.resolveInnoExec();
 
   if (cliArgs.installInnoSetup && cliArgs.installer && innoExec == null) {

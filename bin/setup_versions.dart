@@ -18,7 +18,7 @@ Future<void> main(List<String> arguments) async {
     exit(0);
   }
 
-  final manager = InnoVersionManager(versionsDir: cliArgs.outRoot);
+  final manager = InnoVersionManager();
 
   var allSucceeded = true;
 

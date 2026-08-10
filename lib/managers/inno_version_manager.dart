@@ -15,7 +15,7 @@ class InnoVersionManager {
 
   /// Default Inno Setup version used when no install is detected and one needs
   /// to be fetched through the version manager.
-  static const String defaultVersion = '6.3.3';
+  static const String defaultVersion = '6.4.3';
 
   /// Root directory where the package manages its versioned Inno Setup installs
   /// (`$USERPROFILE/.inno_bundle/versions` on Windows).
@@ -130,7 +130,8 @@ class InnoVersionManager {
   ///
   /// Prefers a version-managed silent install under [innoManagedVersionsDir]
   /// (highest version first), then falls back to a system/user installed Inno
-  /// Setup (e.g. from Winget). It does not trigger any installation here.
+  /// Setup (e.g. installed separately by the user). It does not trigger any
+  /// installation here.
   static File? resolveInnoExec() {
     final versioned = installedVersionedIsccs();
     if (versioned.isNotEmpty) return versioned.first;

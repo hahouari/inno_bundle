@@ -47,8 +47,10 @@ class InnoBundleCliArgs {
 
   /// Whether to make sure Inno Setup is installed before building.
   ///
-  /// Requires Winget to be available; the install is skipped if Inno Setup is
-  /// already detected on the machine.
+  /// Downloads and extracts the default Inno Setup version under
+  /// `$HOME/.inno_bundle/versions` via [InnoVersionManager] when no Inno
+  /// Setup install is detected. The install is skipped if one is already
+  /// present (managed or system-wide).
   final bool installInnoSetup;
 
   /// Whether to generate an App ID and persist it into the config file.
@@ -117,8 +119,8 @@ class InnoBundleCliArgs {
     ..addFlag(
       'install-inno',
       defaultsTo: true,
-      help: 'Install Inno Setup into your system if not already installed\n'
-          'This requires Winget to be already available on the system',
+      help: 'Install Inno Setup under ~/.inno_bundle/versions if not '
+          'already installed',
     )
     ..addFlag(
       'gen-app-id',
