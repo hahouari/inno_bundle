@@ -22,14 +22,10 @@ import 'support/inno_version_fixture.dart';
 /// generated Setup.exe's execute permission is Windows-only).
 const fixtureAppPath = 'example/demo_app';
 
-String get demoAppReleaseDir => p.joinAll([
-      fixtureAppPath,
-      'build',
-      'windows',
-      'x64',
-      'runner',
-      'Release',
-    ]);
+String get demoAppReleaseDir => p.normalize(p.absolute(
+      p.joinAll(
+          [fixtureAppPath, 'build', 'windows', 'x64', 'runner', 'Release']),
+    ));
 
 Future<Directory> _buildDemoAppOnce() async {
   final pubGet = await Process.run(
@@ -90,6 +86,11 @@ Future<void> main() async {
         late Directory installDir;
         late File innoExec;
         late Config config;
+        // Saved so the test can run from the demo app's dir (the installer
+        // icon + license file paths in its pubspec are resolved against the
+        // cwd, exactly like `dart run inno_bundle` run from the app dir) and
+        // restore it afterward so other tests aren't affected.
+        late Directory _origCwd;
 
         setUp(() {
           tempDir = Directory.systemTemp
@@ -99,27 +100,25 @@ Future<void> main() async {
           innoExec = File(v.isccPath);
           Language.loadLanguages(v.isccPath);
 
-          config = Config.fromJson(
-            {
-              'name': 'demo_app',
-              'description': 'A demo app.',
-              'version': '1.0.0',
-              'maintainer': 'Hocine Abdellatif Houari',
-            },
-            {
-              'inno_bundle': {
-                'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff',
-              },
-            },
-            cliConfig: InnoBundleCliArgs(),
-            pubspecFile: File(p.join(fixtureAppPath, 'pubspec.yaml')),
-            configFile: File(p.join(fixtureAppPath, 'pubspec.yaml')),
+          // Resolve installer_icon / license_file / etc. exactly as the CLI
+          // does when run from `example/demo_app`; absolute outputDir keeps
+          // ISCC's `OutputDir=` and the generated script inside the temp dir.
+          _origCwd = Directory.current;
+          Directory.current = Directory(p.absolute(fixtureAppPath));
+          // cwd is now the demo app dir, so `pubspec.yaml` resolves here —
+          // matching the path `dart run inno_bundle` uses inside the app.
+          final pubspecFile = File('pubspec.yaml');
+          config = Config.fromFile(
+            pubspecFile,
+            pubspecFile,
+            innoExec,
+            InnoBundleCliArgs(),
             outputDir: [tempDir.path, 'out'],
-            innoExec: innoExec,
           );
         });
 
         tearDown(() {
+          Directory.current = _origCwd;
           if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
         });
 
@@ -178,10 +177,13 @@ Future<void> main() async {
           expect(unins000.existsSync(), isTrue,
               reason: 'uninstaller not created by Inno ${v.version} run.');
 
-          // 4. Silent uninstall.
+          // 4. Silent uninstall. Pass `/CURRENTUSER` for symmetry with the install —
+          // the real demo app config sets `admin: auto`, so the uninstaller
+          // honors the override and runs per-user (no UAC). Without it Inno
+          // falls back to the dialog (admin) path and pops UAC.
           final uninstall = await Process.run(
             unins000.path,
-            ['/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART'],
+            ['/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER'],
             runInShell: true,
           );
           expect(
@@ -191,12 +193,24 @@ Future<void> main() async {
                 '${uninstall.stdout}\n${uninstall.stderr}',
           );
 
-          // 5. Verify cleanup.
-          expect(
-            installDir.existsSync() && installDir.listSync().isNotEmpty,
-            isFalse,
-            reason: 'Install dir not cleaned by Inno ${v.version} uninstall.',
-          );
+          // 5. Verify cleanup. Inno's uninstaller deletes `unins000.exe` via a
+          // self-spawned temp copy *after* the main process exits, so poll
+          // briefly for the install dir to become empty. If it never empties,
+          // fail loudly naming the leftover files instead of a bare boolean.
+          var cleaned = false;
+          for (var i = 0; i < 10; i++) {
+            if (!installDir.existsSync() || installDir.listSync().isEmpty) {
+              cleaned = true;
+              break;
+            }
+            await Future<void>.delayed(const Duration(milliseconds: 200));
+          }
+          if (!cleaned) {
+            final leftover =
+                installDir.listSync().map((e) => p.basename(e.path)).join(', ');
+            fail('Install dir not cleaned by Inno ${v.version} uninstall. '
+                'Leftover: $leftover');
+          }
         });
 
         test('config.toEnvironmentVariables() emits a stable env-var set', () {

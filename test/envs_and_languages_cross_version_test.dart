@@ -83,6 +83,8 @@ Future<void> main() async {
               'inno_bundle': {
                 'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff',
                 'publisher': 'Hocine Abdellatif Houari',
+                'admin': 'auto',
+                'arch': 'x64_compatible',
               },
             },
             cliConfig: InnoBundleCliArgs(),
