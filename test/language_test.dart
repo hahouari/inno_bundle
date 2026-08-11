@@ -9,8 +9,8 @@ void main() {
   late Directory tempDir;
 
   void makeInstaller({List<String> extraLangs = const []}) {
-    final langDir =
-        Directory('${tempDir.path}/Languages')..createSync(recursive: true);
+    final langDir = Directory('${tempDir.path}/Languages')
+      ..createSync(recursive: true);
     File('${tempDir.path}/Default.isl').writeAsStringSync('');
     for (final name in extraLangs) {
       File('${langDir.path}/$name.isl').writeAsStringSync('');
@@ -49,8 +49,7 @@ void main() {
       isNotEmpty,
     );
 
-    final otherDir =
-        Directory.systemTemp.createTempSync('inno_lang_test_2');
+    final otherDir = Directory.systemTemp.createTempSync('inno_lang_test_2');
     addTearDown(() => otherDir.deleteSync(recursive: true));
     final otherLangDir = Directory('${otherDir.path}/Languages')
       ..createSync(recursive: true);
