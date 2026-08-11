@@ -108,6 +108,7 @@ void main() {
           reason: 'Expected release exe not found at $demoAppReleaseExe.',
         );
       },
+      timeout: const Timeout(Duration(minutes: 2)),
       skip: !Platform.isWindows
           ? 'Windows-only: needs Flutter Windows build tooling'
           : false,
