@@ -66,7 +66,7 @@ void main(List<String> arguments) async {
   );
 
   // Resolve which Inno Setup will be used (managed under
-// ~/.inno_bundle/versions or a system-wide install).
+  // ~/.inno_bundle/versions or a system-wide install).
   File? innoExec = InnoVersionManager.resolveInnoExec();
 
   if (cliConfig.installInnoSetup && cliConfig.installer && innoExec == null) {

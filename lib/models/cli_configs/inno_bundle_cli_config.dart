@@ -48,7 +48,7 @@ class InnoBundleCliConfig {
   /// Whether to make sure Inno Setup is installed before building.
   ///
   /// Downloads and extracts the default Inno Setup version under
-  /// `$HOME/.inno_bundle/versions` via [InnoVersionManager] when no Inno
+  /// `~/.inno_bundle/versions` via [InnoVersionManager] when no Inno
   /// Setup install is detected. The install is skipped if one is already
   /// present (managed or system-wide).
   final bool installInnoSetup;

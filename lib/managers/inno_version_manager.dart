@@ -18,7 +18,7 @@ class InnoVersionManager {
   static const String defaultVersion = '6.4.3';
 
   /// Root directory where the package manages its versioned Inno Setup installs
-  /// (`$USERPROFILE/.inno_bundle/versions` on Windows).
+  /// (`~/.inno_bundle/versions`).
   static final String innoManagedVersionsDir = p.join(
     getHomeDir(),
     '.inno_bundle',

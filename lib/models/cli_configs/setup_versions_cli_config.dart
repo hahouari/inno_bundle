@@ -2,7 +2,7 @@
 ///
 /// Inno_bundle can test against multiple Inno Setup versions, each installed
 /// into its own folder under the package's managed versions directory
-/// (`$HOME/.inno_bundle/versions`). This class models the arguments that drive
+/// (`~/.inno_bundle/versions`). This class models the arguments that drive
 /// that setup: which versions to install and the output framing. See the
 /// `bin/setup_versions.dart` entry point for how these are consumed.
 import 'package:args/args.dart';

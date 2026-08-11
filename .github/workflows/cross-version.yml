@@ -3,7 +3,7 @@ name: Cross-version
 # Runs the cross-Inno-version test matrix on Windows. On every push/PR, this
 # installs the canonical matrix of Inno Setup versions (computed live from the
 # jrsoftware/issrc GitHub releases, see test/support/inno_versions.dart) into
-# the package's managed directory (`$HOME/.inno_bundle/versions` — the same path
+# the package's managed directory (`~/.inno_bundle/versions` — the same path
 # `dart run inno_bundle` reads from), then runs `dart analyze`, `dart format`,
 # and `dart test`.
 # The matrix rule is: one entry per minor, the latest patch, no betas, floored
@@ -23,7 +23,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: dart-lang/setup-dart@v1
         with:
@@ -48,8 +48,9 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $matrix = & dart run --no-pub tool/print_matrix.dart 2>$null
-          $csv = ($matrix | Where-Object { $_ -match ',' } | Select-Object -Last 1).Trim()
+          $matrix = & dart run tool/print_matrix.dart 2>$null
+          $csv = ($matrix | Where-Object { $_ -match ',' } | Select-Object -Last 1)
+          if ($null -ne $csv) { $csv = $csv.Trim() }
           if ([string]::IsNullOrWhiteSpace($csv)) {
             Write-Warning 'Live matrix fetch failed; falling back to pinned matrix.'
             $csv = '6.4.3,6.5.4,6.6.1,6.7.3,7.0.2'
@@ -69,7 +70,7 @@ jobs:
 
       - name: Install Inno Setup matrix versions
         if: steps.inno-cache.outputs.cache-hit != 'true'
-        run: dart run --no-pub inno_bundle:setup_versions --versions ${{ steps.matrix.outputs.versions }}
+        run: dart run inno_bundle:setup_versions --versions ${{ steps.matrix.outputs.versions }}
 
       - name: Analyze
         run: dart analyze

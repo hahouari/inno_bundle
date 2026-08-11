@@ -12,6 +12,7 @@
 - target: Windows only (Flutter Windows + Inno Setup ISCC.exe)
 - dev can happen on WSL/Linux — non-Windows tests must self-skip, never hard-fail
 - run windows stuff via `pwsh.exe -NoProfile -Command "..."` from WSL
+- from WSL, invoke any `.exe` tool (incl. `dart.exe`, `pwsh.exe`, `iscc.exe`) with the explicit `.exe` suffix — bare `dart` resolves to the broken fvm shim, not the Windows SDK
 
 ## before commit
 
