@@ -57,16 +57,17 @@ jobs:
           }
           Write-Host "Matrix: $csv"
           "versions=$csv" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "cache-key=inno-versions-$($csv -replace ',', '-')" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       # Cache the package's real managed dir so subsequent runs skip the
       # (slow) Inno installer downloads/extractions. setup_versions installs
       # here by default; dart run inno_bundle reads from here by default.
       - name: Cache Inno Setup installs
         id: inno-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~\.inno_bundle\versions
-          key: inno-versions-${{ steps.matrix.outputs.versions }}
+          key: ${{ steps.matrix.outputs.cache-key }}
 
       - name: Install Inno Setup matrix versions
         if: steps.inno-cache.outputs.cache-hit != 'true'
