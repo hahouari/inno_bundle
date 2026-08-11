@@ -9,7 +9,7 @@ import 'package:args/args.dart';
 import 'package:inno_bundle/managers/inno_version_manager.dart';
 
 /// The resolved CLI options for the `setup_versions` command.
-class SetupVersionsCliArgs {
+class SetupVersionsCliConfig {
   /// The Inno Setup versions requested for installation, in order.
   final List<String> versions;
 
@@ -20,7 +20,7 @@ class SetupVersionsCliArgs {
   final bool help;
 
   /// Creates an instance with the given values.
-  SetupVersionsCliArgs({
+  SetupVersionsCliConfig({
     required this.versions,
     required this.hf,
     required this.help,
@@ -55,13 +55,13 @@ class SetupVersionsCliArgs {
         '\n  dart run inno_bundle:setup_versions --versions 6.7.3,6.6.1\n';
   }
 
-  /// Parses the given [arguments] into a [SetupVersionsCliArgs].
+  /// Parses the given [arguments] into a [SetupVersionsCliConfig].
   ///
   /// The comma-separated `--versions` option is split into a list and trimmed;
   /// every other option maps directly onto a field.
-  factory SetupVersionsCliArgs.parse(List<String> arguments) {
+  factory SetupVersionsCliConfig.parse(List<String> arguments) {
     final parsedArgs = parser.parse(arguments);
-    return SetupVersionsCliArgs(
+    return SetupVersionsCliConfig(
       versions: (parsedArgs['versions'] as String)
           .split(',')
           .map((v) => v.trim())

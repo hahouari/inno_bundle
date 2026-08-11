@@ -2,15 +2,11 @@
 
 - **`(Breaking!)`** Replace the Winget-based `--install-inno` flow with the package-managed version manager. `--install-inno` now downloads and extracts Inno Setup under `%UserProfile%\.inno_bundle\versions` via `InnoVersionManager`, instead of touching the machine's installed-software list through Winget. The system-wide install detection (`C:\Program Files (x86)\Inno Setup 6`, per-user `AppData\Local\Programs\Inno Setup 6`) remains as a fallback for users who installed Inno themselves.
 
-- Default Inno Setup version is `6.4.3`.
-
 - Add `setup_versions` command for package-specific, versioned Inno Setup management: installs selected versions into `%UserProfile%\.inno_bundle\versions` without modifying the OS software list.
 
 - Prefer version-managed Inno Setup installs (highest version under `%UserProfile%\.inno_bundle\versions`), then fall back to a system install. The resolved `ISCC.exe` is carried on `Config.innoExec` per build, replacing `InstallerBuilder`'s auto-detection/override.
 
 - Dynamically discover supported languages from the selected Inno Setup install's `Languages/*.isl` instead of a hardcoded enum; add `--list-languages` flag to list them.
-
-- Add `arm64` to the `arch` configuration option (alongside `x64_compatible`/`x64`), just for testing purposes, it shouldn't be building correctly yet.
 
 - Add file extension associations ("Open with" in File Explorer) via `file_extensions_associations` and `file_extensions_associations_exclude` (the latter removes associations without requiring an uninstall).
 
@@ -21,6 +17,8 @@
 - Rename `exePubspecName` to `pubspecNameDotExe` and drop the unused `exeName`.
 
 - Add cross-version test harness: tests run against the canonical Inno Setup matrix (one latest patch per minor, no betas, floored at 6.4.0 — today: `6.4.3, 6.5.4, 6.6.1, 6.7.3, 7.0.2`), discovered live from `jrsoftware/issrc` GitHub releases. See `.github/workflows/cross-version.yml`.
+
+- Default Inno Setup version is `6.4.3`.
 
 ## 0.11.2
 

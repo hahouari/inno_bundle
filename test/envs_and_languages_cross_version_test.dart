@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
-import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
+import 'package:inno_bundle/models/cli_configs/inno_bundle_cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/language.dart';
 
@@ -87,7 +87,7 @@ Future<void> main() async {
                 'arch': 'x64_compatible',
               },
             },
-            cliConfig: InnoBundleCliArgs(),
+            cliConfig: InnoBundleCliConfig(),
             pubspecFile: File('pubspec.yaml'),
             configFile: File('pubspec.yaml'),
             innoExec: File(v.isccPath),

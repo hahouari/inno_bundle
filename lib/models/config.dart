@@ -17,7 +17,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
-import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
+import 'package:inno_bundle/models/cli_configs/inno_bundle_cli_config.dart';
 import 'package:inno_bundle/models/admin_mode.dart';
 import 'package:inno_bundle/models/build_arch.dart';
 import 'package:inno_bundle/models/build_type.dart';
@@ -189,7 +189,7 @@ class Config {
     required File pubspecFile,
     required File configFile,
     required File innoExec,
-    required InnoBundleCliArgs cliConfig,
+    required InnoBundleCliConfig cliConfig,
     List<String> outputDir = installerBuildDir,
   }) {
     final configName =
@@ -416,7 +416,7 @@ class Config {
     File pubspecFile,
     File configFile,
     File innoExec,
-    InnoBundleCliArgs cliConfig, {
+    InnoBundleCliConfig cliConfig, {
     List<String> outputDir = installerBuildDir,
   }) {
     final pubspecJson = readYaml(pubspecFile);

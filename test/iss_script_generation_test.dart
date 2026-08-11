@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 
 import 'package:inno_bundle/builders/script_builder.dart';
-import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
+import 'package:inno_bundle/models/cli_configs/inno_bundle_cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
 
 import 'support/language_fixture.dart';
@@ -39,7 +39,7 @@ void main() {
             'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff',
           },
         },
-        cliConfig: InnoBundleCliArgs(),
+        cliConfig: InnoBundleCliConfig(),
         pubspecFile: File(''),
         configFile: File(''),
         outputDir: outputDir,

@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 import 'dart:io';
 
 import 'package:inno_bundle/models/build_type.dart';
-import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
+import 'package:inno_bundle/models/cli_configs/inno_bundle_cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:inno_bundle/utils/inno_bundle_error.dart';
@@ -81,7 +81,7 @@ void main() {
       final config = Config.fromJson(
         json,
         innoJson,
-        cliConfig: InnoBundleCliArgs(),
+        cliConfig: InnoBundleCliConfig(),
         pubspecFile: File(''),
         configFile: File(''),
         innoExec: File('test_iscc.exe'),
@@ -100,7 +100,7 @@ void main() {
         () => Config.fromJson(
           {'name': 'x'},
           {},
-          cliConfig: InnoBundleCliArgs(),
+          cliConfig: InnoBundleCliConfig(),
           pubspecFile: File(''),
           configFile: File(''),
           innoExec: File('test_iscc.exe'),
@@ -114,7 +114,7 @@ void main() {
         () => Config.fromJson(
           {'name': 'x'},
           {'inno_bundle': {}},
-          cliConfig: InnoBundleCliArgs(),
+          cliConfig: InnoBundleCliConfig(),
           pubspecFile: File(''),
           configFile: File(''),
           innoExec: File('test_iscc.exe'),
@@ -130,7 +130,7 @@ void main() {
           {
             'inno_bundle': {'id': 'not-a-uuid'}
           },
-          cliConfig: InnoBundleCliArgs(),
+          cliConfig: InnoBundleCliConfig(),
           pubspecFile: File(''),
           configFile: File(''),
           innoExec: File('test_iscc.exe'),
@@ -146,7 +146,7 @@ void main() {
           {
             'inno_bundle': {'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff'}
           },
-          cliConfig: InnoBundleCliArgs(),
+          cliConfig: InnoBundleCliConfig(),
           pubspecFile: File(''),
           configFile: File(''),
           innoExec: File('test_iscc.exe'),
@@ -164,7 +164,7 @@ void main() {
               'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff',
             },
           },
-          cliConfig: InnoBundleCliArgs(),
+          cliConfig: InnoBundleCliConfig(),
           pubspecFile: File(''),
           configFile: File(''),
           innoExec: File('test_iscc.exe'),

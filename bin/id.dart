@@ -5,7 +5,7 @@
 /// namespace so the same name always yields the same namespaced UUID.
 import 'dart:io';
 
-import 'package:inno_bundle/cli_args_parsers/id_cli_args.dart';
+import 'package:inno_bundle/models/cli_configs/id_cli_config.dart';
 import 'package:inno_bundle/utils/constants.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,21 +16,21 @@ const uuid = Uuid();
 /// Uses a namespaced UUID when [`--ns`] is provided, otherwise a random UUID,
 /// then exits. The value is meant to be copied into the config file.
 void main(List<String> arguments) {
-  final cliArgs = IdCliArgs.parse(arguments);
+  final cliConfig = IdCliConfig.parse(arguments);
 
-  if (cliArgs.hf) print(START_MESSAGE);
+  if (cliConfig.hf) print(START_MESSAGE);
 
-  if (cliArgs.help) {
-    print(cliArgs.helpMessage());
+  if (cliConfig.help) {
+    print(cliConfig.helpMessage());
     exit(0);
   }
 
-  final ns = cliArgs.ns;
+  final ns = cliConfig.ns;
   if (ns != null) {
     print(uuid.v5(Namespace.url.value, ns));
   } else {
     print(uuid.v1());
   }
 
-  if (cliArgs.hf) print(GUID_END_MESSAGE);
+  if (cliConfig.hf) print(GUID_END_MESSAGE);
 }

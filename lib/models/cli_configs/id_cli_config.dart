@@ -9,7 +9,7 @@
 import 'package:args/args.dart';
 
 /// The fully resolved CLI options for the `id` command.
-class IdCliArgs {
+class IdCliConfig {
   /// Namespace to generate a namespaced (UUIDv5) App ID from.
   ///
   /// When null a random UUID is produced instead. Providing a namespace makes
@@ -24,7 +24,7 @@ class IdCliArgs {
   final bool help;
 
   /// Creates an instance with the given values.
-  IdCliArgs({required this.ns, required this.hf, required this.help});
+  IdCliConfig({required this.ns, required this.hf, required this.help});
 
   /// Declares the options accepted by the `id` command.
   ///
@@ -39,10 +39,10 @@ class IdCliArgs {
     return "${parser.usage}\n";
   }
 
-  /// Parses the given [arguments] into an [IdCliArgs].
-  factory IdCliArgs.parse(List<String> arguments) {
+  /// Parses the given [arguments] into an [IdCliConfig].
+  factory IdCliConfig.parse(List<String> arguments) {
     final parsedArgs = parser.parse(arguments);
-    return IdCliArgs(
+    return IdCliConfig(
       ns: parsedArgs['ns'] as String?,
       hf: parsedArgs['hf'] as bool,
       help: parsedArgs['help'] as bool,

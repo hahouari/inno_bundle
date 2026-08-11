@@ -14,7 +14,7 @@ import 'package:args/args.dart';
 import 'package:inno_bundle/models/build_type.dart';
 
 /// The fully resolved set of CLI options for the `inno_bundle` command.
-class InnoBundleCliArgs {
+class InnoBundleCliConfig {
   /// Which build type to produce (`release`, `profile` or `debug`).
   ///
   /// Sets the [BuildType] used when invoking the Flutter build, which in turn
@@ -87,7 +87,7 @@ class InnoBundleCliArgs {
   ///
   /// Every option defaults to the same behaviour as invoking the command with
   /// no arguments, so a bare `InnoBundleCliArgs()` is a valid default config.
-  const InnoBundleCliArgs({
+  const InnoBundleCliConfig({
     this.type = BuildType.release,
     this.app = true,
     this.installer = true,
@@ -164,14 +164,14 @@ class InnoBundleCliArgs {
     return "${parser.usage}\n";
   }
 
-  /// Parses the given [arguments] into an [InnoBundleCliArgs].
+  /// Parses the given [arguments] into an [InnoBundleCliConfig].
   ///
   /// Build-type precedence (release > profile > debug) is delegated to
   /// [BuildType.fromArgs]; every other field is read straight off the parsed
   /// results.
-  factory InnoBundleCliArgs.parse(List<String> arguments) {
+  factory InnoBundleCliConfig.parse(List<String> arguments) {
     final parsedArgs = parser.parse(arguments);
-    return InnoBundleCliArgs(
+    return InnoBundleCliConfig(
       type: BuildType.fromArgs(parsedArgs),
       app: parsedArgs['app'],
       installer: parsedArgs['installer'],

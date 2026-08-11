@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 
 import 'package:inno_bundle/builders/app_builder.dart';
-import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
+import 'package:inno_bundle/models/cli_configs/inno_bundle_cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
 
 import 'support/language_fixture.dart';
@@ -37,7 +37,7 @@ void main() {
         {
           'inno_bundle': {'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff'}
         },
-        cliConfig: InnoBundleCliArgs(),
+        cliConfig: InnoBundleCliConfig(),
         pubspecFile: File(''),
         configFile: File(''),
         innoExec: File('test_iscc.exe'),
@@ -78,7 +78,7 @@ void main() {
               'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff',
             },
           },
-          cliConfig: InnoBundleCliArgs(),
+          cliConfig: InnoBundleCliConfig(),
           pubspecFile: File(p.join(fixtureAppPath, 'pubspec.yaml')),
           configFile: File(p.join(fixtureAppPath, 'pubspec.yaml')),
           innoExec: File('test_iscc.exe'),

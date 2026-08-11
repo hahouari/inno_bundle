@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:inno_bundle/builders/app_builder.dart';
 import 'package:inno_bundle/builders/installer_builder.dart';
 import 'package:inno_bundle/builders/script_builder.dart';
-import 'package:inno_bundle/cli_args_parsers/inno_bundle_cli_args.dart';
+import 'package:inno_bundle/models/cli_configs/inno_bundle_cli_config.dart';
 import 'package:inno_bundle/managers/inno_version_manager.dart';
 import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/language.dart';
@@ -46,21 +46,21 @@ Future<void> _buildInstaller(Config config, File scriptFile) async {
 /// Walks the whole build pipeline from the parsed arguments: resolve the
 /// config, generate missing essentials, ensure Inno Setup is installed, then
 /// produce the app and its installer. Every step is gated by the flags modeled
-/// in [InnoBundleCliArgs].
+/// in [InnoBundleCliConfig].
 void main(List<String> arguments) async {
-  final cliArgs = InnoBundleCliArgs.parse(arguments);
+  final cliConfig = InnoBundleCliConfig.parse(arguments);
 
-  if (cliArgs.hf) print(START_MESSAGE);
+  if (cliConfig.hf) print(START_MESSAGE);
 
-  if (cliArgs.help) {
-    print(cliArgs.helpMessage());
+  if (cliConfig.help) {
+    print(cliConfig.helpMessage());
     exit(0);
   }
 
   final pubspecFile = File(pubspecFileName);
   final defaultConfigFile = File(defaultConfigFileName);
   final configFile = Config.resolveConfigFile(
-    configPath: cliArgs.path,
+    configPath: cliConfig.path,
     pubspecFile: pubspecFile,
     defaultConfigFile: defaultConfigFile,
   );
@@ -69,7 +69,7 @@ void main(List<String> arguments) async {
 // ~/.inno_bundle/versions or a system-wide install).
   File? innoExec = InnoVersionManager.resolveInnoExec();
 
-  if (cliArgs.installInnoSetup && cliArgs.installer && innoExec == null) {
+  if (cliConfig.installInnoSetup && cliConfig.installer && innoExec == null) {
     final innoVersionManager = InnoVersionManager();
     final error = await innoVersionManager.ensureDefaultVersion(
       githubToken: gitHubToken,
@@ -86,20 +86,20 @@ void main(List<String> arguments) async {
 
   Language.loadLanguages(innoExec.path);
 
-  if (cliArgs.generateAppId || cliArgs.generatePublisher) {
-    generateEssentials(pubspecFile, configFile, cliArgs);
+  if (cliConfig.generateAppId || cliConfig.generatePublisher) {
+    generateEssentials(pubspecFile, configFile, cliConfig);
   }
 
   late final Config config;
   try {
-    config = Config.fromFile(pubspecFile, configFile, innoExec, cliArgs);
+    config = Config.fromFile(pubspecFile, configFile, innoExec, cliConfig);
   } on InnoBundleError catch (e) {
     CliLogger.exitError(e.message);
   }
 
-  if (cliArgs.listLanguages) Language.listLanguages();
+  if (cliConfig.listLanguages) Language.listLanguages();
 
-  if (cliArgs.envs) {
+  if (cliConfig.envs) {
     print(config.toEnvironmentVariables());
     exit(0);
   }
@@ -113,5 +113,5 @@ void main(List<String> arguments) async {
   }
   CliLogger.flushDeferred();
 
-  if (cliArgs.hf) print(BUILD_END_MESSAGE);
+  if (cliConfig.hf) print(BUILD_END_MESSAGE);
 }
