@@ -79,6 +79,9 @@ jobs:
       - name: Format check
         run: dart format --set-exit-if-changed .
 
+      - name: Set up MSVC dev environment
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Test across all Inno versions
         run: dart test
         env:
