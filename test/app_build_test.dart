@@ -7,26 +7,8 @@ import 'package:inno_bundle/builders/app_builder.dart';
 import 'package:inno_bundle/models/cli_configs/inno_bundle_cli_config.dart';
 import 'package:inno_bundle/models/config.dart';
 
+import 'support/flutter_build.dart';
 import 'support/language_fixture.dart';
-
-/// Relative path from repo root to the demo app used as a test fixture.
-final String fixtureAppPath = p.join('example', 'demo_app');
-
-/// Expected release output of `flutter build windows --release` for the demo
-/// app. This is version-independent of Inno Setup, so the cross-version
-/// installer tests (`installer_build_cross_version_test.dart`,
-/// `full_pipeline_cross_version_test.dart`) build the app **once** (here, or
-/// in `setUpAll`) and reuse the produced runner directory across every Inno
-/// version rather than rebuilding Flutter per version.
-String get demoAppReleaseExe => p.joinAll([
-      fixtureAppPath,
-      'build',
-      'windows',
-      'x64',
-      'runner',
-      'Release',
-      'demo_app.exe',
-    ]);
 
 void main() {
   initTestLanguages();
@@ -52,20 +34,6 @@ void main() {
     test(
       'flutter build tool produces expected windows/runner output tree',
       () async {
-        // Ensure deps before building (idempotent; no-op if already resolved).
-        final pubGet = await Process.run(
-          'flutter',
-          ['pub', 'get'],
-          workingDirectory: fixtureAppPath,
-          runInShell: true,
-        );
-        expect(
-          pubGet.exitCode,
-          0,
-          reason: '`flutter pub get` failed for $fixtureAppPath:\n'
-              '${pubGet.stdout}\n${pubGet.stderr}',
-        );
-
         final _config = Config.fromJson(
           {
             'name': 'demo_app',
@@ -90,17 +58,10 @@ void main() {
 
         // Act: build the app ONCE. Downstream cross-version installer tests can
         // reuse this exact output dir (see `demoAppReleaseExe`) instead of
-        // rebuilding Flutter per Inno version.
-        await Process.run(
-          'flutter',
-          [
-            'build',
-            'windows',
-            '--release',
-          ],
-          workingDirectory: fixtureAppPath,
-          runInShell: true,
-        );
+        // rebuilding Flutter per Inno version. Locked so a concurrent build
+        // from `full_pipeline_cross_version_test.dart` never races into the
+        // same `build/windows/x64` dir (CMake/MSBuild file-lock failures).
+        await ensureDemoAppBuilt();
 
         expect(
           File(demoAppReleaseExe).existsSync(),

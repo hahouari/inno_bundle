@@ -9,6 +9,7 @@ import 'package:inno_bundle/models/config.dart';
 import 'package:inno_bundle/models/language.dart';
 import 'package:inno_bundle/utils/functions.dart';
 
+import 'support/flutter_build.dart';
 import 'support/inno_version_fixture.dart';
 
 /// Full pipeline cross-version test: per matrix Inno Setup version, build the
@@ -20,52 +21,11 @@ import 'support/inno_version_fixture.dart';
 /// breakage introduced by a feature change against any of the supported Inno
 /// versions. Windows-only (needs Flutter, a real Inno Setup install, and the
 /// generated Setup.exe's execute permission is Windows-only).
-const fixtureAppPath = 'example/demo_app';
 
 String get demoAppReleaseDir => p.normalize(p.absolute(
       p.joinAll(
           [fixtureAppPath, 'build', 'windows', 'x64', 'runner', 'Release']),
     ));
-
-Future<Directory> _buildDemoAppOnce() async {
-  final pubGet = await Process.run(
-    'flutter',
-    ['pub', 'get'],
-    workingDirectory: fixtureAppPath,
-    runInShell: true,
-  );
-  if (pubGet.exitCode != 0) {
-    throw StateError('flutter pub get failed:\n${pubGet.stderr}');
-  }
-  final build = await Process.run(
-    'flutter',
-    ['build', 'windows', '--release', '-v'],
-    workingDirectory: fixtureAppPath,
-    runInShell: true,
-  );
-  // if (build.exitCode != 0) {
-  // throw StateError('flutter build windows failed:\n${build.stderr}');
-  // }
-  if (build.exitCode != 0) {
-    final envDump = {
-      'VSINSTALLDIR': Platform.environment['VSINSTALLDIR'],
-      'VCToolsInstallDir': Platform.environment['VCToolsInstallDir'],
-      'INCLUDE_set': Platform.environment['INCLUDE'] != null,
-      'LIB_set': Platform.environment['LIB'] != null,
-      'PATH_has_cl': (Platform.environment['PATH'] ?? '')
-          .toLowerCase()
-          .contains('vc\\tools'),
-    };
-
-    throw StateError(
-      'flutter build windows failed (exit ${build.exitCode})\n'
-      '--- env ---\n$envDump\n'
-      '--- stdout ---\n${build.stdout}\n'
-      '--- stderr ---\n${build.stderr}',
-    );
-  }
-  return Directory(demoAppReleaseDir);
-}
 
 Future<void> main() async {
   if (!Platform.isWindows) {
@@ -91,10 +51,13 @@ Future<void> main() async {
   }
 
   // Built once and shared across every Inno version (the Flutter build does
-  // not depend on the Inno version chosen).
+  // not depend on the Inno version chosen). Locked so a concurrent build from
+  // `app_build_test.dart` never races into the same `build/windows/x64` dir
+  // (CMake/MSBuild file-lock failures).
   late final Directory appDir;
   setUpAll(() async {
-    appDir = await _buildDemoAppOnce();
+    await ensureDemoAppBuilt(verbose: true);
+    appDir = Directory(demoAppReleaseDir);
   });
 
   group('Full pipeline (dart run inno_bundle)', () {
