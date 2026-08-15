@@ -18,7 +18,7 @@ on:
 
 jobs:
   cross-version:
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 45
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
