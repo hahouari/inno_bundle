@@ -12,7 +12,8 @@
 ///      patch of its minor, it is kept. The "drop the first" wording in the
 ///      original spec meant "don't test more than one patch per minor" —
 ///      `patches.last` does that by picking the latest.
-///   3. Restrict to ``[floor, ceiling)`` — defaults to ``[6.4.0, 8.0.0)``.
+///   3. Restrict to ``[floor, ceiling)`` — floor defaults to
+///      [InnoVersionManager.minSupportedVersion] (6.4.0), ceiling to 8.0.0.
 ///
 /// Today this yields ``['6.4.3', '6.5.4', '6.6.1', '6.7.3', '7.0.2']``.
 library;
@@ -25,9 +26,13 @@ import 'package:inno_bundle/utils/functions.dart';
 
 /// Floor (inclusive) of the matrix minor range.
 ///
-/// Tunable via the `INNO_MATRIX_FLOOR` env var to widen/narrow coverage
-/// without editing code. Must be a semver like `6.4.0`.
-String get matrixFloor => Platform.environment['INNO_MATRIX_FLOOR'] ?? '6.4.0';
+/// Defaults to [InnoVersionManager.minSupportedVersion] so the test matrix
+/// never covers a version the package refuses to use. Tunable via the
+/// `INNO_MATRIX_FLOOR` env var to widen/narrow coverage without editing code.
+/// Must be a semver like `6.4.0`.
+String get matrixFloor =>
+    Platform.environment['INNO_MATRIX_FLOOR'] ??
+    InnoVersionManager.minSupportedVersion;
 
 /// Ceiling (exclusive) of the matrix minor range.
 ///

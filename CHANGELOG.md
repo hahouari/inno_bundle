@@ -18,7 +18,9 @@
 
 - Add cross-version test harness: tests run against the canonical Inno Setup matrix (one latest patch per minor, no betas, floored at 6.4.0 — today: `6.4.3, 6.5.4, 6.6.1, 6.7.3, 7.0.2`), discovered live from `jrsoftware/issrc` GitHub releases. See `.github/workflows/cross-version.yml`.
 
-- Default Inno Setup version is `6.4.3`.
+- Default Inno Setup version is `6.7.3`.
+
+- Add a minimum supported Inno Setup version (`6.4.0`): versions below the floor found in `%UserProfile%\.inno_bundle\versions` or as a machine install are ignored during resolution (left in place, never deleted), and `ensureVersion`/`setup_versions` refuse to install them. The test matrix floor now derives from the same constant.
 
 ## 0.11.2
 

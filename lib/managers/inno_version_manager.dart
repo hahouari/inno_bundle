@@ -13,9 +13,17 @@ class InnoVersionManager {
   /// Root directory containing version-named subfolders.
   final String versionsDir;
 
+  /// Minimum Inno Setup version (inclusive) this package supports.
+  ///
+  /// Versions below this floor found on disk — managed under
+  /// [innoManagedVersionsDir] or a machine install — are treated as if they
+  /// don't exist: never used for resolution and never deleted. [defaultVersion]
+  /// must always be `>=` this value.
+  static const String minSupportedVersion = '6.4.0';
+
   /// Default Inno Setup version used when no install is detected and one needs
   /// to be fetched through the version manager.
-  static const String defaultVersion = '6.4.3';
+  static const String defaultVersion = '6.7.3';
 
   /// Root directory where the package manages its versioned Inno Setup installs
   /// (`~/.inno_bundle/versions`).
@@ -62,7 +70,7 @@ class InnoVersionManager {
   String get defaultIsccPath => isccPath(defaultVersion)!;
 
   /// Lists every version subfolder under [versionsDir] that contains
-  /// `ISCC.exe`.
+  /// `ISCC.exe` and is at least [minSupportedVersion].
   List<String> get installedVersions {
     return installedVersionedIsccs(versionsDir)
         .map((f) => p.basename(f.parent.path))
@@ -72,8 +80,10 @@ class InnoVersionManager {
   /// Locates a machine-wide or per-user install of Inno Setup (`ISCC.exe`).
   ///
   /// Checks the system directory ([innoSysDirPath]) then the user directory
-  /// ([innoUserDirPath]). When [throwIfNotFound] is `true` (the default), prints
-  /// a guidance link via [CliLogger] and exits if no usable install is found or
+  /// ([innoUserDirPath]). Installs whose reported version is below
+  /// [minSupportedVersion] are treated as if they don't exist (left in place,
+  /// never used). When [throwIfNotFound] is `true` (the default), prints a
+  /// guidance link via [CliLogger] and exits if no usable install is found or
   /// it appears corrupted; otherwise returns `null`.
   static File? getMachineInnoExec({bool throwIfNotFound = true}) {
     if (!Directory(p.joinAll(innoSysDirPath)).existsSync() &&
@@ -91,8 +101,23 @@ class InnoVersionManager {
     final userExecPath = p.joinAll([...innoUserDirPath, "ISCC.exe"]);
     final userExecFile = File(userExecPath);
 
-    if (sysExecFile.existsSync()) return sysExecFile;
-    if (userExecFile.existsSync()) return userExecFile;
+    for (final exec in [sysExecFile, userExecFile]) {
+      if (!exec.existsSync()) continue;
+      final version = machineInnoVersion(exec);
+      if (version != null &&
+          compareVersions(version, minSupportedVersion) < 0) {
+        if (throwIfNotFound) {
+          CliLogger.exitError(
+              "Detected Inno Setup $version on your machine, but inno_bundle "
+              "supports $minSupportedVersion and newer. Install a supported "
+              "version with `dart run inno_bundle:setup_versions` or check "
+              "our docs:\n"
+              "${CliLogger.sLink(innoDownloadStepLink, level: CliLoggerLevel.two)}");
+        }
+        continue;
+      }
+      return exec;
+    }
 
     if (throwIfNotFound) {
       CliLogger.exitError(
@@ -103,9 +128,26 @@ class InnoVersionManager {
     return null;
   }
 
+  /// Returns the Inno Setup version reported by [isccExe], or `null` when it
+  /// can't be determined. ISCC prints a `Version x.y.z` banner on startup.
+  ///
+  /// A detection failure returns `null` and is treated as "version unknown",
+  /// which does not block the install (only a positively-identified below-floor
+  /// version is skipped).
+  static String? machineInnoVersion(File isccExe) {
+    try {
+      final result = Process.runSync(isccExe.path, const []);
+      final output = '${result.stdout}${result.stderr}';
+      return RegExp(r'Version\s+(\d+\.\d+\.\d+)').firstMatch(output)?.group(1);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Returns the `ISCC.exe` of every version managed under [versionsDir]
-  /// (defaults to [innoManagedVersionsDir]), sorted by version in descending
-  /// order (highest first).
+  /// (defaults to [innoManagedVersionsDir]) that is at least
+  /// [minSupportedVersion], sorted by version in descending order (highest
+  /// first). Below-floor versions on disk are left untouched but ignored.
   static List<File> installedVersionedIsccs([String? versionsDir]) {
     final dir = Directory(versionsDir ?? innoManagedVersionsDir);
     if (!dir.existsSync()) return [];
@@ -113,7 +155,10 @@ class InnoVersionManager {
     final isccs = <File>[];
     for (final entry in dir.listSync().whereType<Directory>()) {
       final iscc = File(p.join(entry.path, 'ISCC.exe'));
-      if (iscc.existsSync()) isccs.add(iscc);
+      if (!iscc.existsSync()) continue;
+      final version = p.basename(entry.path);
+      if (compareVersions(version, minSupportedVersion) < 0) continue;
+      isccs.add(iscc);
     }
 
     isccs.sort((a, b) {
@@ -203,6 +248,12 @@ class InnoVersionManager {
     String version, {
     String? githubToken,
   }) async {
+    if (compareVersions(version, minSupportedVersion) < 0) {
+      return 'Inno Setup $version is below the minimum supported version '
+          '($minSupportedVersion) of inno_bundle and would never be used. '
+          'Install $minSupportedVersion or newer.';
+    }
+
     if (isccPath(version) != null) return null;
 
     final versionTag = version.replaceAll('.', '_');
