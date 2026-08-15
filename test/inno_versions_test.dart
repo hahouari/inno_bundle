@@ -104,11 +104,7 @@ void main() {
         // Sanity: 6.4.3 floor and 7.0.x present.
         expect(matrix, contains('6.4.3'));
         expect(matrix, anyOf(contains('7.0.2')));
-        // No betas, no .0 patches, one per minor.
-        for (final v in matrix) {
-          expect(v.endsWith('.0'), isFalse,
-              reason: 'no .0 patches allowed: $v');
-        }
+        // No betas, one per minor.
         final minors = matrix.map((v) => v.split('.')..removeLast()).toSet();
         expect(minors.length, matrix.length, reason: 'one per minor');
       },

@@ -10,7 +10,7 @@ import 'package:inno_bundle/models/config.dart';
 import 'support/language_fixture.dart';
 
 /// Relative path from repo root to the demo app used as a test fixture.
-const fixtureAppPath = 'example/demo_app';
+final String fixtureAppPath = p.join('example', 'demo_app');
 
 /// Expected release output of `flutter build windows --release` for the demo
 /// app. This is version-independent of Inno Setup, so the cross-version
