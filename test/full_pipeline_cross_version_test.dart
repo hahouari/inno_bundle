@@ -39,12 +39,30 @@ Future<Directory> _buildDemoAppOnce() async {
   }
   final build = await Process.run(
     'flutter',
-    ['build', 'windows', '--release'],
+    ['build', 'windows', '--release', '-v'],
     workingDirectory: fixtureAppPath,
     runInShell: true,
   );
+  // if (build.exitCode != 0) {
+  // throw StateError('flutter build windows failed:\n${build.stderr}');
+  // }
   if (build.exitCode != 0) {
-    throw StateError('flutter build windows failed:\n${build.stderr}');
+    final envDump = {
+      'VSINSTALLDIR': Platform.environment['VSINSTALLDIR'],
+      'VCToolsInstallDir': Platform.environment['VCToolsInstallDir'],
+      'INCLUDE_set': Platform.environment['INCLUDE'] != null,
+      'LIB_set': Platform.environment['LIB'] != null,
+      'PATH_has_cl': (Platform.environment['PATH'] ?? '')
+          .toLowerCase()
+          .contains('vc\\tools'),
+    };
+
+    throw StateError(
+      'flutter build windows failed (exit ${build.exitCode})\n'
+      '--- env ---\n$envDump\n'
+      '--- stdout ---\n${build.stdout}\n'
+      '--- stderr ---\n${build.stderr}',
+    );
   }
   return Directory(demoAppReleaseDir);
 }
