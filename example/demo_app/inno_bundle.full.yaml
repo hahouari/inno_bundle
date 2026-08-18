@@ -1,0 +1,24 @@
+# Full inno_bundle config surface used as the cross-version compile fixture
+# (see test/iss_config_variants_cross_version_test.dart). Mirrors the
+# inno_bundle section of pubspec.yaml and adds vc_redist download and file
+# associations, which the default demo config does not exercise. No `files`
+# entries on purpose: ScriptBuilder stages them into a temp dir keyed by app
+# name, which would collide with full_pipeline_cross_version_test when the two
+# run concurrently. The files path is already covered by that pipeline test.
+inno_bundle:
+  id: 5ec949d0-0582-1e06-b073-b5d1161f6fff
+  publisher: Hocine Abdellatif Houari
+  installer_icon: assets/images/installer.ico
+  license_file: assets/LICENSE.txt
+  languages:
+    - English
+    - French
+    - Arabic
+  admin: auto
+  arch: x64_compatible
+  vc_redist: download
+  file_extensions_associations:
+    - .foo
+    - .bar
+  file_extensions_associations_exclude:
+    - .old

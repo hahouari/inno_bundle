@@ -74,7 +74,7 @@ void main() {
       expect(script, contains('my_app.exe'));
     });
 
-    test('honors architecture selection (x64) in output paths', () {
+    test('honors the default x64_compatible architecture in the script', () {
       final config = _config(outputDir: ['tmp', 'inno_out']);
       final builder = ScriptBuilder(config, appDir);
 

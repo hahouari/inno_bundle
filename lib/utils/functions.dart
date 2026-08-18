@@ -44,7 +44,7 @@ Map<String, dynamic> yamlToMap(YamlMap yamlMap) {
 
 /// Converts a string to camelCase.
 ///
-/// Example: `camelCase("hello-world_out there")` returns "helloWorldOutThere".
+/// Example: `camelCase("hello-world_out there")` returns "HelloWorldOutThere".
 String camelCase(String value) {
   return value
       .split(RegExp(r'[-_]|\s'))

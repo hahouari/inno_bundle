@@ -1,7 +1,7 @@
 # Inno Bundle
 
 [![pub package](https://img.shields.io/pub/v/inno_bundle.svg)](https://pub.dev/packages/inno_bundle)
-[![inno setup](https://img.shields.io/badge/Inno_Setup-v6.4.1-blue)](https://jrsoftware.org/isinfo.php)
+[![inno setup](https://img.shields.io/badge/Inno_Setup-v6.4.0-\-7.1.0-blue)](https://jrsoftware.org/isinfo.php)
 ![hahouari-inno-setup](https://img.shields.io/badge/@hahouari-Inno_Setup-blue)
 
 CLI tool that simplifies bundling flutter apps into Windows installers using Inno Setup.
