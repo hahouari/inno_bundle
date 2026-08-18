@@ -24,6 +24,11 @@ import 'dart:io';
 import 'package:inno_bundle/managers/inno_version_manager.dart';
 import 'package:inno_bundle/utils/functions.dart';
 
+/// Pinned fallback matrix, used by `tool/print_matrix.dart --fallback` (and
+/// therefore the cross-version workflow) when the live GitHub fetch is
+/// unreachable or rate-limited. Updated manually when a new minor ships.
+const fallbackMatrix = ['6.4.3', '6.5.4', '6.6.1', '6.7.3', '7.0.2', '7.1.0'];
+
 /// Floor (inclusive) of the matrix minor range.
 ///
 /// Defaults to [InnoVersionManager.minSupportedVersion] so the test matrix

@@ -7,7 +7,8 @@ name: Cross-version
 # `dart run inno_bundle` reads from), then runs `dart analyze`, `dart format`,
 # and `dart test`.
 # The matrix rule is: one entry per minor, the latest patch, no betas, floored
-# at 6.4.0 (today: 6.4.3, 6.5.4, 6.6.1, 6.7.3, 7.0.2).
+# at 6.4.0. If the live fetch fails, print_matrix.dart --fallback uses the
+# pinned `fallbackMatrix` in test/support/inno_versions.dart.
 
 on:
   push:
@@ -42,23 +43,20 @@ jobs:
         run: flutter pub get
 
       # Compute the canonical matrix live from GitHub, then reuse it for both
-      # the install step and the cache key. Falls back to a pinned matrix only
-      # if the live fetch is unreachable or rate-limited.
+      # the install step and the cache key. print_matrix.dart handles the
+      # fallback to the pinned matrix itself when the live fetch fails.
       - name: Compute Inno Setup version matrix
         id: matrix
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $matrix = & dart run tool/print_matrix.dart 2>$null
-          $csv = ($matrix | Where-Object { $_ -match ',' } | Select-Object -Last 1)
-          if ($null -ne $csv) { $csv = $csv.Trim() }
-          if ([string]::IsNullOrWhiteSpace($csv)) {
-            Write-Warning 'Live matrix fetch failed; falling back to pinned matrix.'
-            $csv = '6.4.3,6.5.4,6.6.1,6.7.3,7.0.2'
+          $matrix = (& dart run tool/print_matrix.dart --fallback | Select-Object -Last 1).Trim()
+          if ([string]::IsNullOrWhiteSpace($matrix)) {
+            throw 'dart run tool/print_matrix.dart produced no output.'
           }
-          Write-Host "Matrix: $csv"
-          "versions=$csv" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "cache-key=inno-versions-$($csv -replace ',', '-')" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Matrix: $matrix"
+          "versions=$matrix" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "cache-key=inno-versions-$($matrix -replace ',', '-')" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       # Cache the package's real managed dir so subsequent runs skip the
       # (slow) Inno installer downloads/extractions. setup_versions installs

@@ -12,18 +12,32 @@ import '../test/support/inno_versions.dart';
 /// `test/support/inno_versions.dart`): one entry per minor, the latest patch,
 /// no betas, floored at 6.4.0.
 ///
-/// On fetch failure, exits non-zero so the workflow can fall back to a
-/// known-good pinned list defined directly in the YAML.
-Future<void> main() async {
+/// On fetch failure: with `--fallback`, prints the pinned [fallbackMatrix]
+/// instead and exits 0 (the reason goes to stderr); without it, exits
+/// non-zero.
+Future<void> main(List<String> args) async {
+  final useFallback = args.contains('--fallback');
+  String? matrix;
+  String? error;
   try {
-    final matrix = await fetchMatrixVersions(githubToken: gitHubToken);
-    if (matrix.isEmpty) {
-      stderr.writeln('matrix is empty under the configured floor/ceiling.');
+    final fetched = await fetchMatrixVersions(githubToken: gitHubToken);
+    if (fetched.isEmpty) {
+      error = 'matrix is empty under the configured floor/ceiling.';
+    } else {
+      matrix = fetched.join(',');
+    }
+  } on InnoMatrixFetchError catch (e) {
+    error = e.message;
+  }
+  if (error != null) {
+    stderr.writeln(error);
+    if (!useFallback) {
       exit(1);
     }
-    print(matrix.join(','));
-  } on InnoMatrixFetchError catch (e) {
-    stderr.writeln(e.message);
-    exit(1);
+    stderr
+        .writeln('Falling back to pinned matrix ${fallbackMatrix.join(',')}.');
+    matrix = fallbackMatrix.join(',');
   }
+  // printing to stdout is the machine-readable return channel.
+  print(matrix!);
 }

@@ -93,6 +93,12 @@ void main() {
     });
   });
 
+  group('fallbackMatrix', () {
+    test('is internally consistent: one latest patch per minor', () {
+      expect(fallbackMatrix, equals(latestPatchPerMinor(fallbackMatrix)));
+    });
+  });
+
   group('fetchMatrixVersions (live)', () {
     setUp(resetMatrixCacheForTest);
     tearDown(resetMatrixCacheForTest);
