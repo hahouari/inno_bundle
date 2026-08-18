@@ -67,11 +67,6 @@ Future<void> main() async {
         late Directory installDir;
         late File innoExec;
         late Config config;
-        // Saved so the test can run from the demo app's dir (the installer
-        // icon + license file paths in its pubspec are resolved against the
-        // cwd, exactly like `dart run inno_bundle` run from the app dir) and
-        // restore it afterward so other tests aren't affected.
-        late Directory _origCwd;
 
         setUp(() {
           tempDir = Directory.systemTemp
@@ -81,25 +76,22 @@ Future<void> main() async {
           innoExec = File(v.isccPath);
           Language.loadLanguages(v.isccPath);
 
-          // Resolve installer_icon / license_file / etc. exactly as the CLI
-          // does when run from `example/demo_app`; absolute outputDir keeps
-          // ISCC's `OutputDir=` and the generated script inside the temp dir.
-          _origCwd = Directory.current;
-          Directory.current = Directory(p.absolute(fixtureAppPath));
-          // cwd is now the demo app dir, so `pubspec.yaml` resolves here —
-          // matching the path `dart run inno_bundle` uses inside the app.
-          final pubspecFile = File('pubspec.yaml');
+          // Resolve installer_icon / license_file / etc. against the demo app
+          // dir exactly as the CLI does when run from `example/demo_app`;
+          // absolute outputDir keeps ISCC's `OutputDir=` and the generated
+          // script inside the temp dir.
+          final pubspecFile = File(p.join(fixtureAppPath, 'pubspec.yaml'));
           config = Config.fromFile(
             pubspecFile,
             pubspecFile,
             innoExec,
             InnoBundleCliConfig(),
             outputDir: [tempDir.path, 'out'],
+            baseDir: Directory(p.absolute(fixtureAppPath)),
           );
         });
 
         tearDown(() {
-          Directory.current = _origCwd;
           if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
         });
 

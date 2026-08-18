@@ -13,7 +13,7 @@ import 'support/language_fixture.dart';
 void main() {
   initTestLanguages();
 
-  Config _config(InnoBundleCliConfig cliConfig) {
+  Config _config(InnoBundleCliConfig cliConfig, {Directory? baseDir}) {
     return Config.fromJson(
       {'name': 'x', 'description': 'x', 'version': '1.0', 'maintainer': 'x'},
       {
@@ -27,35 +27,35 @@ void main() {
       pubspecFile: File(''),
       configFile: File(''),
       innoExec: File('test_iscc.exe'),
+      baseDir: baseDir,
     );
   }
 
   group('AppBuilder --no-app skip path', () {
     late Directory tempDir;
-    late Directory _origCwd;
 
     setUp(() {
       tempDir = Directory.systemTemp.createTempSync('no_app_skip_');
-      _origCwd = Directory.current;
-      Directory.current = tempDir;
     });
 
     tearDown(() {
-      Directory.current = _origCwd;
       if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
     });
 
     test('returns the existing non-empty build dir without invoking flutter',
         () async {
       final releaseDir = Directory(
-        p.joinAll(['build', 'windows', 'x64', 'runner', 'Release']),
+        p.join(tempDir.path, 'build', 'windows', 'x64', 'runner', 'Release'),
       )..createSync(recursive: true);
       File(p.join(releaseDir.path, 'app.exe')).writeAsStringSync('x');
 
-      final config = _config(const InnoBundleCliConfig(app: false));
+      final config = _config(
+        const InnoBundleCliConfig(app: false),
+        baseDir: tempDir,
+      );
       final dir = await AppBuilder(config).build();
 
-      expect(p.normalize(dir.path), p.normalize(releaseDir.absolute.path));
+      expect(p.normalize(dir.path), p.normalize(releaseDir.path));
     });
   });
 

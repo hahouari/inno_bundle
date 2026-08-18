@@ -127,8 +127,17 @@ class Config {
   /// the selected Inno Setup install on the machine running the build.
   final File innoExec;
 
+  /// The base directory relative paths in the config are resolved against.
+  ///
+  /// Used for `installer_icon`, `license_file` and by the builders for the
+  /// app build / output directories. Defaults to the process's current
+  /// directory, which is how the CLI resolves paths when run from the app
+  /// directory. Injectable so tests can pin an app directory without mutating
+  /// the process-global [Directory.current].
+  final Directory baseDir;
+
   /// Creates a [Config] instance with default values.
-  const Config({
+  Config({
     required this.pubspecFile,
     required this.configFile,
     required this.files,
@@ -152,6 +161,7 @@ class Config {
     required this.arch,
     required this.vcRedist,
     required this.innoExec,
+    required this.baseDir,
     this.type = BuildType.release,
     this.app = true,
     this.installer = true,
@@ -191,7 +201,9 @@ class Config {
     required File innoExec,
     required InnoBundleCliConfig cliConfig,
     List<String> outputDir = installerBuildDir,
+    Directory? baseDir,
   }) {
+    final dir = (baseDir ?? Directory.current).path;
     final configName =
         configFile == pubspecFile ? "pubspec.yaml" : "config file";
     if (configJson['inno_bundle'] is! Map<String, dynamic>) {
@@ -252,7 +264,7 @@ class Config {
     }
     final installerIcon = inno['installer_icon'] != null
         ? p.join(
-            Directory.current.path,
+            dir,
             p.fromUri(inno['installer_icon']),
           )
         : defaultInstallerIconPlaceholder;
@@ -293,7 +305,7 @@ class Config {
     }
 
     final licenseFilePath = p.join(
-      Directory.current.path,
+      dir,
       inno['license_file'] != null
           ? p.fromUri(inno['license_file'])
           : 'LICENSE',
@@ -403,6 +415,7 @@ class Config {
       excludedFileExts: excludedFileExts,
       outputDir: outputDir,
       innoExec: innoExec,
+      baseDir: baseDir ?? Directory.current,
     );
   }
 
@@ -418,6 +431,7 @@ class Config {
     File innoExec,
     InnoBundleCliConfig cliConfig, {
     List<String> outputDir = installerBuildDir,
+    Directory? baseDir,
   }) {
     final pubspecJson = readYaml(pubspecFile);
     final configJson =
@@ -431,6 +445,7 @@ class Config {
       configFile: configFile,
       outputDir: outputDir,
       innoExec: innoExec,
+      baseDir: baseDir,
     );
   }
 

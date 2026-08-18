@@ -29,7 +29,7 @@ class AppBuilder {
   /// the Flutter build command and returns the newly generated build directory.
   Future<Directory> build() async {
     final buildDirPath = p.joinAll([
-      Directory.current.path,
+      config.baseDir.path,
       ...appBuildDir,
       config.type.dirName,
     ]);
@@ -67,7 +67,7 @@ class AppBuilder {
         config.buildArgs ?? "",
       ],
       runInShell: true,
-      workingDirectory: Directory.current.path,
+      workingDirectory: config.baseDir.path,
       mode: ProcessStartMode.inheritStdio,
     );
 

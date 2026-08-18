@@ -45,7 +45,7 @@ class ScriptBuilder {
   /// configuration for the installer.
   String _setup() {
     final outputDir = p.joinAll([
-      Directory.current.path,
+      config.baseDir.path,
       ...config.outputDir,
       config.type.dirName,
     ]);
@@ -355,7 +355,7 @@ $addedExtsCommands
       config.type.dirName,
       "inno-script.iss",
     ]);
-    final absScriptPath = p.join(Directory.current.path, relScriptPath);
+    final absScriptPath = p.join(config.baseDir.path, relScriptPath);
     final scriptFile = File(absScriptPath);
     scriptFile.createSync(recursive: true);
     scriptFile.writeAsStringSync(script);

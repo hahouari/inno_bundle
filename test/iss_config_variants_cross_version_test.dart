@@ -47,7 +47,6 @@ Future<void> main() async {
         late Directory tempDir;
         late Directory appDir;
         late File innoExec;
-        late Directory _origCwd;
 
         setUp(() {
           tempDir = Directory.systemTemp
@@ -57,21 +56,17 @@ Future<void> main() async {
               .writeAsBytesSync([0x4D, 0x5A, 0x90, 0x00]);
           innoExec = File(v.isccPath);
           Language.loadLanguages(v.isccPath);
-
-          // Resolve installer_icon / license_file exactly as the CLI does when
-          // run from `example/demo_app` (they are relative to the cwd).
-          _origCwd = Directory.current;
-          Directory.current = Directory(p.absolute(fixtureAppPath));
         });
 
         tearDown(() {
-          Directory.current = _origCwd;
           if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
         });
 
         Config _config({Object? admin}) {
-          final pubspecJson = readYaml(File('pubspec.yaml'));
-          final configJson = readYaml(File(fullFixture));
+          final pubspecJson =
+              readYaml(File(p.join(fixtureAppPath, 'pubspec.yaml')));
+          final configJson =
+              readYaml(File(p.join(fixtureAppPath, fullFixture)));
           if (admin != null) {
             (configJson['inno_bundle'] as Map<String, dynamic>)['admin'] =
                 admin;
@@ -80,10 +75,11 @@ Future<void> main() async {
             pubspecJson,
             configJson,
             cliConfig: InnoBundleCliConfig(),
-            pubspecFile: File('pubspec.yaml'),
-            configFile: File(fullFixture),
+            pubspecFile: File(p.join(fixtureAppPath, 'pubspec.yaml')),
+            configFile: File(p.join(fixtureAppPath, fullFixture)),
             outputDir: [tempDir.path, 'out'],
             innoExec: innoExec,
+            baseDir: Directory(p.absolute(fixtureAppPath)),
           );
         }
 

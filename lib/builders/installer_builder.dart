@@ -44,11 +44,11 @@ class InstallerBuilder {
       execFile.path,
       params,
       runInShell: true,
-      workingDirectory: Directory.current.path,
+      workingDirectory: config.baseDir.path,
       mode: ProcessStartMode.inheritStdio,
     );
     final exitCode = await process.exitCode;
     if (exitCode != 0) exit(exitCode);
-    return Directory.current;
+    return config.baseDir;
   }
 }
