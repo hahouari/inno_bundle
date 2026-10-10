@@ -309,11 +309,13 @@ Root: HKA; Subkey: "Software\\Classes\\Applications\\${config.pubspecNameDotExe}
       return '';
     }
     final name = config.name;
-    final createCapabilityKeyCommand = '''
+    final appKeysCommand = '''
 Root: HKA; Subkey: "Software\\${name}"; Flags: uninsdeletekeyifempty
+Root: HKA; Subkey: "Software\\${name}\\Capability"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\\${name}\\Capability"; ValueType: string; ValueName: "ApplicationName"; ValueData: "${name}"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\\${name}\\Capability"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "${config.description}"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\\RegisteredApplications"; ValueType: string; ValueName: "${name}"; ValueData: "Software\\${name}\\Capability"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\\Classes\\Applications\\${config.pubspecNameDotExe}"; Flags: uninsdeletekey
 ''';
 
     final removedExtsCommands =
@@ -324,7 +326,7 @@ Root: HKA; Subkey: "Software\\RegisteredApplications"; ValueType: string; ValueN
     return '''
 [Registry]
 
-$createCapabilityKeyCommand
+$appKeysCommand
 $removedExtsCommands
 $addedExtsCommands
 \n''';

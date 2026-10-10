@@ -26,7 +26,10 @@ void main() {
       tempDir.deleteSync(recursive: true);
     });
 
-    Config _config({List<String> outputDir = const ['tmp', 'inno_out']}) {
+    Config _config({
+      List<String> outputDir = const ['tmp', 'inno_out'],
+      Map<String, dynamic> inno = const {},
+    }) {
       return Config.fromJson(
         {
           'name': 'my_app',
@@ -37,6 +40,7 @@ void main() {
         {
           'inno_bundle': {
             'id': '5ec949d0-0582-1e06-b073-b5d1161f6fff',
+            ...inno,
           },
         },
         cliConfig: InnoBundleCliConfig(),
@@ -82,6 +86,26 @@ void main() {
 
       expect(script, contains('ArchitecturesAllowed=x64compatible'));
       expect(script, contains('ArchitecturesInstallIn64BitMode=x64compatible'));
+    });
+
+    test('file associations registry keys are removed on uninstall', () {
+      final config = _config(inno: {
+        'file_extensions_associations': ['mp3', 'flac'],
+      });
+      final builder = ScriptBuilder(config, appDir);
+
+      final script = builder.buildScript();
+
+      expect(
+        script,
+        contains(
+            r'Root: HKA; Subkey: "Software\my_app\Capability"; Flags: uninsdeletekey'),
+      );
+      expect(
+        script,
+        contains(
+            r'Root: HKA; Subkey: "Software\Classes\Applications\my_app.exe"; Flags: uninsdeletekey'),
+      );
     });
   });
 }
