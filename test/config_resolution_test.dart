@@ -239,6 +239,19 @@ void main() {
           VcRedistMode.none);
     });
 
+    test('rejects an invalid firewall_rule option', () {
+      expect(
+        () => _from(inno: {'id': validId, 'firewall_rule': 'yes'}),
+        throwsA(isA<InnoBundleError>()),
+      );
+    });
+
+    test('reads firewall_rule, defaulting to false', () {
+      expect(_from().firewallRule, isFalse);
+      expect(_from(inno: {'id': validId, 'firewall_rule': true}).firewallRule,
+          isTrue);
+    });
+
     test('rejects an invalid arch option', () {
       expect(
         () => _from(inno: {'id': validId, 'arch': 'x32'}),

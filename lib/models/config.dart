@@ -114,6 +114,10 @@ class Config {
   /// remove them with a normal update.
   final List<String> excludedFileExts;
 
+  /// Adds a Windows Firewall inbound allow rule for the app executable on install
+  /// (removed on uninstall). Requires an admin install, skipped otherwise.
+  final bool firewallRule;
+
   /// Relative path segments for the installer output directory.
   ///
   /// Defaults to [installerBuildDir] (`build/windows/x64/installer`).
@@ -166,6 +170,7 @@ class Config {
     this.app = true,
     this.installer = true,
     this.outputDir = installerBuildDir,
+    this.firewallRule = false,
   });
 
   /// The name of the executable file that is created with flutter build.
@@ -341,6 +346,12 @@ class Config {
     }
     final vcRedist = VcRedistMode.fromOption(inno['vc_redist'] ?? true);
 
+    if (inno['firewall_rule'] != null && inno['firewall_rule'] is! bool) {
+      throw InnoBundleError("inno_bundle.firewall_rule attribute is invalid "
+          "in $configName, only true or false is allowed.");
+    }
+    final bool firewallRule = inno['firewall_rule'] ?? false;
+
     if (inno['dlls'] != null) {
       CliLogger.addDeferred(
         "inno_bundle.dlls attribute is deprecated, use inno_bundle.files instead.",
@@ -410,6 +421,7 @@ class Config {
       signTool: signTool,
       arch: arch,
       vcRedist: vcRedist,
+      firewallRule: firewallRule,
       files: files,
       includedFileExts: includedFileExts,
       excludedFileExts: excludedFileExts,

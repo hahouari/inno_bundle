@@ -13,6 +13,7 @@
 /// - [_files]: Generates the `[Files]` section.
 /// - [_icons]: Generates the `[Icons]` section.
 /// - [_run]: Generates the `[Run]` section.
+/// - [_uninstallRun]: Generates the `[UninstallRun]` section.
 ///
 /// The [build] method is the main method of this class, which combines all the sections and writes
 /// the complete ISS script to a file. It returns the generated script file.
@@ -182,8 +183,31 @@ Name: "{autodesktop}\\${config.name}"; Filename: "{app}\\${config.pubspecNameDot
   String _run() {
     return '''
 [Run]
-Filename: "{app}\\${config.pubspecNameDotExe}"; Description: "{cm:LaunchProgram,{#StringChange('${config.name}', '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+${config.firewallRule ? _firewallRuleRunEntries() : ''}Filename: "{app}\\${config.pubspecNameDotExe}"; Description: "{cm:LaunchProgram,{#StringChange('${config.name}', '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 \n''';
+  }
+
+  /// Generates the `[UninstallRun]` section, specifying actions to perform before uninstallation.
+  String _uninstallRun() {
+    if (!config.firewallRule) return '';
+    return '''
+[UninstallRun]
+$_firewallRuleDeleteEntry; RunOnceId: "DelFirewallRule"
+\n''';
+  }
+
+  String get _firewallRuleName => config.name.replaceAll('"', '');
+
+  /// Deleting before adding keeps updates from stacking duplicate rules.
+  /// Inno ignores the exit code of [Run] entries, so a missing rule is fine.
+  String get _firewallRuleDeleteEntry =>
+      'Filename: "{sys}\\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""$_firewallRuleName"" program=""{app}\\${config.pubspecNameDotExe}"""; Flags: runhidden; Check: IsAdminInstallMode';
+
+  String _firewallRuleRunEntries() {
+    return '''
+$_firewallRuleDeleteEntry
+Filename: "{sys}\\netsh.exe"; Parameters: "advfirewall firewall add rule name=""$_firewallRuleName"" dir=in action=allow program=""{app}\\${config.pubspecNameDotExe}"" enable=yes profile=any"; Flags: runhidden; Check: IsAdminInstallMode
+''';
   }
 
   /// Generates the `[DownloadVcRedist]` section for downloading the Visual C++ Redistributable.
@@ -343,6 +367,7 @@ $addedExtsCommands
         _fileExtsRegistry() +
         _icons() +
         _run() +
+        _uninstallRun() +
         _downloadVcRedist();
   }
 
